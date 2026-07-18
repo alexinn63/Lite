@@ -183,7 +183,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 .xl-status{margin-top:14px;font-size:13px;color:var(--gold2);min-height:20px}
 
 /* ── DASHBOARD ── */
-#dash{display:none;background:var(--bg);color:var(--text)}
+#dash{display:none;min-height:100vh;background:var(--bg);color:var(--text)}
 #dash.on{display:block}
 
 /* Header */
@@ -527,10 +527,10 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .tabbar button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-size:13px;font-family:inherit;color:var(--muted);cursor:pointer}
 #dash .tabbar button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 
-#dash .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(15,30,58,.07);padding:16px}
+#dash .panel{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:0 10px 30px rgba(15,30,58,.07);padding:16px}
 #dash .panel h3{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin:0 0 10px;font-weight:500}
 
-#dash .item-btn{border:1px solid var(--line);background:#fafbfe;color:var(--text);border-radius:10px;padding:10px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s ease;margin-bottom:6px;text-decoration:none}
+#dash .item-btn{border:1px solid var(--line);background:#fafbfe;box-shadow:-2px -2px 6px rgba(255,255,255,.7),3px 3px 10px rgba(15,30,58,.06);color:var(--text);border-radius:14px;padding:10px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s ease;margin-bottom:6px;text-decoration:none}
 #dash .item-btn:hover{border-color:#b8c8ee;background:#f4f7ff}
 #dash .item-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 6px 14px rgba(37,99,168,.2)}
 #dash .item-btn .ic{width:16px;text-align:center;font-size:12px;flex-shrink:0}
@@ -557,7 +557,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .badge-total{background:var(--blue);color:#fff;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
 
 #dash .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
-#dash .kpi{border-radius:14px;padding:14px 8px;cursor:pointer;transition:.15s ease;border:1px solid transparent;position:relative;box-shadow:0 6px 18px rgba(15,30,58,.08);text-align:center}
+#dash .kpi{border-radius:18px;padding:14px 8px;cursor:pointer;transition:.15s ease;border:1px solid transparent;position:relative;box-shadow:0 6px 18px rgba(15,30,58,.08);text-align:center}
 #dash .kpi:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(15,30,58,.14)}
 #dash .kpi.static{cursor:default}
 #dash .kpi.static:hover{transform:none;box-shadow:0 6px 18px rgba(15,30,58,.08)}
@@ -581,7 +581,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .detail-panel .drow:last-child{border-bottom:none}
 
 #dash .blocks-row{display:grid;grid-template-columns:1.1fr 1fr 1.1fr;gap:14px;margin-bottom:14px}
-#dash .block{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 6px 18px rgba(15,30,58,.07);transition:.15s ease}
+#dash .block{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;box-shadow:-3px -3px 8px rgba(255,255,255,.8),5px 5px 14px rgba(15,30,58,.06);transition:.15s ease}
 #dash .block:hover{box-shadow:0 10px 24px rgba(15,30,58,.11)}
 #dash .block h4{font-size:12.5px;color:var(--navy);margin:0 0 12px;font-weight:600}
 
@@ -617,7 +617,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .donut2-center .t2{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 
 #dash .instr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#dash .instr-card{border:1px solid var(--line);background:#fafbfe;border-radius:10px;padding:9px;text-align:center;cursor:pointer}
+#dash .instr-card{border:1px solid var(--line);background:#fafbfe;box-shadow:-2px -2px 6px rgba(255,255,255,.7),3px 3px 10px rgba(15,30,58,.06);border-radius:14px;padding:9px;text-align:center;cursor:pointer}
 #dash .instr-card:hover{border-color:#b8c8ee;background:#f4f7ff}
 #dash .instr-card .n{font-size:18px;font-weight:700;color:var(--navy)}
 #dash .instr-card .l{font-size:10.5px;color:var(--muted)}
@@ -628,7 +628,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .bday-row .av{width:30px;height:30px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
 #dash .bday-row .d{color:var(--muted);width:46px;flex-shrink:0}
 
-#dash .attach-btn{display:flex;align-items:center;gap:8px;justify-content:center;border:1.5px dashed #b8c8ee;border-radius:12px;padding:14px;font-size:12.5px;color:var(--blue);cursor:pointer;background:#f7f9ff}
+#dash .attach-btn{display:flex;align-items:center;gap:8px;justify-content:center;border:1.5px dashed #b8c8ee;border-radius:16px;padding:14px;font-size:12.5px;color:var(--blue);cursor:pointer;background:#f7f9ff}
 #dash .attach-btn:hover{border-color:var(--blue);background:#eef3ff}
 #dash .attach-btn.done{border-style:solid;border-color:var(--green);color:var(--green);background:#eefaf3}
 
