@@ -554,6 +554,8 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .people-add{display:flex;gap:6px;margin-top:8px}
 #dash .people-add input{flex:1;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12px;font-family:inherit}
 #dash .people-add button{border:none;background:var(--blue);color:#fff;border-radius:8px;width:32px;font-size:16px;cursor:pointer}
+#dash .team-quicklink{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px 10px;background:#eef4ff;color:var(--blue);border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none}
+#dash .team-quicklink:hover{background:#e0ebff}
 #dash .item-btn .rm{margin-inline-start:auto;font-size:11px;opacity:0;cursor:pointer}
 #dash .item-btn:hover .rm{opacity:.7}
 #dash svg.gicon{width:17px;height:17px;flex-shrink:0}
@@ -804,7 +806,6 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
   <div class="grid">
 
     <div class="panel">
-      <h3>מסמכים</h3>
 
       <div class="divider-label" style="margin-top:0">קבלת מסמכים</div>
       <a class="item-btn doc" href="intake/index.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-folder"></i></span> פתיחת תיק אישי</a>
@@ -941,6 +942,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
         <input type="text" id="newPersonName" placeholder="שם חדש...">
         <button onclick="addPersonReal()">+</button>
       </div>
+      <a class="team-quicklink" href="ציק_ליסט_הדרכה_עובד_חדש.html" onclick="rememberPortalReturn()">✅ צ'ק ליסט הדרכת עובד חדש</a>
       <div class="divider-label">לפי מדריכים</div>
       <div class="instr-grid" id="instrGrid">
         <div class="instr-card" onclick="selectPersonReal('שלום מימון')"><div class="n" id="igShalom">0</div><div class="l">שלום</div></div>
