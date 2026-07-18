@@ -23,6 +23,13 @@
   else{fix();}
 })();
 
+// логирование тихих ошибок (было — пустой catch без единого следа) — 18.07.2026
+// не показывает пользователю ничего сама по себе, только пишет в консоль;
+// там где ошибка реально влияет на данные, рядом дополнительно вызывается showToast()
+function logQuiet(ctx,e){
+  try{ console.error('['+ctx+']', e); }catch(_){}
+}
+
 function showToast(msg){
   let t=document.getElementById('_toast');
   if(!t){t=document.createElement('div');t.id='_toast';
@@ -40,7 +47,7 @@ function showToast(msg){
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>יחדיו — פורטל v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.45.0/dist/tabler-icons.min.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -689,11 +696,20 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
      для מדריך, HMetric/HAction для הנהלה) — в активном режиме больше НЕ
      отображаются (вариант Б: без входа/без ролей, все видят и переключают
      между всеми через панель "צוות" в новом дизайне ниже).
-     Сам HTML экранов закомментирован здесь целиком; весь их JS
-     (buildDash/buildStats/buildSbar/buildTools/HAction/HGroup/HCollapse/
-     openHanhalaDetail/bindHanhalaDetails/openBdays/openNeeds/openIntake/
-     openEnded/goHanhala/buildMadrichCards и т.д.) остаётся нетронутым ниже
-     по файлу (внутри тега script) — просто не вызывается активным кодом.
+     Сам HTML этих экранов (#role, #madrich, #excel, #dash-old) закомментирован
+     здесь целиком и никогда не рендерится.
+
+     ИСПРАВЛЕНО 18.07.2026 (было неверно указано здесь же): большинство
+     перечисленных ниже функций НЕ мёртвые — они активно вызываются новым
+     дашбордом v12 (раздел ниже, #dash) и составляют его текущую логику:
+     buildDash, buildStats, buildSbar, buildTools, HAction, HGroup, HCollapse,
+     openHanhalaDetail, bindHanhalaDetails, openBdays, openNeeds, openIntake,
+     openEnded, goHanhala — все проверены (грепом по вызовам) и используются.
+     Реально недостижима только buildMadrichCards() — она вызывается из ветки
+     show('madrich'), а сама эта ветка не вызывается нигде за пределами
+     закомментированного HTML выше. Итого: удалять из JS ничего из этого
+     списка нельзя, кроме buildMadrichCards (и то — только вместе с веткой
+     'madrich' в show(), одним изменением, если решим убрать).
 
 === ROLE ===
 <div id="role" class="scr">
@@ -791,7 +807,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
       <h3>מסמכים</h3>
 
       <div class="divider-label" style="margin-top:0">קבלת מסמכים</div>
-      <div class="item-btn doc" onclick="showToast('הבלוק הזה יתווסף בנפרד')"><span class="ic"><i class="ti ti-folder"></i></span> פתיחת תיק אישי</div>
+      <a class="item-btn doc" href="intake/index.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-folder"></i></span> פתיחת תיק אישי</a>
       <a class="item-btn doc" href="מסמכים_דרושים_לקליטה.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-clipboard-list"></i></span> מסמכים דרושים לקליטה</a>
 
       <div class="divider-label">מסמכים וטפסים</div>
@@ -961,7 +977,7 @@ function rememberPortalReturn(){
     sessionStorage.setItem('portal_return_state', JSON.stringify(state));
     // סימון מפורש: המשתמש יצא למסמך וצריך לחזור למסך הקודם, לא למסך הראשי.
     sessionStorage.setItem('portal_return_pending','1');
-  }catch(e){}
+  }catch(e){logQuiet('portal_return_pending',e);}
 }
 function readPortalReturn(){
   try{
@@ -977,7 +993,7 @@ function clearPortalReturn(){
   try{
     sessionStorage.removeItem('portal_return_state');
     sessionStorage.removeItem('portal_return_pending');
-  }catch(e){}
+  }catch(e){logQuiet('clearPortalReturn',e);return null;}
 }
 
 // SCREENS
@@ -1016,33 +1032,82 @@ function loadExcelFromFile(file){
     reader.onload=async function(e){
       try{
         const buffer=e.target.result;
-        try{
-          const bytes=new Uint8Array(buffer);
-          let binary='';
-          for(let i=0;i<bytes.length;i+=8192) binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
-          localStorage.setItem('rehab_excel_raw_v1',JSON.stringify({base64:btoa(binary),fileName:file.name}));
-        }catch(e2){}
+        // 18.07.2026: убран сохранённый ранее полный Excel-файл в base64 в localStorage
+        // (ключ rehab_excel_raw_v1) — проверено: он нигде не читался обратно (нет ни одного
+        // atob() в файле), только занимал место и рисковал переполнить лимит localStorage
+        // без всякой пользы. Реально используемые данные — portal_data (см. ниже).
         const fromSheetJS=sheetJsWorkbookRows(buffer);
         const fromZip=await parseWorkbookWithJSZip(buffer);
         const mainRaw=(scoreRows(fromZip.sheet1Rows)>scoreRows(fromSheetJS.sheet1Rows))?fromZip.sheet1Rows:fromSheetJS.sheet1Rows;
         const endedRaw=(scoreRows(fromZip.endedRows)>scoreRows(fromSheetJS.endedRows))?fromZip.endedRows:fromSheetJS.endedRows;
         if(!mainRaw.length) throw new Error('לא נמצאו נתונים ב-Sheet1');
-        const data=rowsToMainObjects(mainRaw), ended=rowsToEnded2026(endedRaw);
+        const importReport={};
+        const data=rowsToMainObjects(mainRaw,importReport), ended=rowsToEnded2026(endedRaw);
         if(!data.length) throw new Error('לא זוהו שמות מקבלי שירות');
         DATA=data; ENDED2026=ended;
+        // 18.07.2026 (п.18 замечаний): отчёт об импорте — дубли ת.ז. и неизвестные מדריכים.
+        // Список известных מדריכים дублирует instructorNames из buildTools()/openHanhalaDetail() —
+        // единого источника пока нет (см. Фазу 2 плана), при смене состава команды поправить и тут.
+        buildImportReport(data,importReport);
+        logImportReport(importReport,file.name);
         const clientsForForms=DATA.map(r=>({...r,name:(r['שם מקבל השרות']||'').trim(),id:(r['תעודת זהות']||'').trim(),guide:(r['סדנה']||'').trim(),serviceType:(r['סוג שירות']||'').trim(),birthDate:r['תאריך לידה']||'',mobile:(r['נייד']||'').trim(),homePhone:(r['בבית']||'').trim(),background:(r['מחלות רקע']||'').trim(),disability:(r['מיגבלה']||'').trim(),address:(r['רחוב']||'').trim(),healthFund:(r['קופת חולים']||'').trim(),livesWith:(r['גר עם']||'').trim(),contactName:(r['איש קשר']||'').trim()}));
         try{
           localStorage.setItem('portal_data',JSON.stringify(DATA));
           localStorage.setItem('portal_data_date',new Date().toLocaleDateString('he-IL'));
           localStorage.setItem('portal_ended_2026',JSON.stringify(ENDED2026||[]));
           localStorage.setItem('rehab_excel_clients_v1',JSON.stringify(clientsForForms));
-        }catch(e3){}
-        resolve(DATA.length);
+        }catch(e3){logQuiet('save rehab_excel_clients_v1',e3);showToast('⚠️ נתוני מקבלי השירות לטפסים לא נשמרו במלואם');}
+        resolve({count:DATA.length,report:importReport});
       }catch(err){ reject(err); }
     };
     reader.onerror=()=>reject(new Error('שגיאת קריאת קובץ'));
     reader.readAsArrayBuffer(file);
   });
+}
+
+// 18.07.2026 — отчёт о качестве импорта (п.18 замечаний): дубли ת.ז. и
+// незнакомые מדריכים. Мутирует переданный report (уже содержит totalRows/
+// skippedNoName из rowsToMainObjects), добавляет duplicateIds/unknownGuideRows.
+function buildImportReport(data,report){
+  const idCounts={};
+  data.forEach(r=>{
+    const id=(r['תעודת זהות']||'').trim();
+    if(id) idCounts[id]=(idCounts[id]||0)+1;
+  });
+  report.duplicateIds=Object.keys(idCounts).filter(id=>idCounts[id]>1);
+  // список известных מדריכים — тот же, что используется в buildTools()/
+  // openHanhalaDetail() для разбивки по инструкторам; единого источника
+  // на данный момент нет (см. п.7 замечаний / Фаза 2 плана).
+  const knownGuides=['אנדרי','אריסטרך','רוזט','שלום'];
+  const unknown=[];
+  data.forEach(r=>{
+    const g=workshopOf(r);
+    if(g && !knownGuides.includes(g)) unknown.push(g);
+  });
+  report.unknownGuideRows=unknown.length;
+  report.unknownGuideNames=[...new Set(unknown)];
+  return report;
+}
+function logImportReport(report,fileName){
+  console.log('[ייבוא Excel] '+fileName, {
+    'נטענו בהצלחה':report.totalRows-report.skippedNoName,
+    'סה"כ שורות בגיליון':report.totalRows,
+    'דולגו (בלי שם)':report.skippedNoName,
+    'ת.ז. כפולות':report.duplicateIds.length,
+    'רשימת ת.ז. כפולות':report.duplicateIds,
+    'שורות עם מדריך לא מזוהה':report.unknownGuideRows,
+    'שמות מדריך לא מזוהים':report.unknownGuideNames
+  });
+}
+// טקסט קצר לתצוגה ב-showToast — הפירוט המלא הולך ל-console (logImportReport)
+function importReportToast(count,fileName,report){
+  const parts=[`✅ נטענו ${count} רשומות מ-${fileName}`];
+  if(report){
+    if(report.skippedNoName) parts.push(`דולגו ${report.skippedNoName}`);
+    if(report.duplicateIds && report.duplicateIds.length) parts.push(`${report.duplicateIds.length} ת.ז. כפולות`);
+    if(report.unknownGuideRows) parts.push(`${report.unknownGuideRows} עם מדריך לא מזוהה`);
+  }
+  return parts.join(' · ');
 }
 
 // כפתור "החלף קובץ Excel" בדשבורד עצמו — בוחר קובץ ישירות (בלי מסך פתיחה נפרד)
@@ -1059,10 +1124,10 @@ async function handleExcelFileSelected(input){
   const prevHtml=btn?btn.innerHTML:'';
   if(btn){btn.innerHTML='<i class="ti ti-loader-2"></i> טוען...';btn.classList.remove('done');}
   try{
-    const count=await loadExcelFromFile(file);
+    const {count,report}=await loadExcelFromFile(file);
     if(btn){btn.innerHTML='✓ נטענו '+count+' מקבלי שירות';btn.classList.add('done');}
     renderPersonDashboardReal(CURRENT_PERSON);
-    showToast(`✅ נטענו ${count} רשומות מ-${file.name}`);
+    showToast(importReportToast(count,file.name,report));
     setTimeout(()=>{ if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ Excel'; },2500);
   }catch(err){
     console.error(err);
@@ -1083,7 +1148,7 @@ function splashLoadXL(input){
   if(clip) clip.style.animation='none';
   if(bar) bar.style.opacity='1';
   if(fill){fill.style.transition='width 1s ease';fill.style.width='90%';}
-  loadExcelFromFile(input.files[0]).then(count=>{
+  loadExcelFromFile(input.files[0]).then(({count})=>{
     if(fill) fill.style.width='100%';
     if(msg){msg.textContent='✓ נטענו '+count+' מקבלי שירות';msg.style.color='#6effa8';}
     setTimeout(()=>{
@@ -1099,7 +1164,7 @@ function splashLoadXL(input){
 }
 
 function goHanhala(){
-  if(DATA&&DATA.length){ROLE='hanhala';MADRICH=null;try{sessionStorage.setItem('portal_role','hanhala');sessionStorage.setItem('portal_madrich','');sessionStorage.setItem('portal_madrich_cnt',0);}catch(e){}buildDash();show('dash');}
+  if(DATA&&DATA.length){ROLE='hanhala';MADRICH=null;try{sessionStorage.setItem('portal_role','hanhala');sessionStorage.setItem('portal_madrich','');sessionStorage.setItem('portal_madrich_cnt',0);}catch(e){logQuiet('set portal_role hanhala',e);}buildDash();show('dash');}
   else{alert('יש לטעון קובץ Excel תחילה');}
 }
 function showSplashForReload(){
@@ -1117,7 +1182,7 @@ function showSplashForReload(){
   if(clip){clip.style.animation='bob 2.6s ease-in-out infinite';}
   if(sp){sp.style.display='flex';sp.classList.remove('out');}
 }
-function go(screen,role,madrichName,cnt){ROLE=role;MADRICH=madrichName?{name:madrichName,cnt}:null; try{sessionStorage.setItem('portal_role',role||'');sessionStorage.setItem('portal_madrich',madrichName||'');sessionStorage.setItem('portal_madrich_cnt',cnt||0);}catch(e){} if(screen==='excel'){show('excel');setTimeout(updateExcelPrompt,0);return;} if(DATA&&DATA.length){if(screen==='dash'){buildDash();show('dash');}else{show(screen);}}else{alert('יש לטעון קובץ Excel תחילה');}}
+function go(screen,role,madrichName,cnt){ROLE=role;MADRICH=madrichName?{name:madrichName,cnt}:null; try{sessionStorage.setItem('portal_role',role||'');sessionStorage.setItem('portal_madrich',madrichName||'');sessionStorage.setItem('portal_madrich_cnt',cnt||0);}catch(e){logQuiet('set portal_role/madrich',e);} if(screen==='excel'){show('excel');setTimeout(updateExcelPrompt,0);return;} if(DATA&&DATA.length){if(screen==='dash'){buildDash();show('dash');}else{show(screen);}}else{alert('יש לטעון קובץ Excel תחילה');}}
 
 document.addEventListener('keydown',function(e){if(e.key==='Escape') closePanel();});
 
@@ -1127,7 +1192,7 @@ window.addEventListener('load',()=>{
     if(cached){ DATA=migrateCachedRows(JSON.parse(cached)); }
     ENDED2026=JSON.parse(localStorage.getItem('portal_ended_2026')||'[]');
     updateExcelPrompt();
-  }catch(e){}
+  }catch(e){logQuiet('restore DATA from cache',e);showToast('⚠️ לא ניתן היה לטעון את הנתונים השמורים — יש לטעון את קובץ ה-Excel מחדש');}
   // Splash больше не первый экран: он скрыт по умолчанию (display:none в CSS)
   // и открывается только вручную, кнопкой "החלף קובץ Excel" внутри дашборда
   // (showSplashForReload). Дашборд открывается сразу — если Excel ещё не
@@ -1190,7 +1255,7 @@ function loadXL(input){
           contactName: (r['איש קשר']||'').trim(),
         }));
         localStorage.setItem('rehab_excel_clients_v1',JSON.stringify(clientsForForms));
-      }catch(e){}
+      }catch(e){logQuiet('save rehab_excel_clients_v1 (2)',e);showToast('⚠️ נתוני מקבלי השירות לטפסים לא נשמרו במלואם');}
       if(st) st.textContent=`✅ נטענו ${DATA.length} רשומות`;
       try{
         const sr=sessionStorage.getItem('portal_role');
@@ -1198,7 +1263,7 @@ function loadXL(input){
         const sc=sessionStorage.getItem('portal_madrich_cnt');
         if(sr) ROLE=sr;
         if(sm&&sm.length) MADRICH={name:sm,cnt:parseInt(sc)||0};
-      }catch(e){}
+      }catch(e){logQuiet('restore ROLE/MADRICH from sessionStorage',e);}
       if(input) input.value='';
       setTimeout(()=>{buildDash();show('dash');showToast(`✅ נטענו ${DATA.length} רשומות · ${ENDED2026.length} סיימו`);},300);
     })
@@ -1362,7 +1427,7 @@ function normalizeMainCell(v,idx){
   if(idx===MAIN_COL.birth||idx===MAIN_COL.intake||idx===MAIN_COL.rehab) return fixDate(v)||cellText(v);
   return cellText(v);
 }
-function rowsToMainObjects(raw){
+function rowsToMainObjects(raw,report){
   if(!Array.isArray(raw)||!raw.length) return [];
   let headerIdx=-1;
   for(let i=0;i<Math.min(raw.length,50);i++){
@@ -1371,7 +1436,7 @@ function rowsToMainObjects(raw){
   }
   const headers=(headerIdx>=0?raw[headerIdx]:fixedSheet1Headers).map(c=>String(c||'').trim());
   const dataStart=headerIdx>=0?headerIdx+1:1;
-  return raw.slice(dataStart).map((arr,idx)=>{
+  const before=raw.slice(dataStart).map((arr,idx)=>{
     arr=arr||[];
     const cleanArr=[];
     const max=Math.max(headers.length,fixedSheet1Headers.length,arr.length);
@@ -1383,7 +1448,15 @@ function rowsToMainObjects(raw){
       if(key) obj[key]=cleanArr[i]??'';
     }
     return obj;
-  }).filter(r=>nameOf(r));
+  });
+  const after=before.filter(r=>nameOf(r));
+  // 18.07.2026: отчёт об импорте (п.18 замечаний) — необязательный параметр,
+  // старый вызов без report продолжает работать как раньше.
+  if(report){
+    report.totalRows=before.length;
+    report.skippedNoName=before.length-after.length;
+  }
+  return after;
 }
 
 function rowsToEnded2026(raw){
@@ -1407,12 +1480,8 @@ function rowsToEnded2026(raw){
 async function loadExcelFileMobileSafe(file){
   if(!file) return {data:[],ended:[]};
   const buffer=await file.arrayBuffer();
-  try{
-    const bytes=new Uint8Array(buffer);
-    let binary='';
-    for(let i=0;i<bytes.length;i+=8192) binary+=String.fromCharCode(...bytes.subarray(i,i+8192));
-    localStorage.setItem('rehab_excel_raw_v1',JSON.stringify({base64:btoa(binary),fileName:file.name}));
-  }catch(e){}
+  // 18.07.2026: см. комментарий в loadExcelFile() выше — тот же неиспользуемый
+  // base64-дубль Excel-файла в localStorage убран и здесь.
   const fromSheetJS=sheetJsWorkbookRows(buffer);
   const fromZip=await parseWorkbookWithJSZip(buffer);
   const mainRaw=(scoreRows(fromZip.sheet1Rows)>scoreRows(fromSheetJS.sheet1Rows))?fromZip.sheet1Rows:fromSheetJS.sheet1Rows;
@@ -1509,7 +1578,9 @@ function buildStats(data,isH){
   const nowForBirthdays=new Date();
   const birthdayMonth=nowForBirthdays.getMonth()+1;
   const bdays=data.filter(r=>{const d=birthDateOf(r);return d&&d.getMonth()+1===birthdayMonth;});
-  const needs=data.filter(needsRehabPlan);
+  // 18.07.2026: מקבלי שירות ממשרד הביטחון לא מחויבים בתוכנית שיקום לפי הרגולציה
+  // הזו — לא נכללים במונה ובברשימה הזו (אבל כן נספרים בשאר הנתונים, למשל פילוח שירות).
+  const needs=data.filter(r=>needsRehabPlan(r)&&!isDefense(r));
   const intM=data.filter(r=>sameDashboardMonth(intakeDateAA(r)||intakeDateOf(r),period));
   const intY=data.filter(r=>{const d=intakeDateAA(r)||intakeDateOf(r);return d&&d.getFullYear()===y;});
   const endY=Array.isArray(ENDED2026)?(isH?ENDED2026:ENDED2026.filter(e=>!e.workshop||e.workshop===''||e.workshop===(MADRICH&&MADRICH.name))):[];
@@ -1729,7 +1800,7 @@ function playHappyBirthday(){
       osc.start(t);osc.stop(t+durs[i]+0.02);
       t+=durs[i]+0.05;
     });
-  }catch(e){}
+  }catch(e){logQuiet('play sound',e);}
 }
 function fireConfetti(){
   try{
@@ -1765,7 +1836,7 @@ function fireConfetti(){
       if(elapsed<2600){requestAnimationFrame(frame);}else{canvas.remove();}
     }
     requestAnimationFrame(frame);
-  }catch(e){}
+  }catch(e){logQuiet('confetti animation',e);}
 }
 function openBdays(people){
   const today=new Date();
@@ -1916,7 +1987,7 @@ show = function(id, opts){
   try{
     if(replaceHistory) history.replaceState(newState,'','#'+id);
     else history.pushState(newState,'','#'+id);
-  }catch(e){}
+  }catch(e){logQuiet('history pushState/replaceState',e);}
 };
 
 window.addEventListener('popstate',function(e){
@@ -1931,7 +2002,7 @@ document.addEventListener('DOMContentLoaded',function(){
     updateGlobalBack();
     const id=currentScreenId() || 'role';
     if(validPortalScreen(id)){
-      try{history.replaceState(makePortalHistoryState(id),'','#'+id);}catch(e){}
+      try{history.replaceState(makePortalHistoryState(id),'','#'+id);}catch(e){logQuiet('history replaceState (portal restore)',e);}
     }
   },0);
 });
@@ -1941,7 +2012,7 @@ window.addEventListener('load', function(){
     updateGlobalBack();
     const id=currentScreenId() || 'role';
     if(validPortalScreen(id) && (!history.state || !history.state.portal)){
-      try{history.replaceState(makePortalHistoryState(id),'','#'+id);}catch(e){}
+      try{history.replaceState(makePortalHistoryState(id),'','#'+id);}catch(e){logQuiet('history replaceState (portal init)',e);}
     }
   },1700);
 });
@@ -2025,15 +2096,22 @@ function rehabIntervalMonths(r){
   if(!intake) return 2;
   const now=new Date();
   const months=(now.getFullYear()-intake.getFullYear())*12+(now.getMonth()-intake.getMonth());
-  if(months<8)  return 2;
-  if(months<16) return 4;
+  // 18.07.2026: границы подтверждены (0-8 ו-8-16 כוללות) — было <8/<16, из-за чего
+  // ровно на 8 ו-16 חודשים מקבל השירות זה קיבל תוצאה אחרת מ-Трекер.html (שם היה <=8/<=16).
+  if(months<=8)  return 2;
+  if(months<=16) return 4;
   return 6;
 }
 function needsRehabPlan(r){
+  const intake=intakeDateOf(r);
   const d=rehabDateOf(r);
-  if(!d) return true;
-  const interval=rehabIntervalMonths(r);
-  const due=new Date(d.getFullYear(),d.getMonth()+interval,d.getDate(),12,0,0);
+  // 18.07.2026 (тот же баг, что и в замечаниях): раньше при отсутствии תוכנית שיקום
+  // אדם נחשב מיד "באיחור", גם אם התקבל לפני יומיים. עכשיו, כמו ב-Трекер.html: אם עדיין
+  // אין תוכנית — נקודת ההתחלה היא תאריך הקליטה, והמועד הראשון הוא +2 חודשים ממנה.
+  const base=d||intake;
+  if(!base) return true; // אין תאריך תוכנית ואין תאריך קליטה בכלל — יש לבדוק ידנית
+  const interval=d?rehabIntervalMonths(r):2;
+  const due=new Date(base.getFullYear(),base.getMonth()+interval,base.getDate(),12,0,0);
   return due<=new Date();
 }
 function sameMonthYear(d,m,y){return d&&d.getMonth()+1===m&&d.getFullYear()===y;}
@@ -2056,14 +2134,14 @@ function ensureDataFromCache(){
     const cached=localStorage.getItem('portal_data');
     if(cached){ DATA=migrateCachedRows(JSON.parse(cached)); }
     ENDED2026=JSON.parse(localStorage.getItem('portal_ended_2026')||'[]');
-  }catch(e){}
+  }catch(e){logQuiet('restore DATA from cache (2)',e);showToast('⚠️ לא ניתן היה לטעון את הנתונים השמורים — יש לטעון את קובץ ה-Excel מחדש');}
   return !!(DATA&&DATA.length);
 }
 
 function updateExcelPrompt(){
   ensureDataFromCache();
   const st=document.getElementById('xl-st'), btn=document.getElementById('xl-saved-btn');
-  let savedDate=''; try{savedDate=localStorage.getItem('portal_data_date')||'';}catch(e){}
+  let savedDate=''; try{savedDate=localStorage.getItem('portal_data_date')||'';}catch(e){logQuiet('read portal_data_date',e);}
   if(DATA&&DATA.length){if(btn)btn.style.display='inline-flex'; if(st)st.textContent=`נמצא קובץ שמור${savedDate?' מ-'+savedDate:''} (${DATA.length} רשומות). אפשר לבחור קובץ חדש או להמשיך.`;}
   else{if(btn)btn.style.display='none'; if(st)st.textContent='יש לבחור קובץ Excel לעדכון הנתונים';}
 }
@@ -2078,7 +2156,7 @@ function shouldRestorePortalReturn(){
   return hasPendingPortalReturn();
 }
 
-function restorePortalReturnNow(ret){if(!ret)return false; try{ensureDataFromCache();}catch(e){} const splash=document.getElementById('splash'); if(splash){splash.classList.add('out');splash.style.display='none';} if(DATA&&DATA.length){renderPersonDashboardReal(CURRENT_PERSON);show('dash',{replaceHistory:true});clearPortalReturn();return true;} return false;}
+function restorePortalReturnNow(ret){if(!ret)return false; try{ensureDataFromCache();}catch(e){logQuiet('ensureDataFromCache (portal return)',e);} const splash=document.getElementById('splash'); if(splash){splash.classList.add('out');splash.style.display='none';} if(DATA&&DATA.length){renderPersonDashboardReal(CURRENT_PERSON);show('dash',{replaceHistory:true});clearPortalReturn();return true;} return false;}
 
 function buildMadrichCards(){
   const grid=document.getElementById('madrich-grid'); if(!grid)return;
@@ -2224,9 +2302,64 @@ function toggleDetail(id){
   if(el) el.classList.toggle('open');
 }
 
+// 18.07.2026: персистентность списка "צוות" (было — только в DOM, добавление/
+// удаление терялось при обновлении страницы). Хранится два списка в localStorage:
+// portal_team_removed — имена из статичного HTML, которые скрыли;
+// portal_team_added — имена, которые добавили вручную поверх статичного списка.
+function getTeamRemoved(){
+  try{ return JSON.parse(localStorage.getItem('portal_team_removed')||'[]'); }
+  catch(e){ logQuiet('getTeamRemoved',e); return []; }
+}
+function getTeamAdded(){
+  try{ return JSON.parse(localStorage.getItem('portal_team_added')||'[]'); }
+  catch(e){ logQuiet('getTeamAdded',e); return []; }
+}
+function saveTeamRemoved(arr){
+  try{ localStorage.setItem('portal_team_removed',JSON.stringify(arr)); }
+  catch(e){ logQuiet('saveTeamRemoved',e); showToast('⚠️ השינוי ברשימת הצוות לא נשמר בדפדפן'); }
+}
+function saveTeamAdded(arr){
+  try{ localStorage.setItem('portal_team_added',JSON.stringify(arr)); }
+  catch(e){ logQuiet('saveTeamAdded',e); showToast('⚠️ השינוי ברשימת הצוות לא נשמר בדפדפן'); }
+}
+function createPersonEl(name){
+  const div=document.createElement('div');
+  div.className='item-btn person';
+  div.dataset.name=name;
+  div.innerHTML='<svg class="gicon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg> '+name+' <span class="rm">✕</span>';
+  return div;
+}
+// применяется один раз при загрузке страницы: скрывает то, что удалили раньше,
+// и восстанавливает то, что добавили раньше — до того как richPersonReal что-то отрисует
+function restoreTeamListReal(){
+  getTeamRemoved().forEach(name=>{
+    document.querySelectorAll('#peopleList .item-btn.person').forEach(el=>{
+      if(el.dataset.name===name) el.remove();
+    });
+  });
+  getTeamAdded().forEach(name=>{
+    const exists=[...document.querySelectorAll('#peopleList .item-btn.person')].some(el=>el.dataset.name===name);
+    if(!exists){
+      const div=createPersonEl(name);
+      document.getElementById('peopleList').appendChild(div);
+    }
+  });
+}
 function bindPersonReal(el){
   el.addEventListener('click',(e)=>{
-    if(e.target.classList.contains('rm')){ el.remove(); return; }
+    if(e.target.classList.contains('rm')){
+      const name=el.dataset.name;
+      const added=getTeamAdded();
+      const idx=added.indexOf(name);
+      if(idx>=0){ added.splice(idx,1); saveTeamAdded(added); }
+      else{
+        const removed=getTeamRemoved();
+        if(!removed.includes(name)){ removed.push(name); saveTeamRemoved(removed); }
+      }
+      el.remove();
+      showToast('הוסר/ה מרשימת הצוות (נשמר)');
+      return;
+    }
     document.querySelectorAll('#dash .item-btn.person').forEach(x=>x.classList.remove('active'));
     el.classList.add('active');
     renderPersonDashboardReal(el.dataset.name);
@@ -2243,13 +2376,20 @@ function addPersonReal(){
   const input=document.getElementById('newPersonName');
   const val=(input.value||'').trim();
   if(!val) return;
-  const div=document.createElement('div');
-  div.className='item-btn person';
-  div.dataset.name=val;
-  div.innerHTML='<svg class="gicon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4.4 3.6-8 8-8s8 3.6 8 8"/></svg> '+val+' <span class="rm">✕</span>';
+  const already=[...document.querySelectorAll('#peopleList .item-btn.person')].some(el=>el.dataset.name===val);
+  if(already){ showToast('השם הזה כבר ברשימה'); return; }
+  const div=createPersonEl(val);
   bindPersonReal(div);
   document.getElementById('peopleList').appendChild(div);
   input.value='';
+  const added=getTeamAdded();
+  if(!added.includes(val)){ added.push(val); saveTeamAdded(added); }
+  // אם השם הזה הוסר בעבר (סתירה עם רשימת ההסרות) — מסירים אותו גם משם,
+  // כדי שלא "יחזור וייעלם" שוב בטעינה הבאה
+  const removed=getTeamRemoved();
+  const ridx=removed.indexOf(val);
+  if(ridx>=0){ removed.splice(ridx,1); saveTeamRemoved(removed); }
+  showToast('✅ '+val+' נוסף/ה לרשימת הצוות (נשמר)');
 }
 
 function setTab(i){
@@ -2279,6 +2419,7 @@ function playHappyBirthday(name){
 
 // Инициализация панелей нового дашборда (клики по צוות), даже до загрузки Excel —
 // после загрузки данных renderPersonDashboardReal() перерисует реальные цифры.
+restoreTeamListReal();
 bindAllPeopleReal();
 setTab(1);
 

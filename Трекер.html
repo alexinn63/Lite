@@ -361,21 +361,27 @@ function loadFromMainExcel() {
     }
 
     const clients = JSON.parse(raw) || [];
+    // 18.07.2026: מקבלי שירות ממשרד הביטחון לא מחויבים בתוכנית שיקום לפי הרגולציה
+    // הזו — לא נכנסים לטרקר הזה בכלל (אושר ע"י אלכס).
+    const isDefenseService = s => /בטחון|ביטחון/.test(clean(s));
+    const totalBeforeFilter = clients.length;
     allPersons = clients.map(c => {
       const name = clean(c.name || c.clientName || c['שם מקבל השרות'] || c['שם מקבל השירות']);
       const id = clean(c.id || c.teudatZehut || c['תעודת זהות'] || name);
       const guide = clean(c.sadna || c.guide || c.workshopGuide || c['סדנה'] || c['מדריך']);
+      const service = clean(c.serviceType || c.service || c['סוג שירות']);
       const klita = parseStoredDate(c.klitaDate || c.intakeDate || c.klita || c['תאריך קליטה']);
       const lastPlan = parseStoredDate(c.lastPlanDate || c.planDate || c.lastPlan || c['תאריך כתיבה תוכנית שיקום'] || c['תוכנית שיקום']);
-      return { id: id || name, name, guide, klita, lastPlan };
-    }).filter(p => p.name);  // לא מסננים חסרי תאריך קליטה — מציגים אותם כבעיה לטיפול
+      return { id: id || name, name, guide, service, klita, lastPlan };
+    }).filter(p => p.name && !isDefenseService(p.service));  // לא מסננים חסרי תאריך קליטה — מציגים אותם כבעיה לטיפול
+    const excludedDefense = totalBeforeFilter - allPersons.length;
 
     if (!allPersons.length) {
       if (status) status.textContent = 'נמצאו נתונים, אבל לא נמצאו רשומות עם שם ותאריך קליטה.';
       return;
     }
 
-    if (status) status.textContent = `נטענו ${allPersons.length} מקבלי שירות מהמסך הראשי`;
+    if (status) status.textContent = `נטענו ${allPersons.length} מקבלי שירות מהמסך הראשי`+(excludedDefense?` (${excludedDefense} ממשרד הביטחון לא נכללים)`:'');
     renderAll();
   } catch (err) {
     console.error(err);
