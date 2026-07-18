@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ספר נהלים — משרד הרווחה | יחדיו</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1e3a; --blue:#2563a8; --blue2:#1d4ed8; --sky:#93c5fd;
+  --bg:#f4f6fb; --card:#ffffff; --line:#e7ebf2; --text:#1c2333; --muted:#7b8497;
+  --amber:#b7791f; --shadow:0 10px 30px rgba(15,30,58,.07);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Heebo","Segoe UI","Arial",sans-serif;background:var(--bg);color:var(--text);direction:rtl;font-weight:400;line-height:1.6}
+.wrap{max-width:900px;margin:auto;padding:20px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+.header{padding:22px 24px;margin-bottom:16px}
+.header h1{margin:0 0 4px;font-size:24px;font-weight:600;color:var(--navy)}
+.header .sub{margin:0 0 16px;font-size:13px;color:var(--muted)}
+.meta-note{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:#f4f6fb;border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin-bottom:16px}
+.search-row{display:flex;gap:10px}
+.search-box{position:relative;flex:1}
+.search-box input{width:100%;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:14px;font-family:inherit;background:#fbfcff;outline:none}
+.search-box input:focus{border-color:#9bb6ef;box-shadow:0 0 0 3px #edf3ff}
+.no-results{display:none;padding:24px;text-align:center;color:var(--muted);font-size:13px}
+.accordion{display:flex;flex-direction:column;gap:10px}
+.item{overflow:hidden}
+.item-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+.item-head .title{font-size:15px;font-weight:500;color:var(--navy)}
+.item-head .sec{font-size:11px;color:var(--muted);margin-top:2px}
+.item-head .chev{font-size:13px;color:var(--blue);transition:transform .18s ease;flex-shrink:0}
+.item.open .chev{transform:rotate(180deg)}
+.item-body{max-height:0;overflow:hidden;transition:max-height .22s ease}
+.item.open .item-body{max-height:3000px}
+.item-body-inner{padding:0 20px 18px;font-size:13.5px;color:#374156}
+.item-body-inner h4{font-size:13px;color:var(--blue2);margin:14px 0 6px;font-weight:500}
+.item-body-inner h4:first-child{margin-top:0}
+.item-body-inner ul{margin:4px 0;padding-inline-start:20px}
+.item-body-inner li{margin:3px 0}
+.item-body-inner table{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0}
+.item-body-inner td,.item-body-inner th{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top;text-align:center}
+.item-body-inner th{color:var(--navy);font-weight:500;background:#f7f9ff}
+.item-body-inner td:first-child,.item-body-inner th:first-child{text-align:right;color:var(--muted)}
+mark{background:#fff3b0;color:inherit;border-radius:3px;padding:0 2px}
+.hidden{display:none !important}
+.example-box{background:#f7f9ff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12.5px;margin:8px 0}
+@media(max-width:600px){.search-row{flex-direction:column}.item-head{padding:14px 16px}.item-body-inner{padding:0 16px 16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="panel header">
+    <h1>ספר נהלים — מפעל מקדם תעסוקה</h1>
+    <p class="sub">עקרונות תפעול, משרד הרווחה והשירותים החברתיים, אגף השיקום, השירות לשיקום מקצועי תעסוקתי.</p>
+    <div class="meta-note">
+      <span>ℹ</span>
+      <span>עמוד זה מסכם את עקרונות התפעול המרכזיים מתוך ספר הנהלים המלא. נהלים מפורטים נוספים (קליטת מקבל שירות, אירוע חריג, סיום התקשרות, בניית מפרט ייצור, פעולה מתקנת) מוזכרים במסמך המקורי אך טרם הוכנסו לעמוד זה במלואם — יתווספו בהמשך.</span>
+    </div>
+    <div class="search-row">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="חיפוש — לדוגמה: סבסוד, תקן, מרב&quot;ע, יחידת הכשרה...">
+      </div>
+    </div>
+  </section>
+
+  <div class="no-results panel" id="noResults">לא נמצאו תוצאות תואמות. נסה מונח אחר.</div>
+
+  <div class="accordion" id="accordion">
+
+    <div class="item panel" data-keywords="כללי מטרה מפעל מקדם תעסוקה מוגבלות">
+      <div class="item-head"><div><div class="title">כללי ומטרה</div><div class="sec">סעיפים 1–2</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <p>מפעל מקדם תעסוקה הוא גוף המספק שירותי תעסוקה מוגנת לאנשים עם מוגבלות, במטרה לשקמם ולקדם את מסוגלותם התעסוקתית — פיתוח מיומנויות רכות, הקניית הרגלי עבודה, והכרת סביבת עבודה נורמטיבית, לרבות מסלול לקידום לתעסוקה בשוק הפתוח עבור מי שמסוגלותו מאפשרת זאת.</p>
+        <p>מטרות הנוהל: להבהיר את עיקרי תע"ס (תקן עבודה סוציאלית) בתחום השיקום התעסוקתי, לחלק את הפעילות לתחומי אחריות, ולהגדיר דרישות תפקיד.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="הגדרות מקבל שירות מנהל מפעל מדריך עוס מרבע יחידת הכשרה יחידת תעסוקה 40 אחוז נכות">
+      <div class="item-head"><div><div class="title">הגדרות מרכזיות</div><div class="sec">סעיף 3</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <ul>
+          <li><b>מקבל השירות</b> — אדם מעל גיל 18, שהמוסד לביטוח לאומי קבע לו נכות, ובעל יכולת עבודה שאינה תואמת בשלב זה דרישות העסקה בשוק הפתוח (40% ומעלה). זקוק לתמיכה, הכוונה, הקניית מיומנויות תעסוקתיות וליווי.</li>
+          <li><b>מנהל המפעל</b> — אחראי לניהול השוטף של כל הפעילויות, הצוות ומקבלי השירות, לרבות תהליכי הייצור והשיקום.</li>
+          <li><b>מדריך ביחידת התעסוקה</b> — אחראי ליישום תוכניות הייצור והשיקום בקווי ייצור/מחלקות מסוימות שהוטלו עליו.</li>
+          <li><b>עו"ס מפעל מקדם תעסוקה</b> — מנהל את השירות הסוציאלי-שיקומי לכלל מקבלי השירות במפעל.</li>
+          <li><b>מרפא בעיסוק (מרב"ע)</b> — עוסק בנגישות מסלולי ייצור והיבטים תפקודיים של תוכניות שיקום ומסוגלות תעסוקתית.</li>
+          <li><b>יחידת התעסוקה</b> — ליבת המפעל, שם שוהים מקבלי השירות במהלך תהליך השיקום המקצועי-תעסוקתי דרך קווי הייצור.</li>
+          <li><b>יחידת הכשרה</b> — יחידה המכינה את מקבל השירות ליציאה לתעסוקה נתמכת בשוק הפתוח; משך שהות עד 6 חודשים.</li>
+          <li><b>תיק מקבל שירות (ממוחשב)</b> — כולל בדיקת מסוגלות תעסוקתית, תוכנית קידום אישית, מטרות שיקומיות; מתעדכן אחת לשנה.</li>
+          <li><b>בדיקת מסוגלות תעסוקתית</b> — מעקב תפקוד בתדירות קבועה: <b>פעם בשנה</b> למקבל שירות במפעל, <b>אחת ל-3 חודשים</b> ביחידת ההכשרה.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="תהליך שיקום קליטה בדיקת מסוגלות תעסוקתית הערכה פסיכוסוציאלית תוכנית קידום אישית פיילוט">
+      <div class="item-head"><div><div class="title">תהליך השיקום — קליטה, הערכה ותוכנית קידום</div><div class="sec">סעיף 7.1</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <ul>
+          <li>עם קליטת מקבל השירות נפתח תיק אישי ממוחשב הכולל מעקב שוטף אחר תהליך השיקום.</li>
+          <li>בדיקת מסוגלות תעסוקתית משקפת את התפקוד; הערכה פסיכוסוציאלית משקפת את המצב הנפשי, המשפחתי והחברתי — שתיהן על ציר הזמן.</li>
+          <li>תוכנית קידום אישית נבנית על ידי צוות השיקום מתוך תוצאות בדיקת המסוגלות וההערכה הפסיכוסוציאלית.</li>
+          <li>מעבר ליחידת ההכשרה: מי שיימצא מתאים יקבל תוכנית אישית מוגברת (עבודה קבוצתית + תוכנית אישית) לקראת מעבר לתעסוקה נתמכת; משך היחידה עד 6 חודשים.</li>
+          <li>שמירת סודיות: המידע על מקבלי השירות חסוי; ספק השירות מדווח אך ורק לנציגי המשרד וחותם על הסכם סודיות (וכן מחתים את הצוות).</li>
+        </ul>
+        <p style="color:var(--muted);font-size:12px">נהלים מפורטים נפרדים (שאינם עדיין בעמוד זה): "קליטת מקבל שירות ותקופת הסתגלות", "אירוע חריג", "סיום התקשרות", "בניית מפרט ייצור ותוכנית לביקורת ובדיקה", "פעולה מתקנת בתהליכי ייצור".</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="תשלום מקבל שירות גמול גבע סבסוד 850 250 שקל כנגד שקל נוכחות 16 ימים 100 שעות">
+      <div class="item-head"><div><div class="title">תשלום למקבל השירות — גמול וסבסוד</div><div class="sec">סעיף 7.4, נספח ה'</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <h4>גמול ביצוע עבודה (גב"ע)</h4>
+        <p>התגמול הכספי למקבל השירות נגזר מתפוקתו ומהתשלום המתקבל עבור המוצרים המיוצרים במפעל. כל התקבולים מחולקים למקבלי השירות ואינם משמשים לשימוש שוטף של המפעל.</p>
+        <h4>תנאים לקבלת סבסוד</h4>
+        <ul>
+          <li>נוכחות רצופה חודשית — 16 ימים ומעלה.</li>
+          <li>לפחות 100 שעות פעילות חודשיות (על פי מפתח של 5 שעות יומיות או 25 שעות שבועיות לפחות).</li>
+          <li>עמידה בלוח זמנים (הפסקות, איחורים). היעדרויות מנומקות (מחלה, חופשה מאושרת) נספרות כימי נוכחות רצופה.</li>
+        </ul>
+        <h4>גובה הסבסוד</h4>
+        <ul>
+          <li>מקבל שירות עם גב"ע עד <b>850 ₪</b> זכאי לתוספת מדורגת של עד <b>250 ₪</b>.</li>
+          <li>אם התמורה מעבודתו עולה על ממוצע הסבסוד של המפעל — מקבל את הסכום המקסימלי (לרוב 250 ₪).</li>
+          <li>אם התמורה נמוכה מהממוצע — מקבל סבסוד <b>שקל כנגד שקל</b> עד להשלמה לממוצע.</li>
+        </ul>
+        <div class="example-box">
+          <b>דוגמה:</b> אם ממוצע הסבסוד המקסימלי של המפעל הוא 250 ₪, ומקבל שירות הרוויח 200 ₪ — הוא יקבל סבסוד של 200 ₪ נוספים (שקל כנגד שקל), עד לסכום כולל של 400 ₪ (200+200), ולא יעלה על ה-250 ₪ כתוספת מקסימלית לפי הכללים שנקבעו למפעל.
+        </div>
+        <p>דו"ח סבסוד חודשי מוגש למסגרת, מאושר על ידי הפיקוח המחוזי, ומועבר לפיקוח הארצי לאישור תשלום.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="תשלום ספק שירות טופס השמה יחידת הכשרה 6 חודשים תעסוקה נתמכת ליווי 18 חודשים">
+      <div class="item-head"><div><div class="title">תשלום לספק השירות</div><div class="sec">סעיף 7.3</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <ul>
+          <li>המחלקה לשירותים חברתיים מעבירה טופס השמה למימון השמת מקבל השירות במפעל.</li>
+          <li>אם נמצא לאחר חודש הסתגלות כלא מתאים — מוחזר למחלקה לקבלת שירות חלופי.</li>
+          <li>אם נמצא מתאים ליחידת הכשרה — טופס השמה מותאם, למשך <b>עד 6 חודשים</b>.</li>
+          <li>אם השתלב בעבודה נתמכת בשוק הפתוח — מועבר לספק שירות של עבודה נתמכת; ליווי למשך <b>18 חודשים</b>.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="תפקיד מנהל מפעל דרישות אחריות">
+      <div class="item-head"><div><div class="title">תפקיד מנהל המפעל</div><div class="sec">סעיף 7.5</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <p><b>דרישות:</b> בוגר בי"ס מקצועי, אקדמי או כל קורס על-תיכוני בניהול או שיווק; ניסיון של שנתיים לפחות בניהול; כושר ארגון וניהול; יכולת ליזום ולנהל מו"מ; הבנה טכנית; תפיסה שיקומית; יכולת עבודה בצוות; ידיעת עברית על בוריה בכתב ובעל פה.</p>
+        <p><b>אחריות:</b> אחריות כוללת על תהליכי הייצור והשיקום במפעל.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="כוח אדם תקן תקנים תעריפים מנהל מדריך אחזקה עוס מרפא בעיסוק רכז שיווק מטפל סיעודי יחידת הכשרה פיזי">
+      <div class="item-head"><div><div class="title">תקנים ותעריפים — כוח אדם</div><div class="sec">נספח ג'</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <p>מודל ל-50 מקבלי שירות (מפעל מקדם תעסוקה / מפעל מקדם תעסוקה-פיזי) ומודל ל-10 מקבלי שירות (יחידת הכשרה):</p>
+        <table>
+          <tr><th>תפקיד</th><th>מפעל מקדם תעסוקה</th><th>מפעל מקדם תעסוקה-פיזי</th><th>יחידת הכשרה</th></tr>
+          <tr><td>מנהל</td><td>1.00</td><td>1.00</td><td>0.20</td></tr>
+          <tr><td>מדריך</td><td>1.50</td><td>1.50</td><td>0.30</td></tr>
+          <tr><td>אחזקה</td><td>0.50</td><td>0.50</td><td>0.10</td></tr>
+          <tr><td>עו"ס</td><td>0.15</td><td>0.15</td><td>0.28</td></tr>
+          <tr><td>מרפא בעיסוק</td><td>0.15</td><td>0.15</td><td>0.28</td></tr>
+          <tr><td>רכז שיווק</td><td>0.20</td><td>0.20</td><td>0.04</td></tr>
+          <tr><td>מטפל סיעודי</td><td>0.00</td><td>2.00</td><td>0.00</td></tr>
+          <tr><td><b>סה"כ</b></td><td><b>3.50</b></td><td><b>3.50</b></td><td><b>1.200</b></td></tr>
+        </table>
+        <p style="font-size:12px;color:var(--muted)">ביחידת ההכשרה יש תוספת רבע משרה לעו"ס ולמרב"ע.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="הזנה תזונה מזון בטיחות מזון קפוא מצונן ביצים טמפרטורה הובלה ספק">
+      <div class="item-head"><div><div class="title">הוראות הזנה ובטיחות מזון</div><div class="sec">נספח ד'</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <h4>מקור המזון</h4>
+        <ul>
+          <li>חומרי גלם ומוצרי מזון — מעסק בעל רישיון יצרן ורישיון עסק בתוקף; עדיפות למפעלים עם אישור GMP.</li>
+          <li>ביצים — ביצי מאכל בלבד, שלמות, ללא סדקים, ארוזות באריזה חד-פעמית סגורה, עם תאריכי שיווק.</li>
+          <li>מוצרים מן החי — באישור וטרינרי. שימורים — ללא סימני חלודה/נזילה/נפיחות.</li>
+        </ul>
+        <h4>טמפרטורות מחייבות</h4>
+        <table>
+          <tr><th>סוג מזון</th><th>טמפרטורה</th></tr>
+          <tr><td>מזון קפוא</td><td>לא יעלה על מינוס 18°C</td></tr>
+          <tr><td>מזון מצונן (חלב, סלטים)</td><td>לא יעלה על 5°C</td></tr>
+          <tr><td>הובלת ביצים</td><td>לא יעלה על פלוס 20°C</td></tr>
+        </table>
+        <ul>
+          <li>בדיקת טמפרטורה נעשית במד חום אינדקטורי על ידי האחראי מטעם המעון, לפני פתיחת ארגז הרכב, ותועד בטופס המשלוח.</li>
+          <li>מזון או רכב שאינם עומדים בדרישות — הספק מחויב לקחת בחזרה ולהחליף.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const items=[...document.querySelectorAll('.item')];
+const input=document.getElementById('searchInput');
+const noResults=document.getElementById('noResults');
+
+function highlight(el,q){
+  el.querySelectorAll('mark').forEach(m=>{ m.replaceWith(document.createTextNode(m.textContent)); });
+  if(!q) return;
+  const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
+  const nodes=[]; let n;
+  while(n=walker.nextNode()) nodes.push(n);
+  nodes.forEach(node=>{
+    const idx=node.textContent.toLowerCase().indexOf(q.toLowerCase());
+    if(idx>-1){
+      const span=document.createElement('span');
+      span.appendChild(document.createTextNode(node.textContent.slice(0,idx)));
+      const mark=document.createElement('mark'); mark.textContent=node.textContent.slice(idx,idx+q.length);
+      span.appendChild(mark);
+      span.appendChild(document.createTextNode(node.textContent.slice(idx+q.length)));
+      node.replaceWith(span);
+    }
+  });
+}
+
+function runSearch(){
+  const raw=input.value.trim().toLowerCase();
+  if(!raw){
+    items.forEach(it=>{ it.classList.remove('hidden','open'); highlight(it,''); });
+    noResults.style.display='none';
+    return;
+  }
+  let visibleCount=0;
+  items.forEach(it=>{
+    const kw=(it.dataset.keywords||'').toLowerCase();
+    const body=it.querySelector('.item-body-inner').textContent.toLowerCase();
+    const match=kw.includes(raw)||body.includes(raw);
+    it.classList.toggle('hidden',!match);
+    if(match){ visibleCount++; highlight(it,raw); it.classList.add('open'); }
+    else it.classList.remove('open');
+  });
+  noResults.style.display=visibleCount?'none':'block';
+}
+input.addEventListener('input',runSearch);
+items.forEach(it=>{
+  it.querySelector('.item-head').addEventListener('click',()=>{ it.classList.toggle('open'); });
+});
+</script>
+</body>
+</html>

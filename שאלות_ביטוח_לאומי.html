@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>מדריך ביטוח לאומי — יחדיו</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f1e3a;
+  --blue:#2563a8;
+  --blue2:#1d4ed8;
+  --sky:#93c5fd;
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --line:#e7ebf2;
+  --text:#1c2333;
+  --muted:#7b8497;
+  --green:#1f9d68;
+  --amber:#b7791f;
+  --shadow:0 10px 30px rgba(15,30,58,.07);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:"Heebo","Segoe UI","Arial",sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  direction:rtl;
+  font-weight:400;
+  line-height:1.6;
+}
+.wrap{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+.panel{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+}
+.header{
+  padding:22px 24px;
+  margin-bottom:16px;
+}
+.header h1{
+  margin:0 0 4px;
+  font-size:24px;
+  font-weight:600;
+  color:var(--navy);
+}
+.header .sub{
+  margin:0 0 16px;
+  font-size:13px;
+  color:var(--muted);
+}
+.updated-note{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  color:var(--amber);
+  background:#fbf3e2;
+  border:1px solid #f0dfb3;
+  border-radius:10px;
+  padding:8px 12px;
+  margin-bottom:16px;
+}
+.search-row{
+  display:flex;
+  gap:10px;
+}
+.search-box{
+  position:relative;
+  flex:1;
+}
+.search-box input{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px 14px;
+  font-size:14px;
+  font-family:inherit;
+  background:#fbfcff;
+  outline:none;
+}
+.search-box input:focus{border-color:#9bb6ef;box-shadow:0 0 0 3px #edf3ff}
+.ext-link{
+  border:1px solid var(--line);
+  background:#fbfcff;
+  color:var(--blue);
+  border-radius:10px;
+  padding:12px 16px;
+  font-size:13px;
+  text-decoration:none;
+  white-space:nowrap;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.ext-link:hover{background:#f4f7ff;border-color:#b8c8ee}
+.no-results{
+  display:none;
+  padding:24px;
+  text-align:center;
+  color:var(--muted);
+  font-size:13px;
+}
+.accordion{display:flex;flex-direction:column;gap:10px}
+.item{
+  overflow:hidden;
+}
+.item-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:16px 20px;
+  cursor:pointer;
+  user-select:none;
+}
+.item-head .title{
+  font-size:15px;
+  font-weight:500;
+  color:var(--navy);
+}
+.item-head .forms{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:2px;
+}
+.item-head .chev{
+  font-size:13px;
+  color:var(--blue);
+  transition:transform .18s ease;
+  flex-shrink:0;
+}
+.item.open .chev{transform:rotate(180deg)}
+.item-body{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .22s ease;
+}
+.item.open .item-body{max-height:2400px}
+.item-body-inner{
+  padding:0 20px 18px;
+  font-size:13.5px;
+  color:#374156;
+}
+.item-body-inner h4{
+  font-size:13px;
+  color:var(--blue2);
+  margin:14px 0 6px;
+  font-weight:500;
+}
+.item-body-inner h4:first-child{margin-top:0}
+.item-body-inner ul{margin:4px 0;padding-inline-start:20px}
+.item-body-inner li{margin:3px 0}
+.item-body-inner table{width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0}
+.item-body-inner td{padding:5px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.item-body-inner td:first-child{color:var(--muted);width:38%}
+.form-tag{
+  display:inline-block;
+  background:#edf3ff;
+  color:var(--blue2);
+  border-radius:6px;
+  padding:1px 7px;
+  font-size:11.5px;
+  font-family:monospace;
+  direction:ltr;
+}
+mark{background:#fff3b0;color:inherit;border-radius:3px;padding:0 2px}
+.hidden{display:none !important}
+@media(max-width:600px){
+  .search-row{flex-direction:column}
+  .item-head{padding:14px 16px}
+  .item-body-inner{padding:0 16px 16px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <section class="panel header">
+    <h1>מדריך ביטוח לאומי</h1>
+    <p class="sub">מדריך עזר פנימי לצוות יחדיו — זכאויות, טפסים וסכומים עיקריים. לא מהווה ייעוץ משפטי או תחליף לבירור מול המוסד לביטוח לאומי.</p>
+    <div class="updated-note">
+      <span>⚠</span>
+      <span>הסכומים בעמוד זה מעודכנים לתעריפי <b>2026</b>. המוסד לביטוח לאומי מעדכן תעריפים פעמיים בשנה (ינואר ויולי) — יש לוודא מול <a href="https://www.btl.gov.il/About/news/Pages/hadasaidkonkitzva2026.aspx" target="_blank" rel="noopener" style="color:var(--amber)">אתר הביטוח הלאומי</a> לפני הסתמכות על הסכום.</span>
+    </div>
+    <div class="search-row">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="חיפוש — לדוגמה: נכות, טופס 211, ניידות, אבטלה...">
+      </div>
+      <a class="ext-link" href="https://www.btl.gov.il/Pages/default.aspx" target="_blank" rel="noopener">חיפוש באתר הביטוח הלאומי ↗</a>
+    </div>
+  </section>
+
+  <div class="no-results panel" id="noResults">לא נמצאו תוצאות תואמות. נסה מונח אחר, או עבור לחיפוש באתר הביטוח הלאומי למעלה.</div>
+
+  <div class="accordion" id="accordion">
+
+    <div class="item panel" data-keywords="פנסיה זקנה פרישה גיל פרישה קצבת זקנה גמלת זקנה 480 פרנסה תוספת ותק דחיית קצבה">
+      <div class="item-head"><div><div class="title">קצבת זקנה (פנסיה מביטוח לאומי)</div><div class="forms"><span class="form-tag">טופס 480</span></div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <h4>גיל זכאות</h4>
+        <ul>
+          <li>גברים — גיל 67. נשים — 62 עד 65, בהתאם לחודש הלידה (עלייה הדרגתית של 4 חודשים בשנה לפי תיקון מס' 7).</li>
+          <li>גיל זכאות מוחלטת — 70 לכולם, ללא קשר להכנסה.</li>
+        </ul>
+        <h4>מבחן הכנסות (בין גיל הפרישה ל-70)</h4>
+        <ul>
+          <li>יחיד — עד כ-7,827 ₪ לחודש. זוג — עד כ-10,436 ₪ לחודש. מעל הסף — הקצבה מוקפאת עד גיל 70.</li>
+        </ul>
+        <h4>תקופת אכשרה</h4>
+        <ul><li>60 עד 144 חודשי ביטוח (תלוי בגיל העלייה לארץ, אם רלוונטי).</li></ul>
+        <h4>סכומים עיקריים (2026)</h4>
+        <table>
+          <tr><td>יחיד</td><td>1,838 ₪ לחודש (1,941 ₪ מגיל 80)</td></tr>
+          <tr><td>זוג</td><td>2,762 ₪ לחודש (תוספת בן/בת זוג 924 ₪)</td></tr>
+          <tr><td>תוספת ותק</td><td>+2% לשנה החל משנת הביטוח ה-11, עד תקרה של 50% (25 שנה) — רוב הגמלאים מקבלים את מלוא ה-50%, כך שבפועל כ-2,757 ₪ ליחיד</td></tr>
+          <tr><td>בונוס דחייה</td><td>+5% לכל שנת דחייה של התביעה, עד גיל 70</td></tr>
+        </table>
+        <p>ניתן לבדוק גיל פרישה מדויק במחשבון הרשמי: <a href="https://www.btl.gov.il/benefits/old_age/Pages/RetirementCalculation.aspx" target="_blank" rel="noopener">מחשבון גיל פרישה</a>.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="נכות נכות כללית אחוזי נכות שירותים מיוחדים שקום שירותי סיעוד יומיים ילד נכה 7801 7849 7821">
+      <div class="item-head"><div><div class="title">נכות כללית ושירותים מיוחדים</div><div class="forms"><span class="form-tag">7801</span> <span class="form-tag">7849</span> <span class="form-tag">7821</span></div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <p>נכות כללית שונה מנכות עבודה — תוכנית נפרדת, טפסים נפרדים (ראו הכרטיסייה "פגיעה בעבודה").</p>
+        <h4>זכאות</h4>
+        <ul><li>תושב בגיל 18 עד גיל פרישה, עם אובדן כושר השתכרות של 60%, 65%, 74% או 75%-100%, ונדרשת תקופת תושבות מבוטחת של 12 חודשים לפני הופעת הנכות.</li></ul>
+        <h4>סכומים חודשיים (2026)</h4>
+        <table>
+          <tr><td>75%–100% (נכות מלאה)</td><td>4,711 ₪</td></tr>
+          <tr><td>74%</td><td>3,211 ₪</td></tr>
+          <tr><td>65%</td><td>2,894 ₪</td></tr>
+          <tr><td>60%</td><td>2,718 ₪</td></tr>
+          <tr><td>תוספות משפחה</td><td>בן/בת זוג +1,518 ₪, ילדים +1,214 ₪ (עד 2 ילדים)</td></tr>
+        </table>
+        <h4>שירותים מיוחדים (שק"ום / SHRM)</h4>
+        <p>לנכים הזקוקים לסיוע אישי יומיומי. דרגות מ-50% (1,943 ₪) ועד 235% (9,126 ₪). תוספת מטפל עד 10,774 ₪ לחודש. טופס 7849.</p>
+        <h4>ילד נכה</h4>
+        <p>עד 3,820 ₪ לילד עם 100% נכות, בתוספת תוספת מטפל. טופס 7821.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="פגיעה בעבודה תאונת עבודה דמי פגיעה נכות מעבודה טופס 211 200 250 283 284">
+      <div class="item-head"><div><div class="title">פגיעה בעבודה</div><div class="forms"><span class="form-tag">211</span> <span class="form-tag">200</span> <span class="form-tag">250/283</span></div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <h4>זכאות</h4>
+        <ul><li>כל עובד שנפגע בעבודה או בדרך אליה/ממנה — מכוסה מהיום הראשון להעסקה, ללא תקופת אכשרה. עצמאי חייב להיות רשום בביטוח לאומי לפני הפגיעה.</li></ul>
+        <h4>דמי פגיעה</h4>
+        <ul><li>75% משכר 3 החודשים האחרונים, עד 91 יום. תקרה יומית 2026: 1,314.25 ₪.</li></ul>
+        <h4>נכות קבועה (אחרי 91 יום)</h4>
+        <ul><li>נקבעת ע"י ועדה רפואית — תשלום חד-פעמי או קצבה, לפי אחוז הנכות.</li></ul>
+        <h4>טפסים</h4>
+        <ul>
+          <li><span class="form-tag">211</span> — תביעה והודעה ראשונית על פגיעה בעבודה (זה הטופס שרוב האנשים מתכוונים אליו כשאומרים "טופס 211")</li>
+          <li><span class="form-tag">200</span> — קביעת דרגת נכות קבועה</li>
+          <li><span class="form-tag">250</span> — אישור טיפול רפואי לשכיר, <span class="form-tag">283</span> — אותו הדבר לעצמאי, <span class="form-tag">284</span> — הצהרת מעסיק</li>
+        </ul>
+        <p style="color:var(--amber)"><b>שים לב:</b> "טופס 100" בביטוח לאומי הוא ויתור על פניות שיווקיות מהמעסיק — <b>אינו</b> קשור לתביעת אבטלה. הנספח הנכון של מעסיק לתביעת אבטלה (טופס 1500) הוא טופס 1514.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="אבטלה דמי אבטלה פיטורים התפטרות 1500 1514 שירות תעסוקה">
+      <div class="item-head"><div><div class="title">אבטלה (דמי אבטלה)</div><div class="forms"><span class="form-tag">1500</span> <span class="form-tag">1514</span></div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <h4>זכאות</h4>
+        <ul>
+          <li>12 מתוך 18 החודשים האחרונים כשכיר, וסיום העסקה עקב פיטורים — לא התפטרות.</li>
+          <li>התפטרות מזכה רק אם הייתה מסיבה מוצדקת (הרעת תנאים, מעבר דירה בעקבות בן/בת זוג, טיפול במשפחה) — אחרת פסילה של 90 יום.</li>
+        </ul>
+        <h4>סכום ומשך</h4>
+        <ul>
+          <li>50 עד 175 ימים, תלוי בגיל ומספר תלויים.</li>
+          <li>ימים 1–125: עד 550.76 ₪ ליום (2026). מיום 126: 2/3 מהשכר הממוצע היומי = 367.17 ₪ ליום.</li>
+        </ul>
+        <p>ניתן להגיש תביעה משולבת (רישום בשירות התעסוקה + תביעת ביטוח לאומי בבת אחת) דרך <a href="https://www.taasuka.gov.il/applicants/sharedform/" target="_blank" rel="noopener">טופס משותף</a>.</p>
+        <p><b>שים לב:</b> עצמאים אינם זכאים לדמי אבטלה — רק שכירים.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="הבטחת הכנסה הכנסה נמוכה מבחן נכסים 5619 5521">
+      <div class="item-head"><div><div class="title">הבטחת הכנסה</div><div class="forms"><span class="form-tag">5619</span></div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <h4>זכאות</h4>
+        <ul><li>תושבים בעלי הכנסה נמוכה, העוברים מבחן נכסים (ללא דירה נוספת, שווי רכב מתחת לסף, חסכונות מתחת לסף), ומתחת לגיל 55 — גם עמידה במבחן תעסוקה מול שירות התעסוקה.</li></ul>
+        <h4>סכומים (2026)</h4>
+        <ul><li>מ-1,661 ₪ (יחיד מתחת לגיל 25) ועד 5,289 ₪ (הורה יחיד 55+ עם 2 ילדים ומעלה).</li></ul>
+        <p>לא משתלמת יחד עם דמי אבטלה. ניתנת לשילוב עם השלמת הכנסה לקצבת זקנה או נכות. טופס 5619, ונספח 5521 למעסיק אם התובע עובד חלקית.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="נפגעי איבה נפגעי פעולות איבה טרור 580 581 582 577">
+      <div class="item-head"><div><div class="title">נפגעי פעולות איבה</div><div class="forms"><span class="form-tag">580</span></div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <p>מימון מדינה (לא ממכסת דמי ביטוח) — רלוונטי במיוחד לאחר אוקטובר 2023.</p>
+        <ul>
+          <li><span class="form-tag">580</span> — הכרה ראשונית ותביעה</li>
+          <li><span class="form-tag">581</span> — קביעת דרגת נכות</li>
+          <li><span class="form-tag">582</span> — למשפחת נפטר</li>
+          <li><span class="form-tag">577</span> — קליטת פגיעה נפשית</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="שיקום מקצועי סיעוד שאירים ניידות תמיכה נוספת 270 2600 2655 410 416 2910 8220 8200">
+      <div class="item-head"><div><div class="title">נושאים נוספים בקצרה: שיקום מקצועי · סיעוד · שאירים · ניידות</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <h4>שיקום מקצועי</h4>
+        <p>טופס אחיד <span class="form-tag">270</span> — מוגש ע"י נכה, נפגע עבודה, אלמן/ה המקבל/ת קצבת שאירים, או נפגע פעולת איבה. טופס אחד לכל תת-התוכניות.</p>
+        <h4>סיעוד</h4>
+        <p>גיל פרישה + מבחן תלות בפעולות יומיום (ADL, 6 דרגות). מבחן הכנסה 2026: יחיד עד 12,536 ₪, זוג עד 18,804 ₪. סכומים: דרגה 1 — 1,659 ₪, דרגה 6 — 7,238 ₪. טופס <span class="form-tag">2600</span>; טופס <span class="form-tag">2655</span> — כסף במקום שירותים.</p>
+        <h4>שאירים</h4>
+        <p>אלמן/ה של מבוטח שנפטר (12 חודשי ביטוח מתוך 18 האחרונים, או 60 חודשים בסה"כ). בסיס כ-1,838 ₪ + תוספת ליתומים. הגשה תוך 12 חודשים. טפסים <span class="form-tag">410 / 416 / 2910</span>.</p>
+        <h4>ניידות</h4>
+        <p>תהליך דו-שלבי: קודם טופס <span class="form-tag">8220</span> במשרד הבריאות (ועדה רפואית), אחר כך טופס <span class="form-tag">8200</span> בביטוח לאומי. הגשת טופס אחד בלבד היא טעות נפוצה.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="דמי ביטוח תשלום תעריפים אחוזים עצמאי שכיר פטור עקרת בית">
+      <div class="item-head"><div><div class="title">דמי ביטוח לאומי — מי משלם וכמה</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <ul>
+          <li>שני מדרגים: שיעור מופחת עד 60% מהשכר הממוצע (7,703 ₪ ב-2026), ושיעור מלא מעל לכך.</li>
+          <li>עצמאים משלמים גם את חלק המעסיק וגם את חלק העובד (7.7% במדרגה המופחתת, 18.0% במדרגה המלאה).</li>
+          <li><b>פטורים חשובים:</b> בן/בת זוג שאינם עובדים (עקרת בית) — פטורים לגמרי מתשלום. מקבלי קצבת זקנה — טיפול מיוחד, לא לפי הטבלה הרגילה.</li>
+          <li>אדם עם הכנסה מעבודה וגם הכנסה פסיבית — הפטור של הכנסה פסיבית אינו נוסף על פני הכנסת עבודה, זהו חישוב משולב.</li>
+        </ul>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="ערר ערעור ועדה רפואית בית דין לעבודה 60 יום 12 חודשים">
+      <div class="item-head"><div><div class="title">ערעורים</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <table>
+          <tr><td>החלטה רפואית (אחוז נכות, ADL)</td><td>ועדה רפואית לעררים — תוך 60 יום</td></tr>
+          <tr><td>זכאות/סכום (לא רפואי)</td><td>ועדת ערר פנימית — תוך 60 יום</td></tr>
+          <tr><td>החלטה סופית (לאחר ערר)</td><td>בית הדין האזורי לעבודה — תוך 12 חודשים</td></tr>
+        </table>
+        <p>סיוע משפטי חינם קיים דרך הסיוע המשפטי (משרד המשפטים) לזכאים בעלי הכנסה נמוכה.</p>
+      </div></div>
+    </div>
+
+    <div class="item panel" data-keywords="הגשה איך מגישים אזור אישי טלפון 6050 אפליקציה טפסים">
+      <div class="item-head"><div><div class="title">איך מגישים תביעה</div></div><div class="chev">▾</div></div>
+      <div class="item-body"><div class="item-body-inner">
+        <ul>
+          <li>אזור אישי (מומלץ) — <a href="https://ps.btl.gov.il" target="_blank" rel="noopener">ps.btl.gov.il</a>, רוב התביעות מוגשות דיגיטלית, הטופס נוצר אוטומטית מתוך התהליך.</li>
+          <li>הגשת טופס PDF מלא ללא התחברות — פורטל הטפסים באתר הביטוח הלאומי.</li>
+          <li>העלאת מסמכים לתיק פתוח — b2b.btl.gov.il.</li>
+          <li>אפליקציית MyBTL — לדוגמה, הורדת "אישור מקבל קצבה".</li>
+          <li>טלפון: <b>*6050</b> (גם בוואטסאפ). שירות באנגלית — הקשה על 9.</li>
+          <li>סניפים — רק בתיאום תור מראש, ראו <a href="https://www.btl.gov.il/snifim" target="_blank" rel="noopener">רשימת סניפים</a>.</li>
+        </ul>
+      </div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const items=[...document.querySelectorAll('.item')];
+const input=document.getElementById('searchInput');
+const noResults=document.getElementById('noResults');
+
+// מילון מונחים נרדפים — מרחיב את החיפוש מעבר למילים המדויקות שבתגיות
+const synonyms={
+  "פנסיה":"זקנה","קצבה":"זקנה","כסא גלגלים":"ניידות","נכה":"נכות","מוגבלות":"נכות",
+  "תאונה":"פגיעה בעבודה","פוטר":"אבטלה","פוטרתי":"אבטלה","עני":"הבטחת הכנסה","מטפל":"סיעוד"
+};
+
+function expandQuery(q){
+  let terms=[q];
+  Object.keys(synonyms).forEach(k=>{ if(q.includes(k)) terms.push(synonyms[k]); });
+  return terms;
+}
+
+function highlight(el,q){
+  el.querySelectorAll('mark').forEach(m=>{ m.replaceWith(document.createTextNode(m.textContent)); });
+  if(!q) return;
+  const walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);
+  const nodes=[]; let n;
+  while(n=walker.nextNode()) nodes.push(n);
+  nodes.forEach(node=>{
+    const idx=node.textContent.toLowerCase().indexOf(q.toLowerCase());
+    if(idx>-1){
+      const span=document.createElement('span');
+      const before=node.textContent.slice(0,idx);
+      const match=node.textContent.slice(idx,idx+q.length);
+      const after=node.textContent.slice(idx+q.length);
+      span.appendChild(document.createTextNode(before));
+      const mark=document.createElement('mark'); mark.textContent=match;
+      span.appendChild(mark);
+      span.appendChild(document.createTextNode(after));
+      node.replaceWith(span);
+    }
+  });
+}
+
+function runSearch(){
+  const raw=input.value.trim().toLowerCase();
+  if(!raw){
+    items.forEach(it=>{ it.classList.remove('hidden','open'); highlight(it,''); });
+    noResults.style.display='none';
+    return;
+  }
+  const terms=expandQuery(raw);
+  let visibleCount=0, firstMatch=null;
+  items.forEach(it=>{
+    const kw=(it.dataset.keywords||'').toLowerCase();
+    const body=it.querySelector('.item-body-inner').textContent.toLowerCase();
+    const match=terms.some(t=>kw.includes(t)||body.includes(t));
+    it.classList.toggle('hidden',!match);
+    if(match){
+      visibleCount++;
+      highlight(it,raw);
+      if(!firstMatch) firstMatch=it;
+      it.classList.add('open');
+    } else {
+      it.classList.remove('open');
+    }
+  });
+  noResults.style.display=visibleCount?'none':'block';
+}
+
+input.addEventListener('input',runSearch);
+
+items.forEach(it=>{
+  it.querySelector('.item-head').addEventListener('click',()=>{
+    it.classList.toggle('open');
+  });
+});
+</script>
+</body>
+</html>
