@@ -2201,7 +2201,9 @@ function computeStatsFor(name){
   const period=dashboardPeriod(rows);
   const bdayMonth=new Date().getMonth()+1;
   const bdays=rows.filter(r=>{const d=birthDateOf(r);return d&&d.getMonth()+1===bdayMonth;});
-  const needs=rows.filter(needsRehabPlan);
+  // 18.07.2026: тот же фикс, что и в buildStats() выше — משrad הбитахон не считаем
+  // здесь (это ВТОРАЯ, независимая копия той же логики — см. дублирование, п.7 замечаний)
+  const needs=rows.filter(r=>needsRehabPlan(r)&&!isDefense(r));
   const intM=rows.filter(r=>sameDashboardMonth(intakeDateAA(r)||intakeDateOf(r),period));
   const intY=rows.filter(r=>{const d=intakeDateAA(r)||intakeDateOf(r);return d&&d.getFullYear()===period.year;});
   const endY=Array.isArray(ENDED2026)?(isM?ENDED2026:ENDED2026.filter(e=>!e.workshop||e.workshop===''||e.workshop===workshopKey)):[];
