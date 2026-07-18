@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הערכה תפקודית – תעסוקתית</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:#1a3a5c; --primary-mid:#2563a8; --primary-light:#e8f1fb;
+  --gold:#c9933a; --green:#2e7d52; --red:#b83232;
+  --text:#1e2535; --muted:#6b7280; --bg:#f4f7fc;
+  --border:#b8d0ee; --shadow:0 2px 16px rgba(26,58,92,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Heebo",Arial Hebrew,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;direction:rtl;}
+
+/* TOP BAR */
+.top-bar{background:var(--primary);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(26,58,92,.18);padding:7px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.top-bar-title .main{font-size:15px;font-weight:700;color:#fff;text-align:center;}
+.top-bar-title .sub{font-size:11px;color:#a8c4e0;text-align:center;}
+.top-bar-actions{display:flex;gap:8px;}
+.btn{border:none;border-radius:6px;font-family:"Heebo",Arial,sans-serif;font-size:13px;font-weight:600;cursor:pointer;padding:6px 14px;transition:.18s;}
+.btn-print{background:#fff;color:var(--primary);}
+.btn-print:hover{background:#e8f1fb;}
+.btn-save{background:var(--green);color:#fff;}
+.btn-save:hover{background:#256642;}
+.btn-email{background:var(--gold);color:#fff;}
+.btn-email:hover{background:#b07d2c;}
+.btn-clear{background:transparent;border:1px solid #4a6a88;color:#9bb8d4;}
+
+/* PAGE */
+.page{max-width:820px;margin:16px auto 32px;background:#fff;border-radius:12px;box-shadow:var(--shadow);overflow:hidden;}
+
+/* DOC HEADER */
+.doc-header{padding:10px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--border);}
+.doc-header img{height:58px;width:auto;object-fit:contain;} .doc-header img:first-child{height:72px;}
+.doc-header h1{font-size:19px;font-weight:800;color:var(--primary);text-align:center;}
+.doc-header p{font-size:12px;color:var(--muted);text-align:center;}
+
+/* BODY */
+.doc-body{padding:12px 26px;}
+
+.date-row{display:flex;justify-content:flex-end;margin-bottom:10px;font-size:13px;font-weight:600;color:var(--primary);gap:6px;align-items:center;}
+.date-row input{border:none;border-bottom:1.5px solid var(--border);width:140px;font-family:"Heebo",Arial,sans-serif;font-size:13px;color:var(--text);padding:2px 4px;background:transparent;outline:none;direction:ltr;text-align:center;}
+
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+.field-line{display:flex;align-items:center;gap:6px;}
+.field-line label{font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap;}
+.field-line input{flex:1;border:none;border-bottom:1.5px solid var(--border);font-family:"Heebo",Arial,sans-serif;font-size:13px;color:var(--text);padding:3px 4px;background:transparent;outline:none;}
+.field-line input:focus{border-bottom-color:var(--primary-mid);}
+
+.note{font-size:12px;color:var(--muted);margin-bottom:10px;}
+
+/* SECTIONS */
+.section{margin-bottom:10px;}
+.section-title{font-size:15px;font-weight:700;color:var(--primary);border-bottom:2px solid var(--primary);padding-bottom:4px;margin-bottom:8px;}
+.sub-title{font-size:13px;font-weight:700;color:var(--primary);margin:8px 0 4px;}
+
+/* מפעל מוגן — 4 in a row */
+.mifal-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.mifal-field{display:flex;flex-direction:column;gap:3px;}
+.mifal-field label{font-size:11px;font-weight:700;color:var(--primary);}
+.mifal-field input{border:1px solid var(--border);border-radius:6px;background:#f8fbff;font-family:"Heebo",Arial,sans-serif;font-size:13px;color:var(--text);padding:5px 8px;outline:none;}
+.mifal-field input:focus{border-color:var(--primary-mid);}
+
+/* השכלה — 3 per row */
+.edu-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.edu-item{background:#f8fbff;border:1px solid var(--border);border-radius:7px;padding:6px 10px;}
+.edu-row1{display:flex;align-items:center;gap:7px;margin-bottom:4px;}
+.edu-row1 input[type=radio]{accent-color:var(--primary);width:15px;height:15px;cursor:pointer;flex-shrink:0;}
+.edu-label{font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;}
+.edu-row2 input{width:100%;border:none;border-bottom:1.5px solid var(--border);background:transparent;font-family:"Heebo",Arial,sans-serif;font-size:12px;color:var(--text);padding:2px 3px;outline:none;}
+.edu-row2 input::placeholder{color:#b8d0ee;font-size:11px;}
+
+/* TABLES — fixed equal columns */
+table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed;margin-bottom:0;}
+table col.c-act{width:42%;}
+table col.c-res{width:14.5%;}
+th{background:var(--primary);color:#fff;font-weight:700;padding:6px 4px;text-align:center;font-size:12px;line-height:1.3;}
+th:first-child{text-align:right;padding-right:10px;}
+td{border:1px solid var(--border);padding:5px 4px;text-align:center;vertical-align:middle;}
+tr:nth-child(even) td{background:#f8fbff;}
+td:first-child{text-align:right;font-weight:600;color:var(--primary);padding-right:10px;}
+td input[type=checkbox]{accent-color:var(--primary);width:15px;height:15px;cursor:pointer;}
+
+/* YN rows */
+.yn-list{display:flex;flex-direction:column;gap:4px;}
+.yn-row{display:flex;align-items:center;gap:10px;font-size:12.5px;padding:5px 10px;background:#f8fbff;border:1px solid var(--border);border-radius:7px;flex-wrap:wrap;}
+.yn-label{flex:1;font-weight:500;color:var(--text);min-width:180px;}
+.yn-options{display:flex;gap:12px;align-items:center;}
+.yn-options label{display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--primary);cursor:pointer;}
+.yn-options input[type=radio]{accent-color:var(--primary);}
+.yn-detail{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);}
+.yn-detail input{border:none;border-bottom:1.5px solid var(--border);width:120px;font-family:"Heebo",Arial,sans-serif;font-size:12px;color:var(--text);padding:1px 3px;background:transparent;outline:none;}
+
+/* PRINT */
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  .top-bar{display:none !important;}
+  body{background:#fff;font-size:11.5px;}
+  .page{box-shadow:none;border-radius:0;margin:0;max-width:100%;}
+  .section{}
+  .keep-together{page-break-inside:avoid;break-inside:avoid;}
+  @page{size:A4 portrait;margin:7mm;}
+}
+@media (max-width:640px){
+  .top-bar{flex-direction:column;position:static;}
+  .doc-body{padding:10px;}
+  .doc-header{flex-direction:column;gap:8px;padding:10px;}
+  .edu-grid{grid-template-columns:1fr 1fr;}
+  .mifal-grid{grid-template-columns:1fr 1fr;}
+  .name-row{grid-template-columns:1fr;}
+}
+
+/* ── CLIENT AUTOCOMPLETE FROM MAIN EXCEL ── */
+.client-picker{margin:0 0 10px;background:#f0f7ff;border:1.5px dashed var(--border);border-radius:8px;padding:9px 12px;}
+.client-picker label{display:block;font-size:12px;font-weight:700;color:var(--primary);margin-bottom:5px;}
+.client-picker input{width:100%;border:1px solid var(--border);border-radius:7px;background:#fff;font-family:"Heebo",Arial,sans-serif;font-size:13px;color:var(--text);padding:6px 9px;outline:none;}
+.client-picker input:focus{border-color:var(--primary-mid);box-shadow:0 0 0 3px rgba(37,99,168,.10);}
+.client-status{font-size:11px;color:var(--muted);margin-top:5px;}
+.client-status.ok{color:var(--green);font-weight:700;}
+.client-status.warn{color:#b45309;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div style="width:80px;"></div>
+  <div class="top-bar-title">
+    <div class="main">הערכה תפקודית – תעסוקתית</div>
+    <div class="sub" data-org="name">מפעל מוגן שיקומי — עמותת יחדיו, באר שבע</div>
+  </div>
+  <div class="top-bar-actions">
+    <button class="btn btn-clear" onclick="clearAll()">✕ נקה</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
+    <button class="btn btn-email" onclick="emailDoc()">✉ שלח במייל</button>
+    <button class="btn btn-save" onclick="saveForm()">💾 שמור HTML</button>
+    <button class="btn btn-save" onclick="savePDF()">📄 שמור PDF</button>
+  </div>
+</div>
+
+<div class="page">
+  <div class="doc-header">
+    <img data-logo="org" src="" style="height:50px;width:auto;object-fit:contain;" alt="יחדיו">
+    <div>
+      <h1>הערכה תפקודית – תעסוקתית</h1>
+      <p data-org="name">מפעל מוגן שיקומי — עמותת יחדיו, באר שבע</p>
+    </div>
+    <img data-logo="ministry" src="" style="height:40px;width:auto;object-fit:contain;" alt="משרד הבריאות">
+  </div>
+
+  <div class="doc-body">
+
+    <div class="client-picker">
+      <label>בחירת מקבל שירות מתוך Excel</label>
+      <input type="text" id="clientSearch" list="clientList" placeholder="הקלד שם / ת.ז. ובחר מהרשימה">
+      <datalist id="clientList"></datalist>
+      <div id="clientStatus" class="client-status">בודק נתוני Excel...</div>
+    </div>
+
+    <div class="date-row"><span>תאריך:</span><input type="text" id="f-date"></div>
+    <div class="name-row">
+      <div class="field-line"><label>שם פרטי:</label><input type="text" id="f-name"></div>
+      <div class="field-line"><label>ת.ז:</label><input type="text" id="f-tz"></div>
+    </div>
+    <p class="note">תאר/י את מצבו ואת תפקודו של המפונה כיום על פי התחומים הבאים — לסמן ב-✓</p>
+
+    <!-- מפעל מוגן -->
+    <div class="section">
+      <div class="section-title">מפעל מוגן</div>
+      <div class="mifal-grid">
+        <div class="mifal-field"><label>מס' ימים בשבוע</label><input type="text"></div>
+        <div class="mifal-field"><label>היקף שעות בשבוע</label><input type="text"></div>
+        <div class="mifal-field"><label>הכנסה מתעסוקה (₪)</label><input type="text"></div>
+        <div class="mifal-field"><label>תקופת ההעסקה הנוכחית</label><input type="text" id="f-employment-period"></div>
+      </div>
+      <div class="yn-list">
+        <div class="yn-row">
+          <span class="yn-label">האם המופנה עבר בשנתיים האחרונות אבחון תעסוקתי?</span>
+          <div class="yn-options"><label><input type="radio" name="avhon"> כן</label><label><input type="radio" name="avhon"> לא</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- השכלה -->
+    <div class="section">
+      <div class="section-title">השכלה</div>
+      <div class="edu-grid">
+        <div class="edu-item"><div class="edu-row1"><input type="radio" name="edu" id="e1"><label class="edu-label" for="e1">יסודי</label></div><div class="edu-row2"><input type="text" placeholder="פירוט / שם מוסד..."></div></div>
+        <div class="edu-item"><div class="edu-row1"><input type="radio" name="edu" id="e2"><label class="edu-label" for="e2">תיכון</label></div><div class="edu-row2"><input type="text" placeholder="פירוט / שם מוסד..."></div></div>
+        <div class="edu-item"><div class="edu-row1"><input type="radio" name="edu" id="e3"><label class="edu-label" for="e3">אקדמאי</label></div><div class="edu-row2"><input type="text" placeholder="תואר / מוסד..."></div></div>
+        <div class="edu-item"><div class="edu-row1"><input type="radio" name="edu" id="e4"><label class="edu-label" for="e4">ישיבה</label></div><div class="edu-row2"><input type="text" placeholder="שם ישיבה..."></div></div>
+        <div class="edu-item"><div class="edu-row1"><input type="radio" name="edu" id="e5"><label class="edu-label" for="e5">מקצועי</label></div><div class="edu-row2"><input type="text" placeholder="מקצוע / קורס..."></div></div>
+        <div class="edu-item"><div class="edu-row1"><input type="radio" name="edu" id="e6"><label class="edu-label" for="e6">אחר:</label></div><div class="edu-row2"><input type="text" placeholder="פירוט..."></div></div>
+      </div>
+    </div>
+
+    <!-- הערכת תפקוד יום יומי -->
+    <div class="section">
+      <div class="section-title">הערכת תפקוד יום יומי</div>
+
+      <div>
+        <div class="sub-title">היגיינה אישית:</div>
+        <table><colgroup><col class="c-act"><col class="c-res"><col class="c-res"><col class="c-res"><col class="c-res"></colgroup>
+          <thead><tr><th>פעילות</th><th>עצמאי</th><th>זקוק לעידוד</th><th>זקוק להדרכה</th><th>מוגבל בביצוע</th></tr></thead>
+          <tbody>
+            <tr><td>לבוש נקי</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            <tr><td>לבוש הולם</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            <tr><td>טיפוח עצמי</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div>
+        <div class="sub-title">ניידות:</div>
+        <table><colgroup><col class="c-act"><col class="c-res"><col class="c-res"><col class="c-res"><col class="c-res"></colgroup>
+          <thead><tr><th>פעילות</th><th>עצמאי</th><th>זקוק לעידוד</th><th>זקוק להדרכה</th><th>מוגבל בביצוע</th></tr></thead>
+          <tbody>
+            <tr><td>תחבורה ציבורית</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            <tr><td>התמצאות בקהילה</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="keep-together">
+        <div class="sub-title">מיומנות חברתית:</div>
+        <div class="yn-list">
+          <div class="yn-row"><span class="yn-label">יכולת ליזום קשר עם אדם אחר</span><div class="yn-options"><label><input type="radio" name="y1"> כן</label><label><input type="radio" name="y1"> לא</label></div><div class="yn-detail">פרט: <input type="text"></div></div>
+          <div class="yn-row"><span class="yn-label">יכולת להיות מעורב בפעילות קבוצתית</span><div class="yn-options"><label><input type="radio" name="y2"> כן</label><label><input type="radio" name="y2"> לא</label></div><div class="yn-detail">פרט: <input type="text"></div></div>
+          <div class="yn-row"><span class="yn-label">מראה דאגה לאחר</span><div class="yn-options"><label><input type="radio" name="y3"> כן</label><label><input type="radio" name="y3"> לא</label></div><div class="yn-detail">פרט: <input type="text"></div></div>
+          <div class="yn-row"><span class="yn-label">יש חברים</span><div class="yn-options"><label><input type="radio" name="y4"> כן</label><label><input type="radio" name="y4"> לא</label></div><div class="yn-detail">פרט: <input type="text"></div></div>
+          <div class="yn-row"><span class="yn-label">יכולת לקיים קשרי חברות</span><div class="yn-options"><label><input type="radio" name="y5"> כן</label><label><input type="radio" name="y5"> לא</label></div><div class="yn-detail">פרט: <input type="text"></div></div>
+        </div>
+      </div>
+
+      <div class="keep-together">
+        <div class="sub-title">ניהול כספים:</div>
+        <table><colgroup><col class="c-act"><col class="c-res"><col class="c-res"><col class="c-res"><col class="c-res"></colgroup>
+          <thead><tr><th>פעילות</th><th>עצמאי</th><th>זקוק לעידוד</th><th>ליווי והדרכה</th><th>מוגבל</th></tr></thead>
+          <tbody>
+            <tr><td>מבין משמעות של כסף</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            <tr><td>משתמש בשירותי בנקים</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            <tr><td>יכול לנהל תקציב</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            <tr><td>משלם חשבונות</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+            <tr><td>מתמצא בתשלומים קטנים, מכולת וכו'</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- הערכה תפקודית-תעסוקתית -->
+    <div class="section keep-together">
+      <div class="section-title">הערכה תפקודית–תעסוקתית</div>
+      <table><colgroup><col class="c-act"><col class="c-res"><col class="c-res"><col class="c-res"><col class="c-res"></colgroup>
+        <thead><tr><th>פעילות</th><th>עצמאי</th><th>עם ליווי</th><th>זקוק להדרכה</th><th>מוגבל</th></tr></thead>
+        <tbody>
+          <tr><td>התייחסות לסביבת עבודה</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          <tr><td>יחס לסמכות</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          <tr><td>יכולת הבנה וביצוע הוראות</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          <tr><td>יכולת עבודה רב שלבית</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          <tr><td>התמדה בתעסוקה</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          <tr><td>עבודה בצוות</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+          <tr><td>קבלת אחריות</td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td><td><input type="checkbox"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ממלא הטופס -->
+    <div class="section keep-together" style="margin-top:12px;">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--primary-light);border:1px solid var(--border);border-radius:8px;">
+        <label style="font-size:13px;font-weight:700;color:var(--primary);white-space:nowrap;">ממלא/ת הטופס:</label>
+        <select id="signerSelect" onchange="handleSignerChange()" style="font-family:Heebo,Arial,sans-serif;font-size:14px;font-weight:600;color:var(--primary);border:1px solid var(--border);border-radius:7px;padding:5px 10px;background:#fff;outline:none;cursor:pointer;">
+          <option value="">בחר/י...</option>
+        </select>
+        <input type="text" id="signerCustom" placeholder="הקלד שם..." style="display:none;font-family:Heebo,Arial,sans-serif;font-size:14px;color:var(--text);border:1px solid var(--border);border-radius:7px;padding:5px 10px;outline:none;width:180px;">
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2,"0");
+  const mm = String(today.getMonth()+1).padStart(2,"0");
+  const yyyy = today.getFullYear();
+  const dateStr = dd+"/"+mm+"/"+yyyy;
+  document.getElementById("f-date").value = dateStr;
+
+
+  // ── AUTO-FILL FROM MAIN EXCEL DATABASE ─────────────────────────────────
+  let EXCEL_CLIENTS = [];
+
+  function cleanText(v) {
+    return String(v ?? '').replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim();
+  }
+
+  function normalizeText(v) {
+    return cleanText(v).toLowerCase();
+  }
+
+  function parseAnyDate(v) {
+    if (!v) return null;
+    if (v instanceof Date && !isNaN(v.getTime())) return v;
+
+    if (typeof v === 'number' && v > 1000 && v < 200000) {
+      // Excel serial date
+      return new Date(Math.round((v - 25569) * 86400 * 1000));
+    }
+
+    const s = cleanText(v);
+    if (!s) return null;
+
+    // ISO date from localStorage JSON: 2026-06-10T...
+    const iso = new Date(s);
+    if (!isNaN(iso.getTime())) return iso;
+
+    // dd/mm/yyyy or dd.mm.yyyy or dd-mm-yyyy
+    const m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})$/);
+    if (m) {
+      let y = Number(m[3]);
+      if (y < 100) y += 2000;
+      const d = new Date(y, Number(m[2]) - 1, Number(m[1]));
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    return null;
+  }
+
+  function formatEmploymentPeriod(startValue) {
+    const start = parseAnyDate(startValue);
+    if (!start) return '';
+
+    const now = new Date();
+    let years = now.getFullYear() - start.getFullYear();
+    let months = now.getMonth() - start.getMonth();
+    if (now.getDate() < start.getDate()) months--;
+    if (months < 0) { years--; months += 12; }
+    if (years < 0) return '';
+
+    const parts = [];
+    if (years) parts.push(years + ' ' + (years === 1 ? 'שנה' : 'שנים'));
+    if (months) parts.push(months + ' ' + (months === 1 ? 'חודש' : 'חודשים'));
+    if (!parts.length) parts.push('פחות מחודש');
+    return parts.join(' ו-');
+  }
+
+  function loadClientsFromMainExcel() {
+    const status = document.getElementById('clientStatus');
+    const list = document.getElementById('clientList');
+
+    try {
+      const raw = localStorage.getItem('rehab_excel_clients_v1');
+      EXCEL_CLIENTS = raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      EXCEL_CLIENTS = [];
+    }
+
+    if (!Array.isArray(EXCEL_CLIENTS) || !EXCEL_CLIENTS.length) {
+      if (status) {
+        status.textContent = 'לא נמצאה רשימת מקבלי שירות. יש לטעון Excel במסך הראשי.';
+        status.className = 'client-status warn';
+      }
+      return;
+    }
+
+    if (list) {
+      list.innerHTML = EXCEL_CLIENTS
+        .map(c => {
+          const name = cleanText(c.name || c.clientName || c.fullName);
+          const id = cleanText(c.id || c.tz || c.clientId);
+          if (!name) return '';
+          return '<option value="' + name.replaceAll('&','&amp;').replaceAll('"','&quot;') + '">' +
+                 (id ? 'ת.ז. ' + id : '') + '</option>';
+        })
+        .join('');
+    }
+
+    if (status) {
+      status.textContent = 'נטענו ' + EXCEL_CLIENTS.length + ' מקבלי שירות מהמסך הראשי';
+      status.className = 'client-status ok';
+    }
+  }
+
+  function findClientBySearch(value) {
+    const q = normalizeText(value);
+    if (!q) return null;
+    return EXCEL_CLIENTS.find(c => normalizeText(c.name || c.clientName || c.fullName) === q) ||
+           EXCEL_CLIENTS.find(c => normalizeText(c.id || c.tz || c.clientId) === q) ||
+           EXCEL_CLIENTS.find(c => normalizeText((c.name || '') + ' ' + (c.id || '')).includes(q));
+  }
+
+  function fillFromClient(client) {
+    if (!client) return;
+
+    const name = cleanText(client.name || client.clientName || client.fullName);
+    const id = cleanText(client.id || client.tz || client.clientId);
+    const intake = client.intakeDate || client.startDate || client['תאריך קליטה']; // עמודה AA במסך הראשי
+
+    const nameInput = document.getElementById('f-name');
+    const idInput = document.getElementById('f-tz');
+    const periodInput = document.getElementById('f-employment-period');
+
+    if (nameInput && name) nameInput.value = name;
+    if (idInput && id) idInput.value = id;
+    if (periodInput) periodInput.value = formatEmploymentPeriod(intake);
+  }
+
+  function initClientPicker() {
+    loadClientsFromMainExcel();
+    const search = document.getElementById('clientSearch');
+    if (!search) return;
+
+    search.addEventListener('change', function() {
+      fillFromClient(findClientBySearch(search.value));
+    });
+
+    search.addEventListener('input', function() {
+      const exact = findClientBySearch(search.value);
+      if (exact && normalizeText(exact.name || '') === normalizeText(search.value)) {
+        fillFromClient(exact);
+      }
+    });
+  }
+
+  window.addEventListener('load', initClientPicker);
+
+  function handleSignerChange() {
+    const sel = document.getElementById("signerSelect");
+    const custom = document.getElementById("signerCustom");
+    if (sel.value === "other") {
+      custom.style.display = "block";
+      custom.focus();
+    } else {
+      custom.style.display = "none";
+    }
+  }
+
+  function clearAll() {
+    if (!confirm("למחוק את כל הנתונים בטופס?")) return;
+    document.querySelectorAll("input[type=text]").forEach(i => i.value = "");
+    document.querySelectorAll("input[type=checkbox]").forEach(i => i.checked = false);
+    document.querySelectorAll("input[type=radio]").forEach(i => i.checked = false);
+    document.getElementById("signerSelect").selectedIndex = 0;
+    document.getElementById("signerCustom").style.display = "none";
+    document.getElementById("f-date").value = dateStr;
+  }
+
+  function savePDF() {
+    const name = document.getElementById("f-name").value || "ללא-שם";
+    // Use browser print-to-PDF with filename hint
+    const title = document.title;
+    document.title = "הערכה_תפקודית_" + name + "_" + dateStr.replace(/\//g,"-");
+    window.print();
+    setTimeout(() => { document.title = title; }, 2000);
+  }
+
+  function saveForm() {
+    const name = document.getElementById("f-name").value || "ללא-שם";
+    const blob = new Blob([document.documentElement.outerHTML], {type:"text/html;charset=utf-8"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "הערכה_תפקודית_" + name + "_" + dateStr.replace(/\//g,"-") + ".html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  async function emailDoc() {
+    const name = document.getElementById("f-name").value || "ללא-שם";
+    const html = document.documentElement.outerHTML;
+    const filename = "הערכה_תפקודית_" + name + "_" + dateStr.replace(/\//g,"-") + ".html";
+    const file = new File([html], filename, {type:"text/html"});
+
+    if (navigator.canShare && navigator.canShare({files:[file]}) && navigator.share) {
+      try {
+        await navigator.share({ title: 'הערכה תפקודית – ' + name, text: 'מצורף טופס הערכה תפקודית.', files: [file] });
+        return;
+      } catch(e) {
+        if (e.name === 'AbortError') return;
+      }
+    }
+
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([html], {type:"text/html;charset=utf-8"}));
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    const subject = encodeURIComponent('הערכה תפקודית – ' + name);
+    const body = encodeURIComponent('הקובץ ירד למכשיר. יש לצרף אותו למייל ידנית אם תוכנת הדואר אינה תומכת בצירוף אוטומטי מתוך הדפדפן.');
+    window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  }
+</script>
+<script>
+/**
+ * ═══════════════════════════════════════════════════
+ *  config.js — הגדרות ארגוניות
+ *  שנה כאן בלבד. כל הטפסים יתעדכנו אוטומטית.
+ * ═══════════════════════════════════════════════════
+ */
+
+const ORG_CONFIG = {
+
+  // ── פרטי הארגון ──────────────────────────────────
+  orgName:  "מפעל מוגן שיקומי לבריאות הנפש, באר שבע – עמותת יחדיו",
+  orgShort: "עמותת יחדיו",
+  city:     "באר שבע",
+
+  // ── מנהל (חתימה קבועה במסמכים) ──────────────────
+  director: {
+    name:  "אלכסנדר חטקביץ",
+    title: "מנהל מפעל שיקומי לבריאות הנפש"
+  },
+
+  // ── עובדת סוציאלית (חתימה קבועה במסמכים) ────────
+  socialWorker: {
+    name:  "ליבי יוסופוב",
+    title: "עובדת סוציאלית"
+  },
+
+  // ── מדריכים (רשימות נפתחות) ──────────────────────
+  guides: [
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── כל הצוות (לתיעוד שיחות וכד') ────────────────
+  allStaff: [
+    "אלכסנדר חטקביץ",
+    "ליבי יוסופוב",
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── קבצים ─────────────────────────────────────────
+  // שנה כאן את הנתיבים לפי מבנה השרת שלך
+  files: {
+    // קובץ Excel עם נתוני מקבלי השירות
+    excel: "מחלות רקע.xlsx",
+
+    // לוגו העמותה — קובץ בתיקיית images/ או URL חיצוני
+    logoOrg: "https://mnz.org.il/sites/www.mnz.org.il/files/logo-yachdav.png",
+
+    // לוגו משרד הבריאות
+    logoMinistry: "https://upload.wikimedia.org/wikipedia/he/thumb/f/fb/Israeli_Ministry_of_Health_logo.png/3840px-Israeli_Ministry_of_Health_logo.png"
+  },
+
+  // ── גדלי לוגואים במסמכים ─────────────────────────
+  logoSizes: {
+    orgHeight:      "50px",
+    ministryHeight: "40px"
+  }
+};
+
+/**
+ * פונקציות עזר — נטענות אוטומטית בכל הטפסים
+ */
+
+// מילוי שם ארגון בכל מקום עם data-org="name"
+function fillOrgNames() {
+  document.querySelectorAll('[data-org="name"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgName;
+  });
+  document.querySelectorAll('[data-org="short"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgShort;
+  });
+  document.querySelectorAll('[data-org="city"]').forEach(el => {
+    el.textContent = ORG_CONFIG.city;
+  });
+}
+
+// מילוי שם מנהל ועו"ס בכל מקום עם data-staff
+function fillStaffNames() {
+  document.querySelectorAll('[data-staff="director"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name;
+  });
+  document.querySelectorAll('[data-staff="director-full"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name + ' – ' + ORG_CONFIG.director.title;
+  });
+  document.querySelectorAll('[data-staff="social-worker"]').forEach(el => {
+    el.textContent = ORG_CONFIG.socialWorker.name;
+  });
+}
+
+// בניית רשימה נפתחת של מדריכים
+function buildGuidesSelect(selectEl, includeEmpty = true) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר/י מדריך';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.guides.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+}
+
+// בניית רשימה נפתחת של כל הצוות
+function buildAllStaffSelect(selectEl, includeEmpty = true, extraOptions = []) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר...';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.allStaff.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+  extraOptions.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.value || item;
+    opt.textContent = item.label || item;
+    selectEl.appendChild(opt);
+  });
+}
+
+// האתחול מתבצע בתחתית הקובץ
+
+// החלפת לוגואים בכל הטפסים
+function fillLogos() {
+  // לוגו עמותה
+  document.querySelectorAll('[data-logo="org"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoOrg;
+    img.style.height = ORG_CONFIG.logoSizes.orgHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+  // לוגו משרד הבריאות
+  document.querySelectorAll('[data-logo="ministry"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoMinistry;
+    img.style.height = ORG_CONFIG.logoSizes.ministryHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+}
+
+// הוסף fillLogos לאתחול
+document.addEventListener('DOMContentLoaded', function() {
+  fillOrgNames();
+  fillStaffNames();
+  fillLogos();
+});
+
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  buildAllStaffSelect(document.getElementById('signerSelect'), true, [{value:'other', label:'אחר...'}]);
+});
+</script>
+</body>
+</html>

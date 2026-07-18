@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>חוזה אישי – כללי התנהלות</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1a3a5c;
+  --primary-mid: #2563a8;
+  --primary-light: #e8f1fb;
+  --gold: #c9933a;
+  --green: #2e7d52;
+  --red: #b83232;
+  --text: #1e2535;
+  --muted: #6b7280;
+  --bg: #f4f7fc;
+  --white: #ffffff;
+  --border: #b8d0ee;
+  --shadow: 0 2px 16px rgba(26,58,92,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Heebo, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+  direction: rtl;
+}
+
+/* TOP BAR */
+.top-bar {
+  background: var(--primary);
+  color: white;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.top-bar-text { flex: 1; }
+.top-bar-title { font-size: 16px; font-weight: 700; }
+.top-bar-sub { font-size: 12px; color: #a8c4e0; margin-top: 2px; }
+.top-bar-logos { display: flex; align-items: center; gap: 12px; }
+.top-bar-logos img { height: 36px; width: auto; filter: brightness(0) invert(1); opacity: 0.9; }
+.top-bar-actions { display: flex; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 6px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: all .18s;
+}
+.btn-print { background: white; color: var(--primary); }
+.btn-print:hover { background: #e2ecf7; }
+.btn-save { background: var(--green); color: white; }
+.btn-save:hover { background: #235f3e; }
+.btn-email { background: var(--gold); color: white; }
+.btn-email:hover { background: #b07d2c; }
+.btn-clear { background: transparent; color: #9bb8d4; border: 1px solid #4a6a88; font-size: 12px; padding: 6px 12px; }
+.btn-clear:hover { background: rgba(255,255,255,0.08); }
+
+/* MAIN */
+.page {
+  max-width: 820px;
+  margin: 28px auto;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* LOAD PANEL */
+.load-panel {
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  background: var(--primary-light);
+}
+.manual-panel { display: block; }
+.manual-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+.manual-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.manual-grid label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 4px; display: block; }
+.manual-grid input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 14px; }
+
+/* DOC */
+.doc-header {
+  padding: 24px 32px 16px;
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: #ffffff;
+}
+.doc-header-logos { display: flex; align-items: center; gap: 22px; }
+.doc-header-logos img {
+  height: 50px; width: auto; max-width: 170px;
+  object-fit: contain; background: transparent;
+  filter: none; mix-blend-mode: normal;
+}
+.doc-title { text-align: center; flex: 1; }
+.doc-title h1 { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+.doc-title p { font-size: 13px; color: var(--muted); }
+
+.doc-body {
+  padding: 28px 32px;
+  min-height: 1100px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* INTRO */
+.doc-intro {
+  font-size: 14.5px;
+  color: var(--text);
+  margin-bottom: 18px;
+  line-height: 1.7;
+}
+
+/* RULES LIST */
+.rules-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px 0;
+}
+.rules-list li {
+  padding: 8px 0 8px 0;
+  border-bottom: 1px solid #eef3f9;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text);
+  position: relative;
+  padding-right: 22px;
+}
+.rules-list li:last-child { border-bottom: none; }
+.rules-list li::before {
+  content: "–";
+  position: absolute;
+  right: 4px;
+  color: var(--primary-mid);
+  font-weight: 700;
+}
+.rules-list li strong { color: var(--primary); }
+.rules-list li .highlight-red { color: var(--red); font-weight: 700; }
+.rules-list li .highlight-gold { color: var(--gold); font-weight: 700; }
+
+/* HOURS BOX */
+.hours-box {
+  background: var(--primary-light);
+  border-right: 4px solid var(--primary-mid);
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin: 4px 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+/* SIGNATURE TABLE */
+.sig-section-title {
+  margin-top: 28px;
+  margin-bottom: 18px;
+  text-align: center;
+  color: var(--primary);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.2;
+  border-top: 2px solid var(--primary);
+  padding-top: 16px;
+}
+
+.confirm-text {
+  font-size: 14px;
+  margin-bottom: 20px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* DATE FIELD */
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+}
+.date-row input {
+  padding: 7px 12px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* SIG TABLE */
+.sig-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  table-layout: fixed;
+}
+.sig-table th {
+  background: var(--primary);
+  color: white;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid #3a5f85;
+}
+.sig-table td {
+  border: 1px solid var(--border);
+  padding: 6px 10px;
+  text-align: center;
+  font-size: 13px;
+  vertical-align: top;
+}
+.sig-table td:first-child { font-weight: 600; color: var(--primary); background: var(--primary-light); }
+.sig-cell {
+  height: 96px;
+  position: relative;
+  cursor: pointer;
+}
+.sig-cell canvas {
+  width: 100%;
+  height: 96px;
+  touch-action: none;
+  display: block;
+  pointer-events: none; /* рисование теперь только в модальном окне, вся ячейка — большая тач-зона для его открытия */
+}
+.sig-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9aa7bb;
+  pointer-events: none;
+}
+.sig-cell.has-sig .sig-placeholder { display: none; }
+
+/* SIGNATURE MODAL — большой canvas для подписи (замена маленькому инлайн-квадрату) */
+.sig-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 30, 58, .6);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 16px;
+}
+.sig-modal-overlay.open { display: flex; }
+.sig-modal-box {
+  background: #fff;
+  border-radius: 18px;
+  padding: 18px;
+  width: min(94vw, 640px);
+  box-shadow: 0 20px 60px rgba(15, 30, 58, .35);
+}
+.sig-modal-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--primary);
+  text-align: center;
+  margin-bottom: 10px;
+}
+.sig-modal-canvas-wrap {
+  border: 2px dashed var(--primary);
+  border-radius: 12px;
+  overflow: hidden;
+  height: min(50vh, 320px);
+  touch-action: none;
+  background: #fbfcfe;
+}
+#sigModalCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  cursor: crosshair;
+  touch-action: none;
+}
+.sig-modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+.sig-modal-btn {
+  flex: 1;
+  padding: 13px 10px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  min-height: 46px;
+}
+.sig-modal-btn-ghost { background: var(--primary-light); color: var(--primary); }
+.sig-modal-btn-primary { background: var(--primary); color: #fff; }
+.sig-cell-btn {
+  position: absolute;
+  bottom: 3px;
+  left: 3px;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  border-radius: 4px;
+  background: #fee2e2;
+  color: var(--red);
+}
+
+/* PREFILLED STAFF */
+.staff-name {
+  font-weight: 700;
+  color: var(--primary);
+  font-size: 13px;
+  padding: 6px 0;
+}
+
+/* VALIDITY NOTE */
+.validity-note {
+  margin-top: auto;
+  padding-top: 14px;
+  padding-bottom: 4px;
+  border-top: 2px solid var(--primary);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* STATUS */
+.status-bar {
+  display: none;
+  padding: 10px 16px; margin: 16px 0;
+  border-radius: 8px; font-size: 14px; font-weight: 600;
+}
+.status-bar.success { background: #ecfdf5; color: var(--green); display: block; }
+.status-bar.error { background: #fef2f2; color: var(--red); display: block; }
+
+/* MOBILE */
+@media (max-width: 600px) {
+  body { font-size: 14px; }
+  .top-bar { position: static; flex-direction: column; padding: 8px 10px; gap: 8px; }
+  .top-bar-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .btn { width: 100%; justify-content: center; padding: 8px 6px; font-size: 12px; }
+  .page { width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
+  .load-panel { padding: 14px 12px; }
+  .manual-grid { grid-template-columns: 1fr; }
+  .doc-header { flex-direction: column; text-align: center; padding: 14px 12px 10px; }
+  .doc-header-logos { gap: 10px; }
+  .doc-header-logos img { height: 34px; max-width: 92px; }
+  .doc-title h1 { font-size: 18px; }
+  .doc-body { padding: 12px; }
+  .sig-table { font-size: 11px; }
+}
+
+/* PRINT */
+@page { size: A4 portrait; margin: 6mm; }
+@media print {
+  html, body { width: auto; height: auto; min-height: 0; margin: 0; padding: 0; background: #ffffff; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .top-bar, .load-panel, .top-bar-actions, .status-bar, .sig-cell-btn, .sig-placeholder, .sig-modal-overlay { display: none !important; }
+  .page { width: 198mm; max-width: 198mm; margin: 0 auto; padding: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+  .doc-body { padding: 0; margin: 0; min-height: 0; display: flex; flex-direction: column; }
+  .doc-header { padding: 0 0 1.65mm; margin: 0 0 1.65mm; border-bottom: 1px solid var(--border); display: flex; flex-direction: row; align-items: center; justify-content: space-between; }
+  .doc-header-logos img { height: 11.3mm; max-width: 35mm; }
+  .doc-title h1 { font-size: 14.7pt; line-height: 1.1; }
+  .doc-title p { font-size: 7.7pt; }
+  .doc-intro { font-size: 9.1pt; margin-bottom: 1.7mm; line-height: 1.27; }
+  .rules-list li { font-size: 8.6pt; padding: 1.5px 18px 1.5px 0; line-height: 1.7; }
+  .hours-box { font-size: 8.6pt; padding: 1.18mm 2.65mm; margin: 0.66mm 0 1.15mm; }
+  .confirm-text { font-size: 8.8pt; margin-bottom: 1.7mm; line-height: 1.24; }
+  .date-row { font-size: 8.8pt; margin-bottom: 1.7mm; }
+  .date-row input { font-size: 8.8pt; padding: 1.18mm 2.15mm; }
+  .sig-table { margin-top: 3.5mm; break-inside: avoid; page-break-inside: avoid; }
+  .sig-table th { font-size: 8.24pt; padding: 1.24mm 2mm; }
+  .sig-table td { font-size: 8.24pt; padding: 0.88mm 2mm; }
+  .sig-table tr { break-inside: avoid; page-break-inside: avoid; }
+  .sig-cell { height: 18.6mm; }
+  .sig-cell canvas { height: 18.6mm; }
+  .validity-note { margin-top: auto; padding-top: 1.65mm; border-top: 0.45mm solid var(--primary); font-size: 8.24pt; line-height: 1.23; }
+  * { page-break-after: auto; break-after: auto; }
+  body::after { content: none; display: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-text">
+    <div class="top-bar-title">חוזה אישי – כללי התנהלות</div>
+    <div class="top-bar-sub" data-org="name">מפעל מוגן שיקומי לבריאות הנפש – עמותת יחדיו</div>
+  </div>
+  <div class="top-bar-actions">
+    <button class="btn btn-clear" onclick="clearAll()">✕ נקה</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
+    <button class="btn btn-email" onclick="emailDoc()">✉ שלח במייל</button>
+    <button class="btn btn-save" onclick="savePDF()">📄 שמור PDF</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- LOAD PANEL -->
+  <div class="load-panel">
+    <div class="manual-panel">
+      <div class="manual-title">פרטי מקבל השירות</div>
+      <div class="manual-grid">
+        <div>
+          <label for="manualName">שם משפחה ושם פרטי</label>
+          <input id="manualName" type="text" autocomplete="off" placeholder="שם מלא" oninput="applyManualLive()">
+        </div>
+        <div>
+          <label for="manualTZ">תעודת זהות</label>
+          <input id="manualTZ" type="text" inputmode="numeric" placeholder="מספר ת.ז." oninput="applyManualLive()">
+        </div>
+        <div>
+          <label for="manualDate">תאריך</label>
+          <input id="manualDate" type="date" onchange="applyManualLive()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOCUMENT -->
+  <div class="doc-body">
+
+    <div class="doc-header">
+      <div class="doc-header-logos">
+        <img class="logo-health" data-logo="ministry" src="" style="height:40px;width:auto;object-fit:contain;" alt="משרד הבריאות">
+      </div>
+      <div class="doc-title">
+        <h1>טופס כללי התנהלות</h1>
+        <p data-org="name">מפעל מוגן שיקומי לבריאות הנפש, באר שבע – עמותת יחדיו</p>
+      </div>
+      <div class="doc-header-logos">
+        <img class="logo-yachdav" data-logo="org" src="" style="height:50px;width:auto;object-fit:contain;" alt="עמותת יחדיו">
+      </div>
+    </div>
+
+    <div style="height:16px"></div>
+
+    <div class="doc-intro">
+      אני החתום מטה, מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.<br>
+      להלן יפורטו כללי ההתנהלות במפעל:
+    </div>
+
+    <ul class="rules-list">
+      <li>מקבל השירות במפעל המוגן השיקומי יקבל תמיכה, הכוונה, ליווי והקניית מיומנויות והרגלי עבודה התואמים את יכולותיו וכישוריו.</li>
+      <li><strong>שלושת החודשים</strong> הראשונים לשהיית מקבל השירות יהיו תקופת ניסיון.</li>
+      <li>מקבל השירות נדרש להקפיד על לוח הזמנים במפעל והגעה בזמן.
+        <div class="hours-box">שעות הפעילות במפעל: 8:00 עד 13:00 &nbsp;|&nbsp; מס' ימי פעילות בשבוע: 5 ימים</div>
+      </li>
+      <li>מקבל השירות נדרש להגיע למפעל המוגן לכל הפחות ל-5 שעות פעילות ביום.</li>
+      <li>מקבל השירות נדרש להקפיד על נוכחות סדירה במפעל.</li>
+      <li>מקבל השירות נדרש להקפיד על הופעה המתאימה: נעליים סגורות ומכנסיים ארוכים.</li>
+      <li>מקבל השירות נדרש להודיע מראש אם אינו יכול להגיע למפעל, ולקבל אישור מהמדריך/ה או ממנהל המפעל על היעדרותו (כולל בימי מחלה).</li>
+      <li>מקבל השירות נדרש לגלות אחריות ולדווח על כל יציאה מתחומי המפעל במהלך היום.</li>
+      <li>מקבל השירות נדרש לשמור על הסדר והניקיון של הסדנה והמפעל.</li>
+      <li>מקבל השירות נדרש לשמור על הרכוש, הציוד וחומרי הגלם שמצויים במפעל.</li>
+      <li>מקבל השירות נדרש לפעול בהתאם להוראות הבטיחות הנהוגים במפעל.</li>
+      <li>מקבל השירות יעבור הדרכת בטיחות שנתית, הכוללת בין היתר: תגובה במצבי חירום, הקפדה על נהלי הבטיחות, שמירה על ערנות, הליכה בשבילים בלבד וכו׳.</li>
+      <li>העישון מאושר רק במקום המיועד ב"פינות עישון".</li>
+      <li><span class="highlight-red">שימוש בסמים ואלכוהול – אסור בהחלט!</span></li>
+      <li><strong>אין לנהוג באלימות פיזית ואלימות מילולית כלפי אף אחד מהנוכחים במפעל.</strong><br>
+        <strong>התנהגות אלימה יכולה להוביל להשעיה מהמפעל.</strong></li>
+      <li>כל החלטה על סיום פעילותו של מקבל השירות במפעל תהיה בהתאם לקריטריונים מקצועיים, ותתואם לפחות שבועיים מראש עם מקבל השירות והצוות.</li>
+      <li>מקבל השירות יקבל שתי הפסקות ביום: הפסקת בוקר בת רבע שעה והפסקת צהרים בת חצי שעה.</li>
+      <li>עובד/ת מתחייב/ת <strong>שלא ללוות כספים</strong> ממקבלי השירות <strong>ולא להלוות כספים</strong> למקבלי השירות, בכל צורה ואופן שהוא. כל הפרה של סעיף זה תיחשב כהפרה מהותית של תנאי ההעסקה.</li>
+      <li><strong>מקבל השירות מודע לכך שהינו שוהה במפעל מוגן, שאין ולא חלים יחסי עובד-מעביד בינו לבין עמותת יחדיו</strong> ושהופנה על ידי סל שיקום מטעם משרד הבריאות. מקבל השירות יקבל גמול עבור פעילותו המוגדר כגב"ע – גמול ביצוע עבודה.<br>
+        חישוב הגב"ע החודשי נקבע על בסיס נוכחות במפעל, תפוקת ואיכות עבודתו.</li>
+      <li>תשלום עבור נסיעות יתקבל בהתאם לזכאות של כל מקבל שירות.</li>
+      <li>תשלום עבור חגים/ימי בחירות – מקבל שירות יקבל 75% עבור פעילותו בימי החגים ובלבד שלא יחולו בימי שישי/שבת. חול המועד פסח וחול המועד סוכות – ללא תשלום.</li>
+    </ul>
+
+    <div id="statusBar" class="status-bar"></div>
+
+    <div class="confirm-text">
+      אני, החתום מטה, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל:
+    </div>
+
+    <div class="date-row">
+      תאריך: <input id="fDate" type="date">
+    </div>
+
+    <table class="sig-table">
+      <thead>
+        <tr>
+          <th style="width:18%"></th>
+          <th style="width:27%">מקבל שירות / אפוטרופוס</th>
+          <th style="width:27%">עו"ס / מדריך</th>
+          <th style="width:28%">מנהל מפעל</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>שם החותם</td>
+          <td><div id="fName" style="min-height:28px;font-weight:700;color:var(--primary);font-size:14px;padding:4px 0;"></div></td>
+          <td><div class="staff-name" data-staff="social-worker">ליבי יוסופוב</div></td>
+          <td><div class="staff-name" data-staff="director">אלכסנדר חטקביץ</div></td>
+        </tr>
+        <tr>
+          <td>חתימה</td>
+          <td class="sig-cell" onclick="openSigModal(0)">
+            <canvas id="sigCanvas0" width="600" height="70"></canvas>
+            <div class="sig-placeholder">הקש כדי לחתום</div>
+            <button class="sig-cell-btn" onclick="event.stopPropagation(); clearSig(0)">מחק</button>
+          </td>
+          <td class="sig-cell" onclick="openSigModal(1)">
+            <canvas id="sigCanvas1" width="600" height="70"></canvas>
+            <div class="sig-placeholder">הקש כדי לחתום</div>
+            <button class="sig-cell-btn" onclick="event.stopPropagation(); clearSig(1)">מחק</button>
+          </td>
+          <td class="sig-cell" onclick="openSigModal(2)">
+            <canvas id="sigCanvas2" width="600" height="70"></canvas>
+            <div class="sig-placeholder">הקש כדי לחתום</div>
+            <button class="sig-cell-btn" onclick="event.stopPropagation(); clearSig(2)">מחק</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="validity-note">
+      הסכם זה נחתם בין מקבל השירות לבין עמותת יחדיו ומהווה אישור לכללי ההתנהלות במפעל המוגן.
+    </div>
+
+  </div>
+</div>
+
+<div class="sig-modal-overlay" id="sigModalOverlay">
+  <div class="sig-modal-box">
+    <div class="sig-modal-title" id="sigModalTitle">חתימה</div>
+    <div class="sig-modal-canvas-wrap">
+      <canvas id="sigModalCanvas"></canvas>
+    </div>
+    <div class="sig-modal-actions">
+      <button type="button" class="sig-modal-btn sig-modal-btn-ghost" onclick="clearModalCanvas()">נקה</button>
+      <button type="button" class="sig-modal-btn sig-modal-btn-ghost" onclick="closeSigModal(false)">ביטול</button>
+      <button type="button" class="sig-modal-btn sig-modal-btn-primary" onclick="closeSigModal(true)">אישור וסגירה</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SIGNATURES v2 (14.07.2026) ──
+// Раньше рисовали прямо в маленьком инлайн-канвасе (~600×70) — на WACOM без
+// экрана это слишком маленькая цель, перо промахивается. Теперь клик по ВСЕЙ
+// ячейке открывает модальное окно с большим canvas. Штрихи записываются там
+// той же проверенной логикой (без клэмпинга координат, setPointerCapture,
+// без обрыва по pointerleave), после чего готовый рисунок вписывается
+// (только уменьшение, автоцентровка) в canvas и сохраняется как bitmap —
+// (imageData). Маленький canvas-превью в таблице просто отображает этот
+// bitmap с вписыванием без искажений (contain-fit), и им же пользуются
+// saveDoc()/emailDoc()/печать через toDataURL(), как и раньше.
+//
+// Подписи עו"ס (ליבי יוסופוב) и מנהל מפעל (אלכסנדר חטקביץ) вставлены заранее
+// (штамп, повторяются в каждом документе) — кнопка "מחק" стирает при
+// необходимости, после чего ячейка снова открывает модалку для ручной подписи.
+// Подпись מקבל שירות / אפוטרופוס НИКОГДА не предзаполняется — это подтверждение
+// конкретного человека здесь и сейчас.
+
+const SIG_LABELS = {
+  0: 'חתימה — מקבל שירות / אפוטרופוס',
+  1: 'חתימה — עו"ס / מדריך',
+  2: 'חתימה — מנהל מפעל'
+};
+
+// Предзаполненные штампы подписи (обрезаны и очищены от линий сетки/фона).
+const SIG_PREFILL = {
+  1: 'data:image/png;base64,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',
+  2: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJYAAACTCAYAAABszOBRAAAKcElEQVR4nO2dMYzURhSG/0UpjgokRBQhQUG6RGmOAkQRXUmK0ESkgiuOBkF3V0AZpYKCdNAdBdcRpeGKUEVbQhEaBEpzW0AT5RTproJuU9gvfp6bGY/XHr/Z8fukk31rr/3W/v3mzcyb8eTM5etQlpptADeljTA5Jm2A0olVABsA5tKGmKiwlpvH0ga4UGEtN6elDXChwlpu3kob4EKFtdy8kzbAhQpLiYIKa7l5Jm2ACxVWPqxKG8BRYS03+9IGuFBhLTcf2PqalBE2VFj58Lm0ARwVVj4k1ViqwsqHNWkDOCosJQoqrHw4L20AR4WlREGFpURBhaVEQYW1/LySNsCGCmv5mUobYEOFtfwkmeGgwlp+XksbYEOFpURBhaVEQYWlREGFlRfJZJGqsPLiR2kDiNyFdQXF8PPkhqBH4pq0AUTuwvpd2oCBSSbDIWdh3WDrEzErRkrOwnpaLndFrRgpuQrrOVu/KmbFiMlVWN+Xy3VRK0ZMjsLiNcAdMSvkSKItK0dhEeekDRAiibas3ITFvdUH515585W0AUB+wiKOSxswMDO2/q2YFYychMW91ScxK+Q5IW0AkJewiLF5qyTJRVjqrRIjB2GtsPWxeqtfpQ0wyUFYH9m6eqtEWHZhqbdKlJSF9RJF7LTt2Ue9VaKkLKyL5XLDsZ17K02LSYxUhXU/YJ+PzbsoUqQqrLtsfWbZrt6qzlTaAJMUhbVi/D+17KPeqs4/0gaYpCgsUzRT43/1Vs0MkTqzWv5tA9gr//4fuPLZAAZ0xWz8U2/VL6YIH6OagfkUFux7TE1Yzy2f8WaETbau3srNnwOei2LgfQC36cPUhMVTip9atj8slzpAIh68snQHVfzWalablIR1ha3v4Kiw9ti6DpCoY75TZwtHY9N9DJj8aBPWWQDvLZ8/AHAvoi00uHRW2mBCgzEvRLRhWTEF84uIFQyzVrgHu6iAom0p1nB1HkB+iaNDxfk5u0w0to3qN5h/e57v2aAuJ/MYITUys0klO7iw9lAfon0cRYA8QeGtOH0LzAw2aUDADPUb1SVgn8PdPQQUv32OQjA+Nsv9Llq2nUfxWw48NswxgpotCWsVlageoLiBvDZ2D5XIOHPYa3JtsA2Fp5v2BpXouswOzDuy6ffxP168XoT7oTmLqgIBFLHMhfKPj2E0q+i2B7HrdUuayZnL14HqR89QFEVN2OKwdSw2ju8AxY3YRRWU225sV28Vcpz7qLqTbDFl03H49yewX6dDVMLrs8kk9DcOwjHU24ZCRAUUweIE9af0KYofZwu8fZxEUez6anpDXah7KLwQUO+vNHHZQ7HhKxwVFXnHLwJtWUG9NZtiuE3fl1LhGCrXbsZRIeyguFi8Xek96k0HIfhyqbrWAnmmhK1D24TXqNoWVxROvEUlqkPUhRiSN3aAIg4zpyU6j+J+NcW4ba9/7/DgvUtH5lXUL15f81Ltovt009zzhL5DmbzW99693PBKwknPfjbvPkc9RltH8XBt4eiD4fJetx2fD8bkzOXrm6i8Vtcih7v/RY/Vd6zAjxcaQ66gqrlxG+aWz1znAtxxJ+33BMBNx7ZzcDdomnbw2A7GNhHM4L3PG7nIscwbIyUs/j2bsI7jaJHGxUi47N9G5dX4PldQeXvXd3mzEO3Td2WnM2YDqeRcnea5DyOc41RPx/nb8tnbFt9/5Pg8pAgjUSU96QkJK8YIlzYBpE3Qf/Vgg5ni3HX4Od1M23HohvOasisGcsWNTeMDeZvfB8tnyUDC4m49JN/cB3manwL2XcHRmOpJuW5r2W6Lr8nAh6tbhsc8rhu6g6qW/NCxj4umdkDb9Je2LBBAeJ4sXhSGtN+E8HO5bBLGKuoxCcUEdzqevw/+8Gyjm8pvqOlxeZvcoh7F9Ha8fzEku0N0niwuLN5+08W9hvSs76HeP9i2nScEVzEU0jZFRd13lm38ph7AXYulLiiXR3Hh8na2/kXfb7nV8ry9Ygbvtqexb+ao4pEZ/LWXLu7cVQw1tU3xtqUXjn1ssdaWsc8ltm56NF/rORcuCceV5++ba1V0OiNTWPxHtU0jscEvyAHqF/gc3FV/itN8RVIots5r35PuShvivDH+X4fdU3MR8I5wEr2rY52EQsJp8lbJzbVqG6VDT955dO+XeoSiMmC2Jk/gz2b8plwu+tTxm3jJsj2kRd1WU6bKhmmXz8OTSDZQXAsuCJttQF0orqLW5a2eIAFswuJP3kMslt5BReoG6pUByvFqgouubXF4H1XjI11kW1FhS/nxzbO1jbrnMH+Lqw1wB1U/7F2ETxVuXifeZ8pLE9NbnUYCUMu7jeeoP9lbCAvMze+1+S5nka4d3iptdpe0afy15Z2Fbg/t7glN3yEOUfU70rEuoGoTo98+Q70RVWSSX9+A1auo14p4r7pZRPK3bJmimmCxHGxeFIWk8vJKwRaO9sGFipNneZxFXRDrjuOYnuuA/U8pzCbmZzdQXUMuKvK6J9h2oqmDXuxtYD6PxeF9WyHw4Vu2frVQQjwB718D6k9x0zH5cVeN771EvS0uRJhNXnGCQkAhtW7egR3SD8k91j4K29v0jfZK6BD7m6gS1Vxj+nbZPrzcd/WLheCLYchLclFN0PwUT1CvjVGsRd8jL0WiMvOpmo5tC/ovsGPsOPYB3Nfwk/GdpgB9Wi7NfK7BCPVYPlZg90g81urS0257Wk1ewV3D6nLcJu/n4yya45tVAO/QzqO7jss91jVUDdAiWQ59TAriuih9dc18gv/iTNBeVPy4tgxV8lJdkgxDgubXaB8mhB5XlJizzfRdGzFH1thGDS3Ca1QCo56Akz0cd9SkOI2RFK8hFOjmyFDCSjJnSIlHbGFRn18yb1cfISJ5WbGF9Vu5XHS0i9KdNYmTxhZW6HArpX9oqNiaxMljC2sa+fiKm2m5FCktYgsrudl8R8RU8uTa3JAvom8EU2HlA41rpP5B0XcLqbDy4Z20ARwVlhIFFZYSBRWWEgUV1jhoO8tiZ1RY+TD1bBt85I4KKx98jdGDz+OgwhoH6rGUXhHriI4tLEr7FZ93fKSYrfGDoR4rb8Ra41VY+WAbmdNmXtReUWHljQpLiYIWhUoUxFJnVFhKFFRYShRUWEoUVFh5IvryAECFpURChZUnX1s+G9SLqbDyxCasQVFh5YktTWbQnCwVVl7Q3Ko/iFoBFVZuPCuX/M0ZNJXU2pCGqLDyYmr57N9yOWgWqQorL3ypM4Mm+6mw8kckw0GFlT8iOVkqrHyhQaoqLKVXaEJhkek6VVj5YTYvJPdaOWU5SWKmahVWfohOEUmosPLjhbQBgApLiYQKK29CXnkcBRVW3phvtx1sAjYVVp7Qq33N93gP1hGtwsoT19ttB8ssVWHliWsEtApL6Q0ewGtRqPTGbQjM7KfCypfdcvlQ4uQqrHx5zNapm2ewLFIVVr6Idu2osMbBraFPqMLKGwraT3j3ioAKK2+uNe8SBxVW3tiGgw2CCkuJggorfx5InFSFlT/3JE6qwlKioMIaB7PmXfpFhTUOeLrMIFNGqrDGweBvqFBhjQcaIT1I29Z/MKbQZMfnbCkAAAAASUVORK5CYII='
+};
+
+const sigState = [
+  { imageData: null, prefilled: false },
+  { imageData: null, prefilled: false },
+  { imageData: null, prefilled: false }
+];
+
+const SIG_PADDING_RATIO = 0.08; // отступ от края холста, доля от размера холста
+
+function getRawPoint(canvas, clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - rect.left) * (canvas.width / rect.width),
+    y: (clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+// Вписывает растровое изображение в canvas без искажения пропорций (как object-fit:contain).
+function drawContain(canvas, img) {
+  const ctx = canvas.getContext('2d');
+  const pad = Math.min(canvas.width, canvas.height) * SIG_PADDING_RATIO;
+  const availW = Math.max(canvas.width - 2 * pad, 1);
+  const availH = Math.max(canvas.height - 2 * pad, 1);
+  const scale = Math.min(availW / img.width, availH / img.height);
+  const w = img.width * scale, h = img.height * scale;
+  const x = (canvas.width - w) / 2, y = (canvas.height - h) / 2;
+  ctx.drawImage(img, x, y, w, h);
+}
+
+// ── Превью-канвасы в таблице (только отображение, без рисования) ──
+function renderPreview(i) {
+  const canvas = document.getElementById('sigCanvas' + i);
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const cell = canvas.closest('.sig-cell');
+  if (sigState[i].imageData) {
+    if (cell) cell.classList.add('has-sig');
+    const img = new Image();
+    img.onload = () => drawContain(canvas, img);
+    img.src = sigState[i].imageData;
+  } else if (cell) {
+    cell.classList.remove('has-sig');
+  }
+}
+
+function clearSig(i) {
+  sigState[i].imageData = null;
+  sigState[i].prefilled = false;
+  renderPreview(i);
+}
+
+function resizeCanvases() {
+  [0, 1, 2].forEach(i => {
+    const canvas = document.getElementById('sigCanvas' + i);
+    if (!canvas) return;
+    const w = canvas.offsetWidth || 200;
+    const h = canvas.offsetHeight || 96;
+    canvas.width = w; canvas.height = h;
+    renderPreview(i);
+  });
+}
+
+// ── Модальное окно подписи (большой canvas) ──
+let modalStrokes = [];
+let modalDrawing = false;
+let modalActivePtr = null;
+let modalCurrentStroke = null;
+let modalOpenIndex = null;
+let modalHasContent = false;
+
+function renderModalStrokes() {
+  const canvas = document.getElementById('sigModalCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!modalStrokes.length) return;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  modalStrokes.forEach(stroke => stroke.forEach(p => {
+    if (p.x < minX) minX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y > maxY) maxY = p.y;
+  }));
+
+  const padX = canvas.width * SIG_PADDING_RATIO;
+  const padY = canvas.height * SIG_PADDING_RATIO;
+  const availW = canvas.width - 2 * padX;
+  const availH = canvas.height - 2 * padY;
+  const sigW = Math.max(maxX - minX, 1);
+  const sigH = Math.max(maxY - minY, 1);
+
+  // Масштаб только уменьшает — если подпись и так помещается, рисуем как есть.
+  const scale = Math.min(1, availW / sigW, availH / sigH);
+  const drawnW = sigW * scale, drawnH = sigH * scale;
+  const offsetX = (canvas.width - drawnW) / 2 - minX * scale;
+  const offsetY = (canvas.height - drawnH) / 2 - minY * scale;
+
+  ctx.strokeStyle = '#1a3a5c';
+  ctx.lineWidth = Math.max(2, canvas.height * 0.02);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  modalStrokes.forEach(stroke => {
+    if (stroke.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(stroke[0].x * scale + offsetX, stroke[0].y * scale + offsetY);
+    for (let k = 1; k < stroke.length; k++) {
+      ctx.lineTo(stroke[k].x * scale + offsetX, stroke[k].y * scale + offsetY);
+    }
+    ctx.stroke();
+  });
+}
+
+function setupModalCanvas() {
+  const canvas = document.getElementById('sigModalCanvas');
+
+  function pointFrom(e) {
+    if (e.touches && e.touches.length) return getRawPoint(canvas, e.touches[0].clientX, e.touches[0].clientY);
+    return getRawPoint(canvas, e.clientX, e.clientY);
+  }
+  function onDown(e) {
+    if (e.cancelable) e.preventDefault();
+    if (modalActivePtr !== null && e.pointerId !== undefined && e.pointerId !== modalActivePtr) return;
+    modalDrawing = true;
+    modalHasContent = true;
+    modalActivePtr = e.pointerId !== undefined ? e.pointerId : 'legacy';
+    if (e.pointerId !== undefined && canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch(_) {} }
+    modalCurrentStroke = [pointFrom(e)];
+    modalStrokes.push(modalCurrentStroke);
+  }
+  function onMove(e) {
+    if (!modalDrawing || !modalCurrentStroke) return;
+    if (e.pointerId !== undefined && modalActivePtr !== e.pointerId) return;
+    if (e.cancelable) e.preventDefault();
+    modalCurrentStroke.push(pointFrom(e));
+    renderModalStrokes();
+  }
+  function onUp(e) {
+    if (e && e.pointerId !== undefined && modalActivePtr !== e.pointerId) return;
+    modalDrawing = false; modalActivePtr = null; modalCurrentStroke = null;
+    if (e && e.pointerId !== undefined && canvas.releasePointerCapture) { try { canvas.releasePointerCapture(e.pointerId); } catch(_) {} }
+    renderModalStrokes();
+  }
+
+  // НЕТ обработчика pointerleave/mouseleave — перо может уйти за пределы холста,
+  // штрих не обрывается (setPointerCapture продолжает доставлять события).
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('pointerup', onUp);
+  canvas.addEventListener('pointercancel', onUp);
+  window.addEventListener('pointerup', onUp);
+
+  if (!window.PointerEvent) {
+    canvas.addEventListener('mousedown', onDown);
+    canvas.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    canvas.addEventListener('touchstart', onDown, {passive:false});
+    canvas.addEventListener('touchmove', onMove, {passive:false});
+    canvas.addEventListener('touchend', onUp);
+  }
+}
+
+function sizeModalCanvas() {
+  const canvas = document.getElementById('sigModalCanvas');
+  const w = canvas.offsetWidth || 300;
+  const h = canvas.offsetHeight || 200;
+  canvas.width = w; canvas.height = h;
+}
+
+function openSigModal(i) {
+  modalOpenIndex = i;
+  modalStrokes = [];
+  modalDrawing = false; modalActivePtr = null; modalCurrentStroke = null;
+  modalHasContent = false;
+
+  document.getElementById('sigModalTitle').textContent = SIG_LABELS[i] || 'חתימה';
+  document.getElementById('sigModalOverlay').classList.add('open');
+
+  requestAnimationFrame(() => {
+    sizeModalCanvas();
+    const canvas = document.getElementById('sigModalCanvas');
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    // Если в ячейке уже что-то есть (штамп сотрудника или предыдущая подпись) —
+    // показываем как фон, чтобы можно было либо дорисовать, либо стереть и начать заново.
+    if (sigState[i].imageData) {
+      const img = new Image();
+      img.onload = () => { drawContain(canvas, img); modalHasContent = true; };
+      img.src = sigState[i].imageData;
+    }
+  });
+}
+
+function clearModalCanvas() {
+  modalStrokes = [];
+  modalCurrentStroke = null;
+  modalHasContent = false;
+  const canvas = document.getElementById('sigModalCanvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function closeSigModal(save) {
+  const i = modalOpenIndex;
+  if (save && i !== null) {
+    const canvas = document.getElementById('sigModalCanvas');
+    sigState[i].imageData = modalHasContent ? canvas.toDataURL('image/png') : null;
+    sigState[i].prefilled = false;
+    renderPreview(i);
+  }
+  document.getElementById('sigModalOverlay').classList.remove('open');
+  modalOpenIndex = null;
+}
+</script>
+<script>
+
+function formatDateInput(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function applyManualLive() {
+  const name = document.getElementById('manualName').value.trim();
+  const tz = document.getElementById('manualTZ').value.trim();
+  const fName = document.getElementById('fName');
+  if (fName) fName.textContent = name;
+  document.getElementById('fDate').value = document.getElementById('manualDate').value || formatDateInput();
+}
+
+function clearAll() {
+  ['manualName','manualTZ'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('manualDate').value = formatDateInput();
+  document.getElementById('fDate').value = formatDateInput();
+  document.getElementById('fName').textContent = '';
+  // מקבל שירות — תמיד ריק עבור אדם חדש. עו"ס/מנהל — חוזרים לחותמת הקבועה, לא נמחקים.
+  clearSig(0);
+  sigState[1].imageData = SIG_PREFILL[1]; sigState[1].prefilled = true; renderPreview(1);
+  sigState[2].imageData = SIG_PREFILL[2]; sigState[2].prefilled = true; renderPreview(2);
+  document.getElementById('statusBar').className = 'status-bar';
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.className = 'status-bar ' + type;
+  setTimeout(() => el.className = 'status-bar', 5000);
+}
+
+// ── SAVE ──
+function safeFileName(v) {
+  return ((v||'ללא_שם').toString().trim().replace(/[\\/:\*?"<>|]/g,'-').replace(/\s+/g,'_')).slice(0,80);
+}
+
+function getDateText() {
+  const v = document.getElementById('fDate').value;
+  if (!v) return new Date().toLocaleDateString('he-IL');
+  return new Date(v + 'T12:00:00').toLocaleDateString('he-IL');
+}
+
+function savePDF() {
+  const name = document.getElementById('manualName').value.trim();
+  if (!name) { showStatus('יש להזין שם מקבל שירות', 'error'); return; }
+  applyManualLive();
+  const prevTitle = document.title;
+  document.title = safeFileName(name) + '_חוזה_אישי_' + formatDateInput().slice(0,7);
+  window.print();
+  setTimeout(() => { document.title = prevTitle; }, 1000);
+}
+
+function buildSaveHTML(name, tz, dateText, sig0, sig1, sig2) {
+  function sigImg(data) {
+    return data ? '<img src="'+data+'" style="max-width:100%;height:22mm;object-fit:contain;">' : '';
+  }
+  return '<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>חוזה אישי</title><style>'+
+  '@page{size:A4 portrait;margin:6mm;}body{font-family:Arial Hebrew,Arial,sans-serif;color:#1e2535;margin:0;padding:0;}'+
+  'h1{text-align:center;color:#1a3a5c;font-size:16pt;margin:0 0 1mm;}'+
+  '.sub{text-align:center;color:#6b7280;font-size:8.5pt;margin-bottom:3mm;}'+
+  '.intro{font-size:10pt;margin-bottom:3mm;}'+
+  'ul{list-style:none;padding:0;margin:0 0 4mm;}li{font-size:9.5pt;line-height:1.5;padding:2px 18px 2px 0;position:relative;border-bottom:0.2mm solid #eef3f9;}li::before{content:"–";position:absolute;right:3px;color:#2563a8;font-weight:700;}'+
+  '.hours-box{background:#e8f1fb;border-right:3mm solid #2563a8;padding:2mm 3mm;margin:1mm 0 2mm;font-size:9.5pt;font-weight:600;color:#1a3a5c;}'+
+  '.confirm{font-size:10pt;margin-bottom:3mm;}'+
+  '.date-row{font-size:10pt;font-weight:700;color:#1a3a5c;margin-bottom:4mm;}'+
+  '.sig-title{text-align:center;color:#1a3a5c;font-weight:800;font-size:14pt;border-top:0.45mm solid #1a3a5c;padding-top:3mm;margin-bottom:3mm;}'+
+  'table{width:100%;border-collapse:collapse;}th{background:#1a3a5c;color:white;padding:2mm;font-size:9pt;text-align:center;border:0.3mm solid #3a5f85;}td{border:0.3mm solid #b8d0ee;padding:1.5mm 2mm;text-align:center;font-size:9pt;}'+
+  '.sig-img-cell{height:22mm;vertical-align:middle;}'+
+  '.validity{margin-top:4mm;border-top:0.45mm solid #1a3a5c;padding-top:2mm;font-size:9pt;text-align:center;font-weight:600;}'+
+  '</style></head><body>'+
+  '<h1>טופס כללי התנהלות</h1>'+
+  '<div class="sub">'+ORG_CONFIG.orgName+'</div>'+
+  '<div class="intro">אני החתום מטה, מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.<br>להלן יפורטו כללי ההתנהלות במפעל:</div>'+
+  '<ul>'+
+  '<li>מקבל השירות יקבל תמיכה, הכוונה, ליווי והקניית מיומנויות והרגלי עבודה התואמים את יכולותיו.</li>'+
+  '<li><strong>שלושת החודשים</strong> הראשונים יהיו תקופת ניסיון.</li>'+
+  '<li>מקבל השירות נדרש להקפיד על לוח הזמנים במפעל והגעה בזמן.<div class="hours-box">שעות הפעילות: 8:00–13:00 | 5 ימים בשבוע</div></li>'+
+  '<li>מקבל השירות נדרש להגיע לכל הפחות ל-5 שעות פעילות ביום.</li>'+
+  '<li>מקבל השירות נדרש להקפיד על נוכחות סדירה ועל הופעה מתאימה: נעליים סגורות ומכנסיים ארוכים.</li>'+
+  '<li>מקבל השירות נדרש להודיע מראש על היעדרות ולקבל אישור מהמדריך/ה (כולל בימי מחלה).</li>'+
+  '<li>מקבל השירות נדרש לדווח על כל יציאה מתחומי המפעל ולשמור על סדר, ניקיון ורכוש.</li>'+
+  '<li>מקבל השירות נדרש לפעול לפי הוראות הבטיחות ולעבור הדרכת בטיחות שנתית.</li>'+
+  '<li>העישון מאושר בפינות עישון בלבד. <strong>שימוש בסמים ואלכוהול – אסור בהחלט!</strong></li>'+
+  '<li><strong>אין לנהוג באלימות פיזית או מילולית. התנהגות אלימה עלולה להוביל להשעיה.</strong></li>'+
+  '<li>סיום פעילות יתואם לפחות שבועיים מראש. מקבל השירות יקבל שתי הפסקות ביום.</li>'+
+  '<li><strong>מקבל השירות מודע שאין יחסי עובד-מעביד.</strong> יקבל גמול ביצוע עבודה (גב"ע) בהתאם לנוכחות ותפוקה.</li>'+
+  '<li>תשלום נסיעות – לפי זכאות. תשלום חגים – 75% (לא בשישי/שבת). חול המועד – ללא תשלום.</li>'+
+  '</ul>'+
+  '<div class="confirm">אני, החתום מטה, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל:</div>'+
+  '<div class="date-row">תאריך: '+dateText+'</div>'+
+  '<div class="sig-title">חתימות</div>'+
+  '<table><thead><tr><th></th><th>מקבל שירות / אפוטרופוס</th><th>עו"ס / מדריך</th><th>מנהל מפעל</th></tr></thead>'+
+  '<tbody><tr><td style="background:#e8f1fb;font-weight:700;color:#1a3a5c;">שם החותם</td>'+
+  '<td>'+name+(tz?' ('+tz+')':'')+'</td><td>'+ORG_CONFIG.socialWorker.name+'</td><td>'+ORG_CONFIG.director.name+'</td></tr>'+
+  '<tr><td style="background:#e8f1fb;font-weight:700;color:#1a3a5c;">חתימה</td>'+
+  '<td class="sig-img-cell">'+sigImg(sig0)+'</td>'+
+  '<td class="sig-img-cell">'+sigImg(sig1)+'</td>'+
+  '<td class="sig-img-cell">'+sigImg(sig2)+'</td>'+
+  '</tr></tbody></table>'+
+  '<div class="validity">הסכם זה נחתם בין מקבל השירות לבין '+ORG_CONFIG.orgShort+' ומהווה אישור לכללי ההתנהלות במפעל המוגן.</div>'+
+  '</body></html>';
+}
+
+
+async function emailDoc() {
+  const name = document.getElementById('manualName').value.trim();
+  if (!name) { showStatus('יש להזין שם מקבל שירות', 'error'); return; }
+  const sig0 = sigState[0].imageData ? document.getElementById('sigCanvas0').toDataURL('image/png') : '';
+  const sig1 = sigState[1].imageData ? document.getElementById('sigCanvas1').toDataURL('image/png') : '';
+  const sig2 = sigState[2].imageData ? document.getElementById('sigCanvas2').toDataURL('image/png') : '';
+  const tz = document.getElementById('manualTZ').value.trim();
+  const dateText = getDateText();
+  const html = buildSaveHTML(name, tz, dateText, sig0, sig1, sig2);
+  const filename = safeFileName(name) + '_חוזה_אישי_' + formatDateInput().slice(0,7) + '.html';
+
+  if (navigator.canShare && navigator.share) {
+    try {
+      const file = new File([html], filename, { type: 'text/html' });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: 'חוזה אישי – ' + name,
+          text: 'מצורף חוזה אישי.',
+          files: [file]
+        });
+        showStatus('נפתח שיתוף עם קובץ מצורף', 'success');
+        return;
+      }
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    }
+  }
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  const subject = encodeURIComponent('חוזה אישי – ' + name);
+  const body = encodeURIComponent('הקובץ ירד למכשיר. יש לצרף אותו למייל ידנית אם תוכנת הדואר אינה תומכת בצירוף אוטומטי מתוך הדפדפן.');
+  window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  showStatus('הקובץ הורד. בדפדפן זה אין אפשרות בטוחה לצרף אוטומטית למייל.', 'error');
+}
+
+
+
+function getIncomingPersonData() {
+  const keys = [
+    () => sessionStorage.getItem('personData'),
+    () => localStorage.getItem('personData'),
+    () => localStorage.getItem('currentPerson'),
+    () => localStorage.getItem('rehab_current_person_v1')
+  ];
+  for (const get of keys) {
+    try {
+      const raw = get();
+      if (!raw) continue;
+      const d = JSON.parse(raw);
+      if (d && typeof d === 'object') return d;
+    } catch(e) {}
+  }
+  return null;
+}
+function pickIncomingName(d) {
+  return (d && (d.shem || d.name || d.fullName || d['שם'] || d['שם מלא'] || d['שם מקבל השרות'] || d['שם מקבל השירות'])) || '';
+}
+function pickIncomingTZ(d) {
+  return (d && (d.tz || d.id || d.teudatZehut || d['תעודת זהות'] || d['ת.ז'] || d['מספר זהות'])) || '';
+}
+
+// ── AUTO-FILL FROM INTAKE FORM ──
+window.addEventListener('load', () => {
+  document.getElementById('manualDate').value = formatDateInput();
+  document.getElementById('fDate').value = formatDateInput();
+
+  setupModalCanvas();
+  // Штампы עו"ס и מנהל — вставляются сразу; מקבל שירות (индекс 0) остаётся пустым.
+  sigState[1].imageData = SIG_PREFILL[1]; sigState[1].prefilled = true;
+  sigState[2].imageData = SIG_PREFILL[2]; sigState[2].prefilled = true;
+  resizeCanvases();
+
+  try {
+    const d = getIncomingPersonData();
+    if (d) {
+      const incomingName = pickIncomingName(d);
+      const incomingTZ = pickIncomingTZ(d);
+      if (incomingName) document.getElementById('manualName').value = incomingName;
+      if (incomingTZ) document.getElementById('manualTZ').value = incomingTZ;
+      applyManualLive();
+    }
+  } catch(e) {}
+});
+
+window.addEventListener('resize', resizeCanvases);
+
+  window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
+
+/**
+ * ═══════════════════════════════════════════════════
+ *  config.js — הגדרות ארגוניות
+ *  שנה כאן בלבד. כל הטפסים יתעדכנו אוטומטית.
+ * ═══════════════════════════════════════════════════
+ */
+
+const ORG_CONFIG = {
+
+  // ── פרטי הארגון ──────────────────────────────────
+  orgName:  "מפעל מוגן שיקומי לבריאות הנפש, באר שבע – עמותת יחדיו",
+  orgShort: "עמותת יחדיו",
+  city:     "באר שבע",
+
+  // ── מנהל (חתימה קבועה במסמכים) ──────────────────
+  director: {
+    name:  "אלכסנדר חטקביץ",
+    title: "מנהל מפעל שיקומי לבריאות הנפש"
+  },
+
+  // ── עובדת סוציאלית (חתימה קבועה במסמכים) ────────
+  socialWorker: {
+    name:  "ליבי יוסופוב",
+    title: "עובדת סוציאלית"
+  },
+
+  // ── מדריכים (רשימות נפתחות) ──────────────────────
+  guides: [
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── כל הצוות (לתיעוד שיחות וכד') ────────────────
+  allStaff: [
+    "אלכסנדר חטקביץ",
+    "ליבי יוסופוב",
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── קבצים ─────────────────────────────────────────
+  // שנה כאן את הנתיבים לפי מבנה השרת שלך
+  files: {
+    // קובץ Excel עם נתוני מקבלי השירות
+    excel: "מחלות רקע.xlsx",
+
+    // לוגו העמותה — קובץ בתיקיית images/ או URL חיצוני
+    logoOrg: "https://mnz.org.il/sites/www.mnz.org.il/files/logo-yachdav.png",
+
+    // לוגו משרד הבריאות
+    logoMinistry: "https://upload.wikimedia.org/wikipedia/he/thumb/f/fb/Israeli_Ministry_of_Health_logo.png/3840px-Israeli_Ministry_of_Health_logo.png"
+  },
+
+  // ── גדלי לוגואים במסמכים ─────────────────────────
+  logoSizes: {
+    orgHeight:      "50px",
+    ministryHeight: "40px"
+  }
+};
+
+/**
+ * פונקציות עזר — נטענות אוטומטית בכל הטפסים
+ */
+
+// מילוי שם ארגון בכל מקום עם data-org="name"
+function fillOrgNames() {
+  document.querySelectorAll('[data-org="name"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgName;
+  });
+  document.querySelectorAll('[data-org="short"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgShort;
+  });
+  document.querySelectorAll('[data-org="city"]').forEach(el => {
+    el.textContent = ORG_CONFIG.city;
+  });
+}
+
+// מילוי שם מנהל ועו"ס בכל מקום עם data-staff
+function fillStaffNames() {
+  document.querySelectorAll('[data-staff="director"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name;
+  });
+  document.querySelectorAll('[data-staff="director-full"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name + ' – ' + ORG_CONFIG.director.title;
+  });
+  document.querySelectorAll('[data-staff="social-worker"]').forEach(el => {
+    el.textContent = ORG_CONFIG.socialWorker.name;
+  });
+}
+
+// בניית רשימה נפתחת של מדריכים
+function buildGuidesSelect(selectEl, includeEmpty = true) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר/י מדריך';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.guides.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+}
+
+// בניית רשימה נפתחת של כל הצוות
+function buildAllStaffSelect(selectEl, includeEmpty = true, extraOptions = []) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר...';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.allStaff.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+  extraOptions.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.value || item;
+    opt.textContent = item.label || item;
+    selectEl.appendChild(opt);
+  });
+}
+
+// האתחול מתבצע בתחתית הקובץ
+
+// החלפת לוגואים בכל הטפסים
+function fillLogos() {
+  // לוגו עמותה
+  document.querySelectorAll('[data-logo="org"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoOrg;
+    img.style.height = ORG_CONFIG.logoSizes.orgHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+  // לוגו משרד הבריאות
+  document.querySelectorAll('[data-logo="ministry"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoMinistry;
+    img.style.height = ORG_CONFIG.logoSizes.ministryHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+}
+
+// הוסף fillLogos לאתחול
+document.addEventListener('DOMContentLoaded', function() {
+  fillOrgNames();
+  fillStaffNames();
+  fillLogos();
+});
+
+</script>
+</body>
+</html>

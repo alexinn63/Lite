@@ -1783,7 +1783,7 @@ function openFinanceStatsForCurrentClient() {
         document.getElementById('clientName')?.value || ''
     );
 
-    const url = new URL('https://alexinn63.github.io/Privat/%D7%92%D7%91%D7%A2.html');
+    const url = new URL('גבע.html', window.location.href);
     if (name) url.searchParams.set('name', name);
 
     window.open(url.toString(), '_blank', 'noopener');

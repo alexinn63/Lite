@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>כרטיס מקבל שירות</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #1a3a5c;
+    --blue: #2563a8;
+    --primary-light: #e8f1fb;
+    --gold: #c9933a;
+    --green: #2e7d52;
+    --red: #b83232;
+    --text: #1e2535;
+    --muted: #6b7280;
+    --bg: #f0f4fa;
+    --white: #ffffff;
+    --border: #b8d0ee;
+    --shadow: 0 2px 16px rgba(26,58,92,.10);
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Heebo", Arial Hebrew, Arial, sans-serif; background: var(--bg); color: var(--text); direction: rtl; font-size: 15px; line-height: 1.6; }
+
+  /* ── TOP BAR ── */
+  .top-bar { background: var(--navy); color: white; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,.25); }
+  .top-bar-title .main { font-size: 15px; font-weight: 700; color: #fff; }
+  .top-bar-title .sub { font-size: 11px; color: #a8c4e0; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 6px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .18s; }
+  .btn-print { background: #fff; color: var(--navy); }
+  .btn-print:hover { background: var(--primary-light); }
+
+  /* ── ALERT BANNER ── */
+  .alert-bar { background: #fff3cd; border-bottom: 3px solid var(--gold); padding: 10px 24px; font-size: 13px; font-weight: 700; color: #7a4f00; display: flex; align-items: center; gap: 8px; }
+
+  /* ── LAYOUT ── */
+  .app { max-width: 920px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  /* ── SELECT PANEL ── */
+  .select-panel { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); border: 0.5px solid var(--border); overflow: hidden; margin-bottom: 20px; }
+  .select-panel-head { background: var(--navy); color: white; padding: 14px 20px; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .select-panel-body { padding: 16px 20px; display: grid; gap: 14px; }
+  .field-row label { display: block; font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+  .field-row select, .field-row input[type=file], .field-row input[type=text] {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 14px; color: var(--text); background: #f8fbff; outline: none; transition: border-color .15s;
+  }
+  .field-row select:focus, .field-row input:focus { border-color: var(--blue); background: white; }
+  .field-row select:disabled, .field-row input:disabled { background: #f1f5f9; color: var(--muted); cursor: not-allowed; }
+
+  /* ── STATS CHIPS ── */
+  .chips { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 4px; }
+  .chip { background: var(--primary-light); border: 0.5px solid var(--border); border-radius: 10px; padding: 10px 8px; text-align: center; }
+  .chip strong { display: block; color: var(--navy); font-size: 24px; font-weight: 800; line-height: 1; margin-bottom: 3px; }
+  .chip span { font-size: 12px; color: var(--muted); }
+  .age-stats { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 8px; }
+  .age-stat { background: white; border: 0.5px solid var(--border); border-radius: 20px; padding: 5px 10px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+  .age-stat b { color: var(--navy); }
+
+  /* ── PEOPLE LIST ── */
+  .people-panel { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); border: 0.5px solid var(--border); overflow: hidden; margin-bottom: 20px; }
+  .people-panel-head { background: var(--blue); color: white; padding: 12px 20px; font-size: 14px; font-weight: 700; }
+  .people { display: grid; gap: 6px; padding: 12px; max-height: 380px; overflow-y: auto; }
+  .personBtn { width: 100%; border: 0.5px solid var(--border); background: white; border-radius: 8px; padding: 12px 14px; text-align: right; font-family: inherit; cursor: pointer; transition: all .15s; }
+  .personBtn:hover { background: var(--primary-light); border-color: var(--blue); }
+  .personBtn b { font-size: 15px; color: var(--text); font-weight: 700; }
+  .personBtn span { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+
+  /* ── EMPTY STATE ── */
+  .empty { padding: 24px; text-align: center; color: var(--muted); font-size: 14px; border: 1.5px dashed var(--border); border-radius: 8px; margin: 8px; }
+
+  /* ── NOTICE ── */
+  .notice { display: none; background: #fff3cd; color: #7a4f00; border: 1px solid #fcd34d; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; }
+
+  /* ── PERSON CARD ── */
+  .person { background: var(--white); border-radius: 12px; box-shadow: var(--shadow); border: 0.5px solid var(--border); overflow: hidden; margin-bottom: 20px; }
+  .card-top { background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%); color: white; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .card-top h2 { margin: 0 0 4px; font-size: 24px; font-weight: 800; }
+  .card-top .meta { font-size: 13px; color: #a8c8e8; }
+  .card-top .badge { background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .section { margin: 0; border-bottom: 0.5px solid var(--border); }
+  .section:last-child { border-bottom: none; }
+  .section h3 { margin: 0; padding: 12px 20px; background: var(--primary-light); font-size: 13px; font-weight: 700; color: var(--navy); border-bottom: 0.5px solid var(--border); }
+  .fields { display: grid; gap: 8px; padding: 14px 20px; }
+  @media(min-width:600px) { .fields { grid-template-columns: 1fr 1fr; } .wide { grid-column: 1/-1; } }
+  .field { background: #f8fbff; border: 0.5px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .field b { display: block; color: var(--muted); font-size: 11px; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; letter-spacing: .4px; }
+  .field div { font-size: 14px; color: var(--text); line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 20px; }
+  .pill { border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 700; }
+  .yes { background: #ecfdf5; color: #166534; border: 1px solid #86efac; }
+  .no { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+  .stats { display: none; }
+
+  /* ── PRINT ── */
+  @media print {
+    .top-bar, .alert-bar, .select-panel, .people-panel, .notice, [style*="position:fixed"] { display: none !important; }
+    body { background: white; }
+    .person { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+    .app { padding: 0; max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-bar-title">
+    <div class="main">כרטיס מקבל שירות</div>
+    <div class="sub" data-org="name">מפעל מוגן שיקומי – עמותת יחדיו, באר שבע</div>
+  </div>
+  <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
+</div>
+
+<!-- ALERT BAR -->
+<div class="alert-bar">
+  🚨 חירום: כרטיסי מקבלי שירות – מידע רפואי וקשר לשעת חירום
+</div>
+
+<div class="app">
+  <div id="notice" class="notice"></div>
+
+  <!-- SELECT PANEL -->
+  <div class="select-panel">
+    <div class="select-panel-head">📂 טעינת נתונים</div>
+    <div class="select-panel-body">
+      <div class="field-row">
+        <label>1. קובץ Excel</label>
+        <input id="fileInput" type="file" accept=".xlsx">
+      </div>
+      <div class="field-row">
+        <label>2. מדריך</label>
+        <select id="guide" disabled><option value="">קודם בחר קובץ Excel</option></select>
+      </div>
+      <div class="field-row">
+        <label>3. חיפוש מקבל שירות</label>
+        <input id="search" type="text" placeholder="שם / משפחה / ת.ז." disabled>
+      </div>
+
+      <div class="chips">
+        <div class="chip"><strong id="totalCount">0</strong><span>בקובץ</span></div>
+        <div class="chip"><strong id="guideCount">0</strong><span>אצל המדריך</span></div>
+        <div class="chip"><strong id="serviceCount">0</strong><span>שירות יחיד</span></div>
+      </div>
+      <div id="ageStats" class="age-stats">
+        <span class="age-stat">עד 20: <b id="ageUnder20">0</b></span>
+        <span class="age-stat">20–40: <b id="age20to40">0</b></span>
+        <span class="age-stat">40–60: <b id="age40to60">0</b></span>
+        <span class="age-stat">60–70: <b id="age60to70">0</b></span>
+        <span class="age-stat">70+: <b id="age70plus">0</b></span>
+      </div>
+      <div id="stats" class="stats"></div>
+    </div>
+  </div>
+
+  <!-- PEOPLE LIST -->
+  <div class="people-panel">
+    <div class="people-panel-head">👥 רשימת מקבלי שירות</div>
+    <div id="people" class="people"><div class="empty">בחר קובץ Excel ואז מדריך.</div></div>
+  </div>
+
+  <!-- CARD OUTPUT -->
+  <main id="card"><div class="empty">כאן יופיע הכרטיס אחרי בחירת אדם.</div></main>
+</div>
+
+<script>
+let DATA = [];
+let currentPeople = [];
+
+const fileInput = document.getElementById("fileInput");
+const guideSelect = document.getElementById("guide");
+const searchInput = document.getElementById("search");
+const peopleDiv = document.getElementById("people");
+const cardDiv = document.getElementById("card");
+const noticeDiv = document.getElementById("notice");
+const statsDiv = document.getElementById("stats");
+const totalCountEl = document.getElementById("totalCount");
+const guideCountEl = document.getElementById("guideCount");
+const serviceCountEl = document.getElementById("serviceCount");
+const ageUnder20El = document.getElementById("ageUnder20");
+const age20to40El = document.getElementById("age20to40");
+const age40to60El = document.getElementById("age40to60");
+const age60to70El = document.getElementById("age60to70");
+const age70plusEl = document.getElementById("age70plus");
+
+function clean(v){return v===null||v===undefined?"":String(v).trim()}
+function esc(v){return clean(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
+function norm(v){return clean(v).toLowerCase().replace(/\s+/g," ")}
+function yes(v){return ["x","v","כן","1","yes","true"].includes(norm(v))}
+function showNotice(text){noticeDiv.style.display=text?"block":"none";noticeDiv.textContent=text||""}
+function field(label,value,wide=false){const raw=clean(value);if(!raw)return "";const v=esc(raw);return `<div class="field ${wide?"wide":""}"><b>${label}</b><div>${v}</div></div>`}
+function pill(label,value){if(!yes(value))return "";return `<span class="pill yes">${label}</span>`}
+function dateText(v){
+  if(!v)return "";
+  if(typeof v==="number" && v>1000 && v<200000){
+    const d=new Date(Math.round((v-25569)*86400*1000));
+    return d.toLocaleDateString("he-IL");
+  }
+  return clean(v);
+}
+function ageText(v){const n=Number(v);return Number.isFinite(n)&&n>0&&n<130?String(Math.floor(n)):clean(v)}
+
+function readUInt32(view, off){return view.getUint32(off,true)}
+function readUInt16(view, off){return view.getUint16(off,true)}
+
+async function inflateRaw(bytes){
+  if(!("DecompressionStream" in window)){
+    throw new Error("הדפדפן לא תומך בקריאת XLSX מקומית. נסה Chrome מעודכן.");
+  }
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function unzipXlsx(buffer){
+  const bytes = new Uint8Array(buffer);
+  const view = new DataView(buffer);
+  let eocd = -1;
+  for(let i=bytes.length-22;i>=0 && i>bytes.length-70000;i--){
+    if(readUInt32(view,i)===0x06054b50){eocd=i;break}
+  }
+  if(eocd<0) throw new Error("לא נמצא מבנה ZIP בקובץ");
+  const entries = readUInt16(view,eocd+10);
+  const cdOffset = readUInt32(view,eocd+16);
+  const files = {};
+  let off = cdOffset;
+  const dec = new TextDecoder("utf-8");
+
+  for(let i=0;i<entries;i++){
+    if(readUInt32(view,off)!==0x02014b50) break;
+    const method = readUInt16(view,off+10);
+    const compSize = readUInt32(view,off+20);
+    const uncompSize = readUInt32(view,off+24);
+    const nameLen = readUInt16(view,off+28);
+    const extraLen = readUInt16(view,off+30);
+    const commentLen = readUInt16(view,off+32);
+    const localOff = readUInt32(view,off+42);
+    const name = dec.decode(bytes.slice(off+46, off+46+nameLen));
+    files[name] = {method, compSize, uncompSize, localOff};
+    off += 46 + nameLen + extraLen + commentLen;
+  }
+
+  async function getText(name){
+    const f = files[name];
+    if(!f) return "";
+    const lo = f.localOff;
+    if(readUInt32(view,lo)!==0x04034b50) return "";
+    const nameLen = readUInt16(view,lo+26);
+    const extraLen = readUInt16(view,lo+28);
+    const start = lo + 30 + nameLen + extraLen;
+    const comp = bytes.slice(start, start + f.compSize);
+    let data;
+    if(f.method===0) data = comp;
+    else if(f.method===8) data = await inflateRaw(comp);
+    else throw new Error("שיטת דחיסה לא נתמכת: " + f.method);
+    return dec.decode(data);
+  }
+
+  return {getText, files};
+}
+
+function parseXml(text){
+  return new DOMParser().parseFromString(text, "application/xml");
+}
+function colToIndex(cellRef){
+  const m = String(cellRef).match(/[A-Z]+/i);
+  if(!m) return 0;
+  let n=0;
+  for(const ch of m[0].toUpperCase()) n = n*26 + (ch.charCodeAt(0)-64);
+  return n-1;
+}
+function getTextContent(node, tag){
+  const el = node.getElementsByTagName(tag)[0];
+  return el ? el.textContent : "";
+}
+
+async function parseXlsx(buffer){
+  const zip = await unzipXlsx(buffer);
+
+  let shared = [];
+  const sharedXml = await zip.getText("xl/sharedStrings.xml");
+  if(sharedXml){
+    const sx = parseXml(sharedXml);
+    shared = Array.from(sx.getElementsByTagName("si")).map(si =>
+      Array.from(si.getElementsByTagName("t")).map(t=>t.textContent).join("")
+    );
+  }
+
+  let sheetName = "xl/worksheets/sheet1.xml";
+  if(!zip.files[sheetName]){
+    const found = Object.keys(zip.files).find(n => n.startsWith("xl/worksheets/sheet") && n.endsWith(".xml"));
+    if(found) sheetName = found;
+  }
+
+  const sheetXml = await zip.getText(sheetName);
+  if(!sheetXml) throw new Error("לא נמצא גיליון עבודה בקובץ");
+
+  const doc = parseXml(sheetXml);
+  const rowNodes = Array.from(doc.getElementsByTagName("row"));
+  const matrix = [];
+
+  for(const row of rowNodes){
+    const out = [];
+    const cells = Array.from(row.getElementsByTagName("c"));
+    for(const c of cells){
+      const ref = c.getAttribute("r") || "";
+      const idx = colToIndex(ref);
+      const t = c.getAttribute("t") || "";
+      let value = "";
+
+      if(t === "s"){
+        const n = Number(getTextContent(c,"v"));
+        value = shared[n] ?? "";
+      } else if(t === "inlineStr"){
+        value = Array.from(c.getElementsByTagName("t")).map(x=>x.textContent).join("");
+      } else {
+        value = getTextContent(c,"v");
+        if(value !== "" && !isNaN(Number(value))) value = Number(value);
+      }
+      out[idx] = value;
+    }
+    matrix.push(out);
+  }
+  return matrix;
+}
+
+function rowToPerson(r, idx){
+  return {
+    _idx: idx,
+    num: r[1],
+    name: r[2],
+    id: r[3],
+    serviceType: r[4],
+    guide: r[5],              // עמוד F
+    healthFund: r[6],
+    doctor: r[7],
+    doctorPhone: r[8],
+    background: r[9],
+    disability: r[10],
+    address: r[11],
+    mobile: r[12],
+    homePhone: r[13],
+    birthDate: dateText(r[14]),
+    age: ageText(r[15]),
+    livesWith: r[16],
+    contactName: r[17],
+    relation: r[18],
+    contactPhone: r[19],
+    socialWorker: r[20],
+    socialPhone: r[21],
+    privateService: r[22],
+    mamad: r[23],
+    shelter: r[24],
+    none: r[25]
+  };
+}
+
+
+function updateAgeStats(list){
+  let under20 = 0;
+  let a20to40 = 0;
+  let a40to60 = 0;
+  let a60to70 = 0;
+  let a70plus = 0;
+
+  list.forEach(p => {
+    const age = Number(p.age);
+    if(!Number.isFinite(age)) return;
+
+    if(age < 20) under20++;
+    else if(age >= 20 && age < 40) a20to40++;
+    else if(age >= 40 && age < 60) a40to60++;
+    else if(age >= 60 && age < 70) a60to70++;
+    else if(age >= 70) a70plus++;
+  });
+
+  ageUnder20El.textContent = under20;
+  age20to40El.textContent = a20to40;
+  age40to60El.textContent = a40to60;
+  age60to70El.textContent = a60to70;
+  age70plusEl.textContent = a70plus;
+}
+
+function updateCounters(){
+  totalCountEl.textContent = DATA.length;
+
+  const guide = guideSelect.value;
+
+  if(!guide){
+    guideCountEl.textContent = "0";
+    const personalAll = DATA.filter(p => yes(p.privateService)).length;
+    serviceCountEl.textContent = personalAll;
+    updateAgeStats(DATA);
+    return;
+  }
+
+  if(guide === "__ALL__"){
+    guideCountEl.textContent = DATA.length;
+    const personalAll = DATA.filter(p => yes(p.privateService)).length;
+    serviceCountEl.textContent = personalAll;
+    updateAgeStats(DATA);
+    return;
+  }
+
+  guideCountEl.textContent = currentPeople.length;
+
+  const personal = currentPeople.filter(p => yes(p.privateService)).length;
+  serviceCountEl.textContent = personal;
+
+  updateAgeStats(currentPeople);
+}
+
+function loadGuides(){
+  const guides = [...new Set(DATA.map(p => clean(p.guide)).filter(Boolean))]
+    .sort((a,b)=>a.localeCompare(b,"he"));
+
+  guideSelect.innerHTML = `<option value="">בחר מדריך</option>` +
+    `<option value="__ALL__">כל המדריכים (${DATA.length})</option>` +
+    guides.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join("");
+
+  guideSelect.disabled = false;
+  searchInput.disabled = false;
+  searchInput.value = "";
+  peopleDiv.innerHTML = `<div class="empty">בחר מדריך מהרשימה.</div>`;
+  cardDiv.innerHTML = `<div class="empty">כאן יופיע הכרטיס אחרי בחירת אדם.</div>`;
+  updateCounters();
+
+  if(!guides.length) showNotice("לא נמצאו שמות מדריכים בעמוד F. בדוק שהשמות נמצאים בעמודה F.");
+}
+
+function renderPeople(resetCard=true){
+  const guide = guideSelect.value;
+  const q = norm(searchInput.value);
+
+  if(!guide){
+    peopleDiv.innerHTML = `<div class="empty">בחר מדריך מהרשימה.</div>`;
+    if(resetCard) cardDiv.innerHTML = `<div class="empty">כאן יופיע הכרטיס אחרי בחירת אדם.</div>`;
+    updateCounters();
+    return;
+  }
+
+  const isAll = guide === "__ALL__";
+
+  currentPeople = DATA
+    .filter(p => isAll || norm(clean(p.guide)) === norm(guide))
+    .filter(p => !q || norm([p.name,p.id,p.mobile,p.contactName].join(" ")).includes(q))
+    .sort((a,b)=>clean(a.name).localeCompare(clean(b.name),"he"));
+
+  if(resetCard) cardDiv.innerHTML = `<div class="empty">כאן יופיע הכרטיס אחרי בחירת אדם.</div>`;
+
+  if(!currentPeople.length){
+    peopleDiv.innerHTML = `<div class="empty">לא נמצאו מקבלי שירות למדריך הזה.</div>`;
+    updateCounters();
+    return;
+  }
+
+  updateCounters();
+
+  peopleDiv.innerHTML = currentPeople.map((p,i)=>`
+    <button class="personBtn" onclick="showCard(${i})">
+      <b>${esc(p.name)}</b>
+      <span>ת.ז.: ${esc(p.id)||"—"} | מס׳ בסדנה: ${esc(p.num)||"—"}${isAll ? " | " + esc(p.guide) : ""}</span>
+    </button>
+  `).join("");
+}
+
+
+function hideEmptySections(){
+  document.querySelectorAll(".section").forEach(section=>{
+    const hasField = section.querySelector(".field");
+    const hasPill = section.querySelector(".pill");
+    if(!hasField && !hasPill) section.style.display = "none";
+  });
+}
+
+function showCard(index){
+  const p = currentPeople[index];
+  if(!p) return;
+
+  // auto-select the guide if viewing "all" or a different guide
+  const personGuide = clean(p.guide);
+  if(guideSelect.value === "__ALL__" || norm(guideSelect.value) !== norm(personGuide)){
+    guideSelect.value = personGuide;
+    renderPeople(false); // re-render list for this guide, but keep card
+    updateCounters();
+  }
+
+  cardDiv.innerHTML = `
+    <article class="person">
+      <div class="card-top">
+        <div>
+          <h2>${esc(p.name)}</h2>
+          <div class="meta">מדריך: ${esc(p.guide)}</div>
+        </div>
+        <div class="badge">מס׳ ${esc(p.num)||'—'}</div>
+      </div>
+
+      <section class="section">
+        <h3>👤 1. פרטים אישיים</h3>
+        <div class="fields">
+          ${field("תעודת זהות", p.id)}
+          ${field("תאריך לידה", p.birthDate)}
+          ${field("גיל", p.age)}
+          ${field("כתובת", p.address, true)}
+          ${field("נייד", p.mobile)}
+          ${field("טלפון בבית", p.homePhone)}
+        </div>
+      </section>
+
+      <section class="section">
+        <h3>🏥 2. רפואה</h3>
+        <div class="fields">
+          ${field("קופת חולים", p.healthFund)}
+          ${field("רופא / סניף", p.doctor)}
+          ${field("מס׳ טלפון", p.doctorPhone)}
+          ${field("מחלות רקע", p.background, true)}
+          ${field("מוגבלות", p.disability, true)}
+        </div>
+      </section>
+
+      <section class="section">
+        <h3>🏠 3. מגורים ואיש קשר</h3>
+        <div class="fields">
+          ${field("מתגורר עם", p.livesWith)}
+          ${field("איש קשר", p.contactName)}
+          ${field("קירבה", p.relation)}
+          ${field("טלפון איש קשר", p.contactPhone)}
+        </div>
+        <div class="pills">
+          ${pill("מקלט", p.shelter)}
+          ${pill('ממ״ד', p.mamad)}
+          ${pill("ללא מיגון", p.none)}
+        </div>
+      </section>
+
+      <section class="section">
+        <h3>🤝 4. פרטי עו״ס</h3>
+        <div class="fields">
+          ${field("שם עובד/ת סוציאלי/ת", p.socialWorker)}
+          ${field("מס׳ טלפון", p.socialPhone)}
+          ${field("שירות יחיד", p.privateService, true)}
+          ${field("סוג שירות", p.serviceType)}
+        </div>
+      </section>
+    </article>`;
+  hideEmptySections();
+  cardDiv.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+fileInput.addEventListener("change", async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+
+  showNotice("");
+  statsDiv.textContent = "";
+  peopleDiv.innerHTML = `<div class="empty">קורא את הקובץ...</div>`;
+  cardDiv.innerHTML = `<div class="empty">קורא את הקובץ...</div>`;
+
+  try{
+    const buf = await file.arrayBuffer();
+    const matrix = await parseXlsx(buf);
+
+    DATA = matrix.slice(1)
+      .map((r,idx)=>rowToPerson(r,idx))
+      .filter(p=>clean(p.name)||clean(p.guide));
+
+    showNotice("");
+    loadGuides();
+  }catch(err){
+    console.error(err);
+    showNotice("לא הצלחתי לקרוא את הקובץ. ודא שזה קובץ Excel תקין מסוג xlsx ונסה שוב.");
+    peopleDiv.innerHTML = `<div class="empty">שגיאה בקריאת הקובץ.</div>`;
+    cardDiv.innerHTML = `<div class="empty">שגיאה בקריאת הקובץ.</div>`;
+  }
+});
+
+guideSelect.addEventListener("change", ()=>renderPeople(true));
+searchInput.addEventListener("input", ()=>renderPeople(true));
+
+// ── AUTO-LOAD DATA FROM MAIN MENU ──────────────────────────────────────────
+function mapSharedClientToCardPerson(c, idx){
+  c = c || {};
+  return {
+    _idx: idx,
+    num: clean(c.workshopNum || c.num || c.misparBasadna || c["מס' בסדנה"]),
+    name: clean(c.name || c.shem || c["שם מקבל השרות"]),
+    id: clean(c.id || c.tz || c["תעודת זהות"]),
+    serviceType: clean(c.serviceType || c["סוג שירות"]),
+    guide: clean(c.guide || c.workshop || c.sadna || c["סדנה"]),
+    healthFund: clean(c.healthFund || c.kupatHolim || c["קופת חולים"]),
+    doctor: clean(c.doctor || c.branch || c["סניף"]),
+    doctorPhone: clean(c.doctorPhone || c.phone || c["מס' טלפון"]),
+    background: clean(c.background || c.medicalBackground || c["מחלות רקע"]),
+    disability: clean(c.disability || c.limitation || c["מיגבלה"]),
+    address: clean(c.address || c.street || c.rechov || c["רחוב"]),
+    mobile: clean(c.mobile || c.nayad || c["נייד"]),
+    homePhone: clean(c.homePhone || c.home || c["בבית"]),
+    birthDate: dateText(c.birthDate || c.dob || c["תאריך לידה"]),
+    age: ageText(c.age || c.gyl || c["גיל"]),
+    livesWith: clean(c.livesWith || c.garIm || c["גר עם"]),
+    contactName: clean(c.contactName || c.contact || c["איש קשר"]),
+    relation: clean(c.relation || c["קירבה"]),
+    contactPhone: clean(c.contactPhone || c["טל'"]),
+    socialWorker: clean(c.socialWorker || c.os || c["עו\"ס"]),
+    socialPhone: clean(c.socialPhone || c["טלפון"]),
+    privateService: clean(c.privateService || c.yahid || c["שירות יחיד"]),
+    mamad: clean(c.mamad || c["ממ\"ד"]),
+    shelter: clean(c.shelter || c["מקלט"]),
+    none: clean(c.none || c["אין"])
+  };
+}
+
+function loadFromSharedIndex(){
+  try {
+    var raw = localStorage.getItem('rehab_excel_clients_v1');
+    if (!raw) return false;
+    var arr = JSON.parse(raw);
+    if (!Array.isArray(arr) || !arr.length) return false;
+
+    DATA = arr.map(mapSharedClientToCardPerson).filter(p => clean(p.name) || clean(p.guide));
+    if (!DATA.length) return false;
+
+    var inp = document.getElementById('fileInput');
+    if (inp) {
+      var label = inp.previousElementSibling;
+      if (label && label.tagName === 'LABEL') label.style.display = 'none';
+      inp.style.display = 'none';
+    }
+    var heroText = document.querySelector('.hero p');
+    if (heroText) heroText.textContent = 'הנתונים נטענו אוטומטית מהקובץ הראשי שבמסך הפתיחה.';
+    showNotice('');
+    loadGuides();
+    return true;
+  } catch(e) {
+    console.log('shared auto-load:', e);
+    return false;
+  }
+}
+
+window.addEventListener('load', function() {
+  setTimeout(function() {
+    if (loadFromSharedIndex()) return;
+
+    // Backward compatibility for older index files that saved the raw Excel file
+    try {
+      var raw = localStorage.getItem('rehab_excel_raw_v1');
+      if (!raw) return;
+      var parsed = JSON.parse(raw);
+      var binary = atob(parsed.base64);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      var file = new File([bytes], parsed.fileName || 'מחלות_רקע.xlsx');
+      var inp = document.getElementById('fileInput');
+      if (inp) {
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        inp.files = dt.files;
+        inp.dispatchEvent(new Event('change'));
+        setTimeout(function() {
+          var label = inp.previousElementSibling;
+          if (label && label.tagName === 'LABEL') label.style.display = 'none';
+          inp.style.display = 'none';
+        }, 1000);
+      }
+    } catch(e) { console.log('legacy auto-load:', e); }
+  }, 300);
+});
+</script>
+
+<div style="position:fixed;bottom:20px;left:20px;z-index:9999;">
+  <button onclick="history.back()" style="background:linear-gradient(135deg,#1a3a5c,#2563a8);color:white;border:none;border-radius:50px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,58,92,0.4);font-family:inherit;direction:rtl;">&rarr; חזרה לתפריט</button>
+</div>
+<script>
+/**
+ * ═══════════════════════════════════════════════════
+ *  config.js — הגדרות ארגוניות
+ *  שנה כאן בלבד. כל הטפסים יתעדכנו אוטומטית.
+ * ═══════════════════════════════════════════════════
+ */
+
+const ORG_CONFIG = {
+
+  // ── פרטי הארגון ──────────────────────────────────
+  orgName:  "מפעל מוגן שיקומי לבריאות הנפש, באר שבע – עמותת יחדיו",
+  orgShort: "עמותת יחדיו",
+  city:     "באר שבע",
+
+  // ── מנהל (חתימה קבועה במסמכים) ──────────────────
+  director: {
+    name:  "אלכסנדר חטקביץ",
+    title: "מנהל מפעל שיקומי לבריאות הנפש"
+  },
+
+  // ── עובדת סוציאלית (חתימה קבועה במסמכים) ────────
+  socialWorker: {
+    name:  "ליבי יוסופוב",
+    title: "עובדת סוציאלית"
+  },
+
+  // ── מדריכים (רשימות נפתחות) ──────────────────────
+  guides: [
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── כל הצוות (לתיעוד שיחות וכד') ────────────────
+  allStaff: [
+    "אלכסנדר חטקביץ",
+    "ליבי יוסופוב",
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── קבצים ─────────────────────────────────────────
+  // שנה כאן את הנתיבים לפי מבנה השרת שלך
+  files: {
+    // קובץ Excel עם נתוני מקבלי השירות
+    excel: "מחלות רקע.xlsx",
+
+    // לוגו העמותה — קובץ בתיקיית images/ או URL חיצוני
+    logoOrg: "https://mnz.org.il/sites/www.mnz.org.il/files/logo-yachdav.png",
+
+    // לוגו משרד הבריאות
+    logoMinistry: "https://upload.wikimedia.org/wikipedia/he/thumb/f/fb/Israeli_Ministry_of_Health_logo.png/3840px-Israeli_Ministry_of_Health_logo.png"
+  },
+
+  // ── גדלי לוגואים במסמכים ─────────────────────────
+  logoSizes: {
+    orgHeight:      "50px",
+    ministryHeight: "40px"
+  }
+};
+
+/**
+ * פונקציות עזר — נטענות אוטומטית בכל הטפסים
+ */
+
+// מילוי שם ארגון בכל מקום עם data-org="name"
+function fillOrgNames() {
+  document.querySelectorAll('[data-org="name"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgName;
+  });
+  document.querySelectorAll('[data-org="short"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgShort;
+  });
+  document.querySelectorAll('[data-org="city"]').forEach(el => {
+    el.textContent = ORG_CONFIG.city;
+  });
+}
+
+// מילוי שם מנהל ועו"ס בכל מקום עם data-staff
+function fillStaffNames() {
+  document.querySelectorAll('[data-staff="director"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name;
+  });
+  document.querySelectorAll('[data-staff="director-full"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name + ' – ' + ORG_CONFIG.director.title;
+  });
+  document.querySelectorAll('[data-staff="social-worker"]').forEach(el => {
+    el.textContent = ORG_CONFIG.socialWorker.name;
+  });
+}
+
+// בניית רשימה נפתחת של מדריכים
+function buildGuidesSelect(selectEl, includeEmpty = true) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר/י מדריך';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.guides.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+}
+
+// בניית רשימה נפתחת של כל הצוות
+function buildAllStaffSelect(selectEl, includeEmpty = true, extraOptions = []) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר...';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.allStaff.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+  extraOptions.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.value || item;
+    opt.textContent = item.label || item;
+    selectEl.appendChild(opt);
+  });
+}
+
+// האתחול מתבצע בתחתית הקובץ
+
+// החלפת לוגואים בכל הטפסים
+function fillLogos() {
+  // לוגו עמותה
+  document.querySelectorAll('[data-logo="org"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoOrg;
+    img.style.height = ORG_CONFIG.logoSizes.orgHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+  // לוגו משרד הבריאות
+  document.querySelectorAll('[data-logo="ministry"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoMinistry;
+    img.style.height = ORG_CONFIG.logoSizes.ministryHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+}
+
+// הוסף fillLogos לאתחול
+document.addEventListener('DOMContentLoaded', function() {
+  fillOrgNames();
+  fillStaffNames();
+  fillLogos();
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>בקרה פנימית — צ'קליסט</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:  #0f2742;
+    --navy2: #14395f;
+    --teal:  #0b7a75;
+    --teal2: #e4f4f3;
+    --gold:  #c9a84c;
+    --green: #1a7a45;
+    --green2:#e8f8ee;
+    --red:   #b42318;
+    --red2:  #fff0ef;
+    --ink:   #1c2b3a;
+    --muted: #5b6b7a;
+    --line:  #d8e4ee;
+    --bg:    #eaf0f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Rubik', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.55;
+    font-size: 15px;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--navy);
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.22);
+  }
+  .toolbar-title { color: #fff; font-weight: 700; font-size: 16px; }
+  .toolbar-btns { display: flex; gap: 8px; }
+  .toolbar button {
+    border: 0; border-radius: 10px; padding: 9px 16px;
+    font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
+  }
+  .btn-gold   { background: var(--gold); color: var(--navy); }
+  .btn-ghost  { background: rgba(255,255,255,.12); color: #fff; font-weight: 400; }
+  .btn-ghost:hover { background: rgba(255,255,255,.2); }
+
+  /* PROGRESS */
+  .progress-wrap {
+    background: var(--navy2);
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .progress-bar-bg {
+    flex: 1; height: 8px; background: rgba(255,255,255,.15);
+    border-radius: 99px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; background: var(--gold);
+    border-radius: 99px; transition: width .3s ease;
+    width: 0%;
+  }
+  .progress-label { color: rgba(255,255,255,.85); font-size: 13px; white-space: nowrap; }
+
+  /* WRAP */
+  .wrap { max-width: 900px; margin: 24px auto; padding: 0 18px 60px; }
+
+  /* HEADER CARD */
+  .hero {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy2) 60%, #0f4a44 100%);
+    border-radius: 20px; padding: 32px 36px; color: #fff; margin-bottom: 20px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ""; position: absolute; top: -50px; left: -50px;
+    width: 180px; height: 180px;
+    background: radial-gradient(circle, rgba(201,168,76,.2) 0%, transparent 70%);
+  }
+  .hero-badge {
+    display: inline-block; background: rgba(201,168,76,.18);
+    border: 1px solid rgba(201,168,76,.4); color: var(--gold);
+    border-radius: 999px; padding: 4px 14px; font-size: 13px; margin-bottom: 12px;
+  }
+  .hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+  .hero .factory-name {
+    display: flex; align-items: center; gap: 10px; margin-top: 14px;
+  }
+  .factory-name label { color: rgba(255,255,255,.65); font-size: 13px; white-space: nowrap; }
+  .factory-name input {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+    border-radius: 10px; padding: 7px 12px; color: #fff; font-size: 15px;
+    font-family: inherit; outline: none; flex: 1; max-width: 300px;
+  }
+  .factory-name input::placeholder { color: rgba(255,255,255,.4); }
+  .date-row { margin-top: 10px; display: flex; gap: 16px; }
+  .date-row label { color: rgba(255,255,255,.65); font-size: 13px; }
+  .date-row input {
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25);
+    border-radius: 8px; padding: 5px 10px; color: #fff; font-size: 14px;
+    font-family: inherit; outline: none;
+  }
+
+  /* SECTION */
+  .section-card {
+    background: #fff; border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(15,39,66,.08);
+    margin-bottom: 16px; overflow: hidden;
+  }
+  .section-header {
+    background: var(--navy); color: #fff;
+    padding: 14px 22px; display: flex; align-items: center; gap: 10px;
+    cursor: pointer; user-select: none;
+  }
+  .section-header h2 { font-size: 17px; font-weight: 700; flex: 1; }
+  .section-header .sec-count {
+    font-size: 13px; color: rgba(255,255,255,.6);
+    background: rgba(255,255,255,.12); border-radius: 99px;
+    padding: 3px 10px; white-space: nowrap;
+  }
+  .section-header .chevron { font-size: 13px; opacity: .6; transition: transform .2s; }
+  .section-header.collapsed .chevron { transform: rotate(-90deg); }
+  .section-body { padding: 8px 0; }
+  .section-body.hidden { display: none; }
+
+  /* ROW */
+  .check-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 68px 68px;
+    align-items: start; gap: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 0;
+    transition: background .15s;
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-row:hover { background: #f6faff; }
+
+  .row-num {
+    padding: 14px 8px 14px 16px;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    text-align: center; align-self: center;
+  }
+  .row-text {
+    padding: 13px 12px 13px 0;
+    font-size: 14px; line-height: 1.5; color: var(--ink);
+  }
+
+  .check-btn {
+    display: flex; align-items: center; justify-content: center;
+    padding: 14px 4px; cursor: pointer; border: none; background: none;
+    font-size: 22px; transition: transform .1s;
+  }
+  .check-btn:active { transform: scale(.88); }
+
+  .check-btn.yes-btn { color: #ccc; }
+  .check-btn.no-btn  { color: #ccc; }
+  .check-row.state-yes .check-btn.yes-btn { color: var(--green); }
+  .check-row.state-no  .check-btn.no-btn  { color: var(--red); }
+  .check-row.state-yes { background: var(--green2); }
+  .check-row.state-no  { background: var(--red2); }
+
+  /* NOTE */
+  .note-row {
+    grid-column: 1 / -1;
+    padding: 0 16px 12px;
+    display: none;
+  }
+  .note-row.visible { display: block; }
+  .note-row textarea {
+    width: 100%; border: 1px solid var(--line); border-radius: 10px;
+    padding: 9px 12px; font-size: 13.5px; font-family: inherit;
+    resize: none; overflow: hidden; min-height: 52px; color: var(--ink);
+    background: #fff; outline: none; line-height: 1.5;
+    transition: height .10s ease;
+  }
+  .note-row textarea:focus { border-color: var(--teal); }
+
+  /* HEADER ROW */
+  .header-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 68px 68px;
+    background: #f0f6ff; padding: 8px 0;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    border-bottom: 1px solid var(--line);
+    text-transform: uppercase; letter-spacing: .4px;
+  }
+  .header-row span:nth-child(3),
+  .header-row span:nth-child(4) { text-align: center; }
+  .header-row span { padding: 0 4px; }
+  .header-row span:first-child { padding-right: 16px; }
+
+  /* SUMMARY */
+  .summary-card {
+    background: #fff; border-radius: 18px;
+    box-shadow: 0 4px 20px rgba(15,39,66,.08);
+    padding: 24px; margin-bottom: 16px;
+    display: none;
+  }
+  .summary-card.visible { display: block; }
+  .summary-card h2 { font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 16px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+  .sum-box {
+    border-radius: 14px; padding: 16px; text-align: center; border: 1px solid var(--line);
+  }
+  .sum-box .num { font-size: 32px; font-weight: 800; line-height: 1; }
+  .sum-box .lbl { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .sum-yes { background: var(--green2); }
+  .sum-yes .num { color: var(--green); }
+  .sum-no  { background: var(--red2); }
+  .sum-no .num  { color: var(--red); }
+  .sum-open { background: #f8f9fb; }
+  .sum-open .num { color: var(--muted); }
+
+  /* PRINT */
+  @media print {
+    body { background: #fff; font-size: 13px; }
+    .toolbar, .progress-wrap, .btn-gold, .btn-ghost { display: none !important; }
+    .wrap { margin: 0; padding: 0; max-width: none; }
+    .hero { border-radius: 0; padding: 16px 20px; }
+    .section-card { box-shadow: none; border: 1px solid var(--line); margin-bottom: 10px; break-inside: avoid; }
+    .check-row { break-inside: avoid; }
+    .note-row textarea { border: none; padding: 4px 0; font-size: 12px; }
+    .summary-card { display: block !important; box-shadow: none; border: 1px solid var(--line); }
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 20px 18px; }
+    .hero h1 { font-size: 20px; }
+    .summary-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-title">✅ בקרה פנימית — מפעל מוגן</div>
+  <div class="toolbar-btns">
+    <button class="btn-ghost" onclick="resetAll()">🔄 איפוס</button>
+    <button class="btn-gold" onclick="window.print()">🖨 הדפס</button>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">0 / 0 סומנו</div>
+</div>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">בקרה פנימית — טופס ביקורת</div>
+    <h1>צ'קליסט בקרה פנימית</h1>
+    <div class="factory-name">
+      <label>שם המפעל:</label>
+      <input type="text" id="factoryName" placeholder="הכנס שם מפעל...">
+    </div>
+    <div class="date-row">
+      <label>תאריך ביקורת:</label>
+      <input type="date" id="auditDate">
+      <label style="margin-right:8px">בוקר על ידי:</label>
+      <input type="text" id="auditorName" placeholder="שם הבוקר" style="max-width:160px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.25); border-radius:8px; padding:5px 10px; color:#fff; font-size:14px; font-family:inherit; outline:none;">
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-card" id="summaryCard">
+    <h2>📊 סיכום ביקורת</h2>
+    <div class="summary-grid">
+      <div class="sum-box sum-yes"><div class="num" id="sumYes">0</div><div class="lbl">עמד בדרישות ✓</div></div>
+      <div class="sum-box sum-no"> <div class="num" id="sumNo">0</div> <div class="lbl">לא עמד ✗</div></div>
+      <div class="sum-box sum-open"><div class="num" id="sumOpen">0</div><div class="lbl">לא סומן</div></div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 -->
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>👥 ניהול כוח אדם</h2>
+      <span class="sec-count" id="count-s1">0 / 7</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body" id="body-s1">
+      <div class="header-row">
+        <span>#</span><span>הקריטריון הנבדק</span><span style="text-align:center">כן</span><span style="text-align:center">לא</span>
+      </div>
+      <!-- items -->
+      <div id="s1-rows"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 -->
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>🧑‍⚕️ טיפול במקבלי השירות</h2>
+      <span class="sec-count" id="count-s2">0 / 24</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body" id="body-s2">
+      <div class="header-row">
+        <span>#</span><span>הקריטריון הנבדק</span><span style="text-align:center">כן</span><span style="text-align:center">לא</span>
+      </div>
+      <div id="s2-rows"></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 -->
+  <div class="section-card">
+    <div class="section-header" onclick="toggleSection(this)">
+      <h2>📋 נהלים והפעלת כוח אדם</h2>
+      <span class="sec-count" id="count-s3">0 / 6</span>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-body" id="body-s3">
+      <div class="header-row">
+        <span>#</span><span>הקריטריון הנבדק</span><span style="text-align:center">כן</span><span style="text-align:center">לא</span>
+      </div>
+      <div id="s3-rows"></div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+const sections = {
+  s1: {
+    items: [
+      { id:'1.2',  text:'לכל עובד יש תיק' },
+      { id:'1.3',  text:'בתיק העובד יש תעודות מקצועיות' },
+      { id:'1.4',  text:'בתיק העובד יש חוזה העסקה' },
+      { id:'1.5',  text:'בתיק נמצא אישור רופא על היעדר מחלות מדבקות' },
+      { id:'1.6',  text:'בתיקו האישי של כל עובד ממין זכר המועסק במפעל, קיים אישור מהמשטרה' },
+      { id:'1.7',  text:'העובד מחתים שעון נוכחות' },
+      { id:'1.8',  text:'העובד מקבל הדרכה כנדרש' },
+    ]
+  },
+  s2: {
+    items: [
+      { id:'3.1',  text:'לכל משתקם תיק הכולל דף מידע בסיסי (כולל דרכי התקשרות עם איש קשר/אפוטרופוס, מתאם/מטפל)' },
+      { id:'3.2',  text:'התיק כולל דיווח שוטף' },
+      { id:'3.3',  text:'התיק כולל תכנית שיקום מעודכנת כל חצי שנה (מקבלי שירות חדשים – שמונה חודשים ראשונים כל חודשיים, בשמונה החודשים הבאים כל ארבעה חודשים, אח"כ כל שישה חודשים)' },
+      { id:'3.4',  text:'התיק כולל הערכה תפקודית' },
+      { id:'3.6',  text:'התיק כולל רישום החלטה על קבלה למסגרת השירות' },
+      { id:'3.7',  text:'התיק כולל מידע רפואי, פסיכיאטרי, תפקודי ופסיכוסוציאלי (בכל חזרה מהחמרה נדרש מידע מעודכן)' },
+      { id:'3.8',  text:'התיק כולל אישור רפואי לעבודה במפעל' },
+      { id:'3.9',  text:'התיק כולל אישור ועדת סל שיקום בתוקף' },
+      { id:'3.10', text:'התיק כולל כתב ויתור סודיות מעודכן אחת לשנה' },
+      { id:'3.11', text:'התיק כולל דיווח על אירועים חריגים' },
+      { id:'3.12', text:'קיים קלסר נפרד לאירועים חריגים' },
+      { id:'3.14', text:'במקרה של היעדרות ארוכה מיומיים ללא הודעה, הצוות יוצר קשר עם המשתקם' },
+      { id:'3.16', text:'תיקי המשתקמים נשמרים לחמש שנים מיום עזיבתם' },
+      { id:'3.17', text:'בתיק נמצא הסכם שיקום המפרט את תחשיב התגמול, ימי ושעות עבודה, מינימום שעות שבועיות, הפסקות, זכויות חופשה, וכללי הודעה על מחלה' },
+      { id:'3.21', text:'קיים רישום וקבלות על הוצאות תפעול' },
+      { id:'3.22', text:'קיים רישום וקבלות על הכנסות תפעול' },
+      { id:'3.23', text:'לפחות 90% מההכנסות (לאחר ניכוי הוצאות) משולמות למשתקמים כתגמול' },
+      { id:'3.24', text:'קיים רישום חודשי מרוכז של תגמול המשתקמים' },
+      { id:'3.25', text:'המשתקמים מקבלים דמי נסיעות ע"פ התעריף המעודכן' },
+      { id:'3.26', text:'המשתקמים מקבלים דמי שיקום עבור ערבי חג וחג שאינם חלים בשישי/שבת' },
+      { id:'3.27', text:'קיים רישום חודשי של ימי ההעסקה של המשתקמים ושעות ההעסקה' },
+      { id:'3.28', text:'הוצאות שוטפות (שכ"ד, ארנונה, תיקונים, חשמל, מים, רו"ח, ציוד משרדי) משולמות על ידי המפעיל מהתשלומים שמקבל ממשרד הבריאות' },
+      { id:'3.29', text:'תיקי המשתקמים והעובדים נמצאים בארון נעול' },
+      { id:'3.30', text:'במפעל המשתמש במערכת ממוחשבת, תיקי המשתקמים הממוחשבים מגובים ומוגנים' },
+      { id:'3.32', text:'בתיקי משתקמים שעזבו נמצא דו"ח עובד מקצועי הכולל סיכום השיקום, סיבת הסיום, המלצות והפניות' },
+      { id:'',     text:'לתשלום המשתקמים מצורף הסבר ופירוט כתוב של התשלום' },
+    ]
+  },
+  s3: {
+    items: [
+      { id:'5.1',  text:'מתקיימות ישיבות צוות לפחות כל שבועיים והן מתועדות' },
+      { id:'5.2',  text:'הצוות עבר קורס הכשרה ייעודי' },
+      { id:'5.3',  text:'קיימת תכנית הדרכה לעובד חדש' },
+      { id:'5.4',  text:'הצוות משתתף בכנס/השתלמות/יום עיון פעמיים בשנה' },
+      { id:'5.11', text:'העובדים חתומים על טופס שמירה על סודיות' },
+      { id:'5.13', text:'קיים נוהל הכולל כללי בטיחות וכללים לקליטת עובד חדש' },
+    ]
+  }
+};
+
+// State: { itemKey: 'yes'|'no'|null, note: '' }
+const state = {};
+
+function itemKey(sec, idx) { return sec + '_' + idx; }
+
+function renderSection(secId) {
+  const sec = sections[secId];
+  const container = document.getElementById(secId + '-rows');
+  container.innerHTML = sec.items.map((item, idx) => {
+    const k = itemKey(secId, idx);
+    if (!state[k]) state[k] = { val: null, note: '' };
+    const s = state[k];
+    const rowClass = s.val === 'yes' ? 'state-yes' : s.val === 'no' ? 'state-no' : '';
+    return `
+      <div class="check-row ${rowClass}" id="row-${k}">
+        <div class="row-num">${item.id || '—'}</div>
+        <div class="row-text">${item.text}</div>
+        <button class="check-btn yes-btn" onclick="toggle('${secId}',${idx},'yes')" title="כן">✔</button>
+        <button class="check-btn no-btn"  onclick="toggle('${secId}',${idx},'no')"  title="לא">✘</button>
+        <div class="note-row ${s.note || s.val === 'no' ? 'visible' : ''}" id="note-${k}">
+          <textarea placeholder="הערות / תיקון נדרש..." oninput="autoResizeNote(this); saveNote('${secId}',${idx},this.value)">${s.note}</textarea>
+        </div>
+      </div>`;
+  }).join('');
+  // התרחבות אוטומטית מיידית עבור הערות שכבר קיימות (משוחזרות עם טקסט).
+  container.querySelectorAll('textarea').forEach(autoResizeNote);
+}
+
+function toggle(secId, idx, val) {
+  const k = itemKey(secId, idx);
+  if (!state[k]) state[k] = { val: null, note: '' };
+  state[k].val = state[k].val === val ? null : val;
+  updateRow(secId, idx);
+  updateProgress();
+  updateSectionCount(secId);
+  updateSummary();
+}
+
+function autoResizeNote(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.max(el.scrollHeight, 52) + 'px';
+}
+
+function saveNote(secId, idx, val) {
+  const k = itemKey(secId, idx);
+  state[k].note = val;
+}
+
+function updateRow(secId, idx) {
+  const k = itemKey(secId, idx);
+  const s = state[k];
+  const row = document.getElementById('row-' + k);
+  const noteRow = document.getElementById('note-' + k);
+  row.className = 'check-row' + (s.val === 'yes' ? ' state-yes' : s.val === 'no' ? ' state-no' : '');
+  if (s.val === 'no') noteRow.classList.add('visible');
+}
+
+function updateProgress() {
+  let total = 0, marked = 0;
+  Object.values(sections).forEach(sec => {
+    sec.items.forEach((_, idx) => { /* counted below */ });
+  });
+  ['s1','s2','s3'].forEach(sid => {
+    sections[sid].items.forEach((_, idx) => {
+      const k = itemKey(sid, idx);
+      total++;
+      if (state[k] && state[k].val) marked++;
+    });
+  });
+  const pct = total ? Math.round(marked / total * 100) : 0;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = marked + ' / ' + total + ' סומנו (' + pct + '%)';
+}
+
+function updateSectionCount(secId) {
+  const sec = sections[secId];
+  let done = 0;
+  sec.items.forEach((_, idx) => {
+    const k = itemKey(secId, idx);
+    if (state[k] && state[k].val) done++;
+  });
+  document.getElementById('count-' + secId).textContent = done + ' / ' + sec.items.length;
+}
+
+function updateSummary() {
+  let yes = 0, no = 0, open = 0;
+  ['s1','s2','s3'].forEach(sid => {
+    sections[sid].items.forEach((_, idx) => {
+      const k = itemKey(sid, idx);
+      const v = state[k] && state[k].val;
+      if (v === 'yes') yes++;
+      else if (v === 'no') no++;
+      else open++;
+    });
+  });
+  document.getElementById('sumYes').textContent  = yes;
+  document.getElementById('sumNo').textContent   = no;
+  document.getElementById('sumOpen').textContent = open;
+  document.getElementById('summaryCard').classList.toggle('visible', yes + no > 0);
+}
+
+function toggleSection(header) {
+  header.classList.toggle('collapsed');
+  const body = header.nextElementSibling;
+  body.classList.toggle('hidden');
+}
+
+function resetAll() {
+  if (!confirm('לאפס את כל הסימונים?')) return;
+  Object.keys(state).forEach(k => { state[k] = { val: null, note: '' }; });
+  ['s1','s2','s3'].forEach(sid => { renderSection(sid); updateSectionCount(sid); });
+  updateProgress();
+  updateSummary();
+}
+
+// INIT
+document.getElementById('auditDate').value = new Date().toISOString().slice(0, 10);
+['s1','s2','s3'].forEach(sid => { renderSection(sid); updateSectionCount(sid); });
+updateProgress();
+</script>
+</body>
+</html>

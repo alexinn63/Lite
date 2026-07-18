@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מעקב תוכניות שיקום</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1a3a5c;
+  --primary-mid: #2563a8;
+  --primary-light: #e8f1fb;
+  --gold: #c9933a;
+  --green: #2e7d52;
+  --red: #b83232;
+  --orange: #d97706;
+  --text: #1e2535;
+  --muted: #6b7280;
+  --bg: #f4f7fc;
+  --white: #ffffff;
+  --border: #b8d0ee;
+  --shadow: 0 2px 16px rgba(26,58,92,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Heebo', 'Arial Hebrew', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+  direction: rtl;
+}
+
+/* TOP BAR */
+.top-bar {
+  background: var(--primary);
+  color: white;
+  padding: 0 24px; min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.top-bar-center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; line-height: 1.4; }
+.top-bar-title { font-size: 17px; font-weight: 700; white-space: nowrap; }
+.top-bar-sub { font-size: 12px; color: #a8c4e0; margin-top: 3px; white-space: nowrap; }
+.top-bar-logos img { height: 72px; width: auto; border-radius: 50%; }
+.top-bar-actions { display: flex; gap: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 6px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; border: none; transition: all .18s;
+}
+.btn-primary { background: white; color: var(--primary); }
+.btn-primary:hover { background: #e2ecf7; }
+
+
+/* MAIN */
+.page {
+  max-width: 880px;
+  margin: 24px auto;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* LOAD PANEL */
+.load-panel {
+  padding: 24px 28px;
+  border-bottom: 1px solid var(--border);
+  background: var(--primary-light);
+}
+.load-panel label { font-weight: 700; font-size: 15px; color: var(--primary); display: block; margin-bottom: 8px; }
+.load-panel input[type=file] {
+  width: 100%; padding: 10px 14px;
+  border: 2px dashed var(--border); border-radius: 8px;
+  background: white; font-family: inherit; font-size: 14px; cursor: pointer;
+}
+
+/* SUMMARY BAR */
+.summary-bar {
+  display: flex; gap: 12px; padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  background: #fafcff;
+  flex-wrap: wrap;
+}
+.summary-card {
+  flex: 1; min-width: 120px;
+  background: white; border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px;
+  text-align: center;
+}
+.summary-card .num { font-size: 22px; font-weight: 800; }
+.summary-card .lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.num-overdue { color: var(--red); }
+.num-soon { color: var(--orange); }
+.num-ok { color: var(--green); }
+
+/* FILTER ROW */
+.filter-row {
+  display: flex; gap: 10px; padding: 12px 28px;
+  border-bottom: 1px solid var(--border); align-items: center; flex-wrap: wrap;
+}
+.filter-row label { font-size: 13px; color: var(--muted); font-weight: 600; }
+.filter-btn {
+  padding: 5px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1.5px solid var(--border); background: white; color: var(--text);
+  transition: all .15s;
+}
+.filter-btn.active-all { border-color: var(--primary); background: var(--primary); color: white; }
+.filter-btn.active-overdue { border-color: var(--red); background: var(--red); color: white; }
+.filter-btn.active-soon { border-color: var(--orange); background: var(--orange); color: white; }
+.filter-btn.active-ok { border-color: var(--green); background: var(--green); color: white; }
+
+/* LIST */
+.list-body { padding: 16px 28px 28px; }
+.list-empty {
+  text-align: center; padding: 40px; color: var(--muted);
+  font-size: 14px;
+}
+
+/* PERSON ROW */
+.person-row {
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 16px; margin-bottom: 10px;
+  background: white; transition: all .18s;
+}
+.person-row:hover { box-shadow: 0 2px 8px rgba(26,58,92,0.10); }
+.person-row.overdue { border-right: 4px solid var(--red); }
+.person-row.soon { border-right: 4px solid var(--orange); }
+.person-row.ok { border-right: 4px solid var(--green); }
+.person-row.done-row { border-right: 4px solid #94a3b8; opacity: 0.55; }
+
+.person-name { font-size: 15px; font-weight: 700; flex: 1; }
+.person-meta { font-size: 12px; color: var(--muted); }
+.person-badge {
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 12px; font-weight: 700;
+}
+.badge-overdue { background: #fef2f2; color: var(--red); border: 1px solid #fca5a5; }
+.badge-soon { background: #fffbeb; color: var(--orange); border: 1px solid #fcd34d; }
+.badge-ok { background: #f0fdf4; color: var(--green); border: 1px solid #86efac; }
+.badge-done { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
+.btn-done {
+  padding: 5px 12px; border-radius: 6px; border: none;
+  font-family: inherit; font-size: 12px; font-weight: 600;
+  cursor: pointer; background: var(--green); color: white; transition: all .18s;
+}
+.btn-done:hover { background: #1e5c3a; }
+.btn-done.undone { background: #e2e8f0; color: var(--muted); }
+.btn-done.undone:hover { background: #cbd5e1; }
+
+.plan-period { font-size: 11px; color: var(--primary-mid); font-weight: 600; }
+
+/* EMPTY STATE */
+.no-data {
+  text-align: center; padding: 60px 28px;
+  color: var(--muted);
+}
+.no-data .icon { font-size: 48px; margin-bottom: 12px; }
+
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="top-bar-logos">
+      <img data-logo="org" src="" style="height:52px;width:auto;border-radius:6px;" alt="יחדיו">
+    </div>
+    <div>
+      <div class="top-bar-center">
+        <div class="top-bar-title">מעקב תוכניות שיקום</div>
+        <div class="top-bar-sub" data-org="name">עמותת יחדיו – מפעל מוגן שיקומי, באר שבע</div>
+      </div>
+    </div>
+  </div>
+  <div class="top-bar-actions">
+    
+  </div>
+</div>
+
+<!-- PAGE -->
+<div class="page">
+
+  <!-- DATA STATUS -->
+  <div class="load-panel" id="dataStatusPanel">
+    <label>📂 נתוני Excel</label>
+    <div id="dataStatus" style="font-size:14px;color:#1a3a5c;font-weight:700;">בודק נתונים מהמסך הראשי...</div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-bar" id="summaryBar" style="display:none;">
+    <div class="summary-card">
+      <div class="num" id="totalNum">0</div>
+      <div class="lbl">סה"כ מקבלי שירות</div>
+    </div>
+    <div class="summary-card">
+      <div class="num num-overdue" id="overdueNum">0</div>
+      <div class="lbl">⚠️ באיחור</div>
+    </div>
+    <div class="summary-card">
+      <div class="num num-soon" id="soonNum">0</div>
+      <div class="lbl">🔔 בקרוב (14 יום)</div>
+    </div>
+    <div class="summary-card">
+      <div class="num num-ok" id="okNum">0</div>
+      <div class="lbl">✅ בתוקף</div>
+    </div>
+  </div>
+
+  <!-- FILTER -->
+  <div class="filter-row" id="filterRow" style="display:none;">
+    <label>הצג:</label>
+    <button class="filter-btn active-overdue" onclick="setFilter('overdue',this)">באיחור</button>
+    <button class="filter-btn" onclick="setFilter('soon',this)">בקרוב</button>
+    <button class="filter-btn" onclick="setFilter('ok',this)">בתוקף</button>
+    <button class="filter-btn" onclick="setFilter('all',this)">הכל</button>
+  </div>
+
+  <!-- LIST -->
+  <div class="list-body">
+    <div id="noData">
+      <!-- WELCOME / REGULATION INFO -->
+      <div style="padding:28px 28px 0;">
+        <div style="background:#f8fbff;border-right:4px solid #2563a8;border-radius:8px;padding:20px 22px;margin-bottom:18px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span style="font-size:22px;">📋</span>
+            <div>
+              <div style="font-size:16px;font-weight:800;color:#1a3a5c;">מעקב תוכניות שיקום</div>
+              <div style="font-size:12px;color:#6b7280;margin-top:2px;">לפי נוהל משרד הבריאות 81.003 סעיף 7.8.3</div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:#1e2535;line-height:1.9;">
+            <div style="font-weight:700;color:#1a3a5c;margin-bottom:8px;font-size:14px;">מתי נדרשת עדכון תוכנית שיקום?</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:flex-start;gap:10px;background:white;border:1px solid #b8d0ee;border-radius:8px;padding:12px 14px;">
+                <div style="background:#2e7d52;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">1</div>
+                <div>
+                  <div style="font-weight:700;color:#1a3a5c;">8 החודשים הראשונים</div>
+                  <div style="color:#6b7280;font-size:12px;margin-top:2px;">עדכון <strong style="color:#2e7d52;">כל חודשיים</strong> — תקופת ההסתגלות הראשונית</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;background:white;border:1px solid #b8d0ee;border-radius:8px;padding:12px 14px;">
+                <div style="background:#2563a8;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">2</div>
+                <div>
+                  <div style="font-weight:700;color:#1a3a5c;">חודשים 8–16</div>
+                  <div style="color:#6b7280;font-size:12px;margin-top:2px;">עדכון <strong style="color:#2563a8;">כל ארבעה חודשים</strong> — שלב הביסוס</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;background:white;border:1px solid #b8d0ee;border-radius:8px;padding:12px 14px;">
+                <div style="background:#c9933a;color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;">3</div>
+                <div>
+                  <div style="font-weight:700;color:#1a3a5c;">לאחר 16 חודשים ומעלה</div>
+                  <div style="color:#6b7280;font-size:12px;margin-top:2px;">עדכון <strong style="color:#c9933a;">כל ששה חודשים</strong> — שלב השיקום המתמשך</div>
+                </div>
+              </div>
+            </div>
+            <div style="margin-top:14px;padding:10px 14px;background:#fef9ee;border:1px solid #fcd34d;border-radius:8px;font-size:12px;color:#92400e;">
+              <strong>📌 מה נדרש בעדכון?</strong> הערכה תקופתית של העובד המקצועי בשיתוף המשתקם, קביעת יעדים ומטרות להמשך — נוהל 81.003 סעיף 7.8.3ג
+            </div>
+          </div>
+        </div>
+        <div style="text-align:center;padding:16px;color:#6b7280;font-size:13px;">
+          📂 <strong>פתח דרך המסך הראשי</strong> לאחר טעינת Excel
+        </div>
+      </div>
+    </div>
+    <div id="personList"></div>
+  </div>
+</div>
+
+
+
+<script>
+// ─── STATE ───────────────────────────────────────────────────────────
+let allPersons = [];
+let currentFilter = 'overdue';
+
+function clean(v){ return v === null || v === undefined ? '' : String(v).trim(); }
+function escapeHtml(v){ return clean(v).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function parseStoredDate(v) {
+  if (!v) return null;
+
+  // Already a Date object
+  if (v instanceof Date) return isNaN(v) ? null : v;
+
+  // String — check first
+  if (typeof v === 'string') {
+    const s = v.trim();
+    if (!s) return null;
+
+    // "DD/MM/YYYY" — новый формат из index.html (основной случай)
+    const dmy = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (dmy) {
+      return new Date(Number(dmy[3]), Number(dmy[2]) - 1, Number(dmy[1]));
+    }
+
+    // Строка-число "44019" — Excel serial из старого localStorage
+    if (/^\d{4,5}$/.test(s)) {
+      const serial = Number(s);
+      if (serial > 15000 && serial < 60000) {
+        const dt = new Date(Math.round((serial - 25569) * 86400 * 1000));
+        return new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+      }
+    }
+
+    // ISO "YYYY-MM-DD" — старый формат
+    const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (iso) {
+      return new Date(Number(iso[1]), Number(iso[2]) - 1, Number(iso[3]));
+    }
+
+    // DD.MM.YYYY или D/M/YY
+    const other = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})$/);
+    if (other) {
+      let y = Number(other[3]);
+      if (y < 100) y += 2000;
+      return new Date(y, Number(other[2]) - 1, Number(other[1]));
+    }
+
+    return null;
+  }
+
+  // number — Excel serial
+  if (typeof v === 'number') {
+    if (v > 15000 && v < 60000) {
+      const dt = new Date(Math.round((v - 25569) * 86400 * 1000));
+      return new Date(dt.getUTCFullYear(), dt.getUTCMonth(), dt.getUTCDate());
+    }
+    return null;
+  }
+
+  // object с полем date или value
+  if (typeof v === 'object') {
+    if (v.date) return parseStoredDate(v.date);
+    if (v.value) return parseStoredDate(v.value);
+  }
+
+  return null;
+}
+
+function loadFromMainExcel() {
+  const status = document.getElementById('dataStatus');
+  try {
+    const raw = localStorage.getItem('rehab_excel_clients_v1');
+    if (!raw) {
+      if (status) status.textContent = 'לא נמצאו נתונים. יש לטעון Excel במסך הראשי.';
+      return;
+    }
+
+    const clients = JSON.parse(raw) || [];
+    allPersons = clients.map(c => {
+      const name = clean(c.name || c.clientName || c['שם מקבל השרות'] || c['שם מקבל השירות']);
+      const id = clean(c.id || c.teudatZehut || c['תעודת זהות'] || name);
+      const guide = clean(c.sadna || c.guide || c.workshopGuide || c['סדנה'] || c['מדריך']);
+      const klita = parseStoredDate(c.klitaDate || c.intakeDate || c.klita || c['תאריך קליטה']);
+      const lastPlan = parseStoredDate(c.lastPlanDate || c.planDate || c.lastPlan || c['תאריך כתיבה תוכנית שיקום'] || c['תוכנית שיקום']);
+      return { id: id || name, name, guide, klita, lastPlan };
+    }).filter(p => p.name);  // לא מסננים חסרי תאריך קליטה — מציגים אותם כבעיה לטיפול
+
+    if (!allPersons.length) {
+      if (status) status.textContent = 'נמצאו נתונים, אבל לא נמצאו רשומות עם שם ותאריך קליטה.';
+      return;
+    }
+
+    if (status) status.textContent = `נטענו ${allPersons.length} מקבלי שירות מהמסך הראשי`;
+    renderAll();
+  } catch (err) {
+    console.error(err);
+    if (status) status.textContent = 'שגיאה בקריאת הנתונים מהמסך הראשי.';
+  }
+}
+
+
+// 0-8 חודשים ראשונים: כל 2 חודשים
+// 8-16 חודשים: כל 4 חודשים
+// 16+ חודשים: כל 6 חודשים
+function getIntervalMonths(monthsInService) {
+  if (monthsInService <= 8)  return { months: 2, label: '2 חודשים (שנה א)' };
+  if (monthsInService <= 16) return { months: 4, label: '4 חודשים (שנה ב)' };
+  return { months: 6, label: '6 חודשים (קבוע)' };
+}
+
+function calcNextPlan(klitaDate, lastPlanDate) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const klita = new Date(klitaDate);
+  if (!klitaDate || isNaN(klita)) {
+    return {
+      nextDate: null,
+      diffDays: 0,
+      status: 'overdue',
+      label: 'חסר תאריך קליטה',
+      months: 0,
+      monthsInService: 0,
+      noplan: true,
+      missingKlita: true
+    };
+  }
+  klita.setHours(0,0,0,0);
+
+  const monthsInService = monthsDiff(klita, today);
+  const { months, label } = getIntervalMonths(monthsInService);
+  const base = lastPlanDate ? new Date(lastPlanDate) : klita;
+  base.setHours(0,0,0,0);
+
+  const nextDate = addMonths(base, lastPlanDate ? months : 2);
+  const diffDays = Math.round((nextDate - today) / (1000*60*60*24));
+
+  let status;
+  if (diffDays < 0) status = 'overdue';
+  else if (diffDays <= 14) status = 'soon';
+  else status = 'ok';
+
+  return { nextDate, diffDays, status, label, months, monthsInService, noplan: !lastPlanDate };
+}
+
+function monthsDiff(d1, d2) {
+  return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+}
+
+function addMonths(date, n) {
+  const d = new Date(date);
+  const originalDay = d.getDate();
+  d.setMonth(d.getMonth() + n);
+  if (d.getDate() !== originalDay) d.setDate(0);
+  return d;
+}
+
+function formatDate(d) {
+  if (!d || isNaN(d)) return '—';
+  return d.toLocaleDateString('he-IL', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+
+function renderAll() {
+  document.getElementById('noData').style.display = 'none';
+  document.getElementById('summaryBar').style.display = 'flex';
+  document.getElementById('filterRow').style.display = 'flex';
+
+  const items = allPersons.map(p => ({ ...p, plan: calcNextPlan(p.klita, p.lastPlan || null) }));
+  const overdue = items.filter(i => i.plan.status === 'overdue').length;
+  const soon    = items.filter(i => i.plan.status === 'soon').length;
+  const ok      = items.filter(i => i.plan.status === 'ok').length;
+  document.getElementById('totalNum').textContent   = items.length;
+  document.getElementById('overdueNum').textContent = overdue;
+  document.getElementById('soonNum').textContent    = soon;
+  document.getElementById('okNum').textContent      = ok;
+
+  let filtered = items;
+  if (currentFilter === 'overdue') filtered = items.filter(i => i.plan.status === 'overdue');
+  else if (currentFilter === 'soon') filtered = items.filter(i => i.plan.status === 'soon');
+  else if (currentFilter === 'ok') filtered = items.filter(i => i.plan.status === 'ok');
+  else if (currentFilter === 'all') filtered = items;
+
+  const order = { overdue: 0, soon: 1, ok: 2 };
+  filtered.sort((a, b) => (order[a.plan.status] || 0) - (order[b.plan.status] || 0));
+
+  const list = document.getElementById('personList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="list-empty">אין רשומות להצגה</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(item => buildRow(item)).join('');
+}
+
+function buildRow(item) {
+  const { name, guide, plan, id } = item;
+  const rowClass = plan.status;
+  const badgeText = plan.missingKlita ? '⚠️ חסר תאריך קליטה' :
+    plan.status === 'overdue' ? `⚠️ באיחור ${Math.abs(plan.diffDays)} ימים` :
+    plan.status === 'soon' ? `🔔 בעוד ${plan.diffDays} ימים` : `בתוקף - בעוד ${plan.diffDays} ימים`;
+  const badgeClass = plan.status === 'overdue' ? 'badge-overdue' :
+    plan.status === 'soon' ? 'badge-soon' : 'badge-ok';
+
+  return `
+    <div class="person-row ${rowClass}" id="row-${CSS.escape(id)}">
+      <div style="flex:1;">
+        <div class="person-name">${escapeHtml(name)}</div>
+        <div class="person-meta">
+          מדריך: ${escapeHtml(guide) || '—'} &nbsp;|&nbsp;
+          קליטה: ${formatDate(item.klita)} &nbsp;|&nbsp;
+          תוכנית אחרונה: ${item.lastPlan ? formatDate(item.lastPlan) : 'אין'} &nbsp;|&nbsp;
+          <span class="plan-period">תוכנית כל ${plan.label}</span>
+        </div>
+        <div class="person-meta" style="margin-top:2px;">
+          מועד הבא: <strong>${formatDate(plan.nextDate)}</strong>
+          ${plan.missingKlita ? 'יש להשלים תאריך קליטה בעמודה AA' : `(חודש ${plan.monthsInService} לשהייה)`}
+        </div>
+      </div>
+      <span class="person-badge ${badgeClass}">${badgeText}</span>
+    </div>`;
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => { b.className = 'filter-btn'; });
+  btn.className = 'filter-btn active-' + filter;
+  renderAll();
+}
+
+window.addEventListener('load', loadFromMainExcel);
+</script>
+
+<div style="position:fixed;bottom:20px;left:20px;z-index:9999;">
+  <button onclick="history.back()" style="background:linear-gradient(135deg,#1a3a5c,#2563a8);color:white;border:none;border-radius:50px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,58,92,0.4);font-family:inherit;direction:rtl;">&rarr; חזרה לתפריט</button>
+</div>
+<script>
+/**
+ * ═══════════════════════════════════════════════════
+ *  config.js — הגדרות ארגוניות
+ *  שנה כאן בלבד. כל הטפסים יתעדכנו אוטומטית.
+ * ═══════════════════════════════════════════════════
+ */
+
+const ORG_CONFIG = {
+
+  // ── פרטי הארגון ──────────────────────────────────
+  orgName:  "מפעל מוגן שיקומי לבריאות הנפש, באר שבע – עמותת יחדיו",
+  orgShort: "עמותת יחדיו",
+  city:     "באר שבע",
+
+  // ── מנהל (חתימה קבועה במסמכים) ──────────────────
+  director: {
+    name:  "אלכסנדר חטקביץ",
+    title: "מנהל מפעל שיקומי לבריאות הנפש"
+  },
+
+  // ── עובדת סוציאלית (חתימה קבועה במסמכים) ────────
+  socialWorker: {
+    name:  "ליבי יוסופוב",
+    title: "עובדת סוציאלית"
+  },
+
+  // ── מדריכים (רשימות נפתחות) ──────────────────────
+  guides: [
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── כל הצוות (לתיעוד שיחות וכד') ────────────────
+  allStaff: [
+    "אלכסנדר חטקביץ",
+    "ליבי יוסופוב",
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── קבצים ─────────────────────────────────────────
+  // שנה כאן את הנתיבים לפי מבנה השרת שלך
+  files: {
+    // קובץ Excel עם נתוני מקבלי השירות
+    excel: "מחלות רקע.xlsx",
+
+    // לוגו העמותה — קובץ בתיקיית images/ או URL חיצוני
+    logoOrg: "https://mnz.org.il/sites/www.mnz.org.il/files/logo-yachdav.png",
+
+    // לוגו משרד הבריאות
+    logoMinistry: "https://upload.wikimedia.org/wikipedia/he/thumb/f/fb/Israeli_Ministry_of_Health_logo.png/3840px-Israeli_Ministry_of_Health_logo.png"
+  },
+
+  // ── גדלי לוגואים במסמכים ─────────────────────────
+  logoSizes: {
+    orgHeight:      "50px",
+    ministryHeight: "40px"
+  }
+};
+
+/**
+ * פונקציות עזר — נטענות אוטומטית בכל הטפסים
+ */
+
+// מילוי שם ארגון בכל מקום עם data-org="name"
+function fillOrgNames() {
+  document.querySelectorAll('[data-org="name"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgName;
+  });
+  document.querySelectorAll('[data-org="short"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgShort;
+  });
+  document.querySelectorAll('[data-org="city"]').forEach(el => {
+    el.textContent = ORG_CONFIG.city;
+  });
+}
+
+// מילוי שם מנהל ועו"ס בכל מקום עם data-staff
+function fillStaffNames() {
+  document.querySelectorAll('[data-staff="director"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name;
+  });
+  document.querySelectorAll('[data-staff="director-full"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name + ' – ' + ORG_CONFIG.director.title;
+  });
+  document.querySelectorAll('[data-staff="social-worker"]').forEach(el => {
+    el.textContent = ORG_CONFIG.socialWorker.name;
+  });
+}
+
+// בניית רשימה נפתחת של מדריכים
+function buildGuidesSelect(selectEl, includeEmpty = true) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר/י מדריך';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.guides.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+}
+
+// בניית רשימה נפתחת של כל הצוות
+function buildAllStaffSelect(selectEl, includeEmpty = true, extraOptions = []) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר...';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.allStaff.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+  extraOptions.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.value || item;
+    opt.textContent = item.label || item;
+    selectEl.appendChild(opt);
+  });
+}
+
+// האתחול מתבצע בתחתית הקובץ
+
+// החלפת לוגואים בכל הטפסים
+function fillLogos() {
+  // לוגו עמותה
+  document.querySelectorAll('[data-logo="org"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoOrg;
+    img.style.height = ORG_CONFIG.logoSizes.orgHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+  // לוגו משרד הבריאות
+  document.querySelectorAll('[data-logo="ministry"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoMinistry;
+    img.style.height = ORG_CONFIG.logoSizes.ministryHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+}
+
+// הוסף fillLogos לאתחול
+document.addEventListener('DOMContentLoaded', function() {
+  fillOrgNames();
+  fillStaffNames();
+  fillLogos();
+});
+
+</script>
+</body>
+</html>

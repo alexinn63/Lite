@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>קליטת מקבל שירות חדש</title>
+<style>
+:root{--navy:#0f1e3a;--blue:#2563a8;--soft:#dbeafe;--bg:#f4f6fb;--card:#fff;--line:#e7ebf2;--muted:#7b8497;--green:#1f9d68;--amber:#b7791f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Segoe UI,Arial,Heebo,sans-serif;color:#1c2333}
+.app{max-width:1400px;margin:auto;padding:20px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(15,30,58,.07)}
+header{padding:22px;margin-bottom:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{display:flex;gap:12px;align-items:center}.mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#2563a8,#1d4ed8);color:white;display:grid;place-items:center;font-size:22px}h1{margin:0;color:var(--navy);font-size:28px}.sub{color:var(--muted);font-size:13px;margin-top:5px}.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:18px}.step{padding:10px;border-radius:10px;border:1px solid var(--line);background:#fafbfe;text-align:center;color:var(--muted);font-size:12px}.step.active{background:var(--blue);color:white;border-color:var(--blue)}.step.done{background:#edf9f4;color:#146c49;border-color:#bfe4d3}
+main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{border:1px solid var(--line);border-radius:16px;padding:22px;background:white}.card h2{margin:0;color:var(--navy);font-size:20px}.card p{color:var(--muted);font-size:13px;line-height:1.6}.btn{border:0;border-radius:10px;padding:12px 16px;cursor:pointer}.primary{background:var(--blue);color:white}.soft{background:var(--soft);color:#1d4ed8;border:1px solid #bfd3f7}.ghost{background:white;border:1px solid var(--line);color:#44506a}.actions{display:flex;gap:8px;flex-wrap:wrap}.files{display:grid;gap:8px;margin-top:14px}.file{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;font-size:13px}.summary{margin-top:14px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcff}.layout{display:grid;grid-template-columns:1fr 340px;gap:16px}.preview{border:1px dashed #cfd8e7;border-radius:12px;min-height:145px;background:#fafbfe;display:grid;place-items:center;text-align:center;padding:15px;color:var(--muted);font-size:12px}.docs{margin-top:16px}.docs table{width:100%;border-collapse:collapse;font-size:12px}.docs th,.docs td{padding:10px;border-bottom:1px solid var(--line);text-align:right}.docs th{background:#fafbfe;color:var(--muted);font-weight:400}.ok{color:var(--green)}.warn{color:var(--amber)}.agree{background:#edf9f4;color:#146c49;border:1px solid #bfe4d3;padding:8px 11px}.agree:disabled{opacity:.45;cursor:not-allowed}.suggestion{font-weight:600;color:var(--navy)}.footer{display:flex;justify-content:space-between;margin-top:18px;gap:10px}
+
+.mail-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.mail-form .wide{grid-column:1/-1}
+.checkline{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;font-size:13px}
+.mailbox-fixed{margin-top:12px;padding:11px 12px;border:1px solid #bfd3f7;background:#edf3ff;border-radius:10px;color:#244a7c;font-size:12px;line-height:1.5}
+.prompt-box{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#f8fafc;padding:11px 12px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+
+.search-hint{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#44506a;margin-inline-start:6px}
+.analysis-note{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.45}
+.analyzing{color:var(--blue)}
+.suggestion-text{font-weight:600;color:var(--navy)}
+.required-mark{color:#c62828;font-weight:700;margin-inline-start:3px}.required-note{margin-top:9px;color:#9b1c1c;font-size:12px}.field input:required{background:#fff}.field input.input-error{border-color:#c62828;box-shadow:0 0 0 3px rgba(198,40,40,.10)}
+
+.folder-plan{display:grid;grid-template-columns:1fr 1fr;gap:16px}.folder-tree{margin:12px 0 0;padding:14px;border:1px solid var(--line);border-radius:12px;background:#fbfcff;line-height:1.9;font-size:13px;white-space:pre-line}.location-status{margin-top:12px;padding:12px;border-radius:10px;background:#f8fafc;border:1px solid var(--line);font-size:13px}.result-list{display:grid;gap:8px;margin-top:12px}.result-row{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;font-size:12px}.result-row.error{border-color:#efb3b3;background:#fff7f7;color:#9b1c1c}.notice{padding:12px 14px;border-radius:10px;background:#fff8e8;border:1px solid #edd9a7;color:#765615;font-size:12px;line-height:1.55}.success-box{padding:14px;border-radius:12px;background:#edf9f4;border:1px solid #bfe4d3;color:#146c49;line-height:1.6}.btn:disabled{opacity:.5;cursor:not-allowed}.continuation-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.stage-box{padding:16px;border:1px solid var(--line);border-radius:14px;background:#fbfcff}.status-line{margin-top:10px;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:white;font-size:13px;line-height:1.6}.status-line.good{background:#edf9f4;border-color:#bfe4d3;color:#146c49}.status-line.bad{background:#fff7f7;border-color:#efb3b3;color:#9b1c1c}@media(max-width:800px){.continuation-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.source-grid,.layout{grid-template-columns:1fr}.grid{grid-template-columns:1fr 1fr}.steps{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){.app{padding:10px}.grid{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}.top,.summary,.footer{align-items:flex-start;flex-direction:column}}
+
+.review-footer{position:sticky;bottom:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);padding:14px 0;border-top:1px solid #dbe2ea}
+@media(max-width:700px){.review-footer{gap:8px}.review-footer .btn{min-height:48px;font-size:16px}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="panel">
+<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.22 — תיק זמני, זכירת כונן F והעברה קבועה</div></div>
+<div class="steps"><div class="step active">1. קבלת מסמכים</div><div class="step">2. זיהוי אדם</div><div class="step">3. בדיקת מסמכים</div><div class="step">4. יצירת תיק</div><div class="step">5. עדכון מערכות</div><div class="step">6. סיום</div></div>
+</header>
+
+<main class="panel" id="screen1">
+<div class="source-grid">
+<section class="card">
+<h2>בחירת מסמכים מהמחשב</h2>
+<p>בחר קבצים בודדים או תיקייה שלמה עם כל המסמכים.</p>
+<div class="actions"><button class="btn primary" id="pickFiles">בחר מסמכים</button><button class="btn soft" id="pickFolder">בחר תיקייה</button></div>
+<input id="filesInput" type="file" multiple hidden><input id="folderInput" type="file" webkitdirectory directory multiple hidden>
+<div class="files" id="fileList"></div>
+<div class="summary hidden" id="fileSummary"><span><b id="fileCount">0</b> קבצים נבחרו</span><div class="actions"><button class="btn ghost" id="clear">נקה</button><button class="btn primary" id="next">המשך לבדיקה</button></div></div>
+</section>
+
+<section class="card">
+<h2>מציאת מייל דרך ChatGPT</h2>
+<p>מלא את פרטי החיפוש. הם יישמרו במחשב הזה ויצורפו אוטומטית לבקשה אליי.</p>
+<div class="mailbox-fixed">
+  מקור החיפוש הקבוע: <b>Outlook / Microsoft 365 של העבודה בלבד</b><br>
+  אין לחפש ב-Gmail.
+</div>
+<div class="mail-form">
+  <div class="field"><label>מי כתב את המייל</label><input id="mailSender" placeholder="שם או כתובת מייל"></div>
+  <div class="field"><label>מילה מפתח</label><input id="mailKeyword" placeholder="נושא, שם עובד או טקסט מהמייל"></div>
+  <div class="field"><label>מתאריך</label><input id="mailFromDate" type="date"></div>
+  <div class="field"><label>עד תאריך</label><input id="mailToDate" type="date"></div>
+  <label class="checkline wide"><input id="mailAttachmentsOnly" type="checkbox" checked>חפש רק מיילים עם קבצים מצורפים</label>
+</div>
+<div class="actions" style="margin-top:12px">
+  <button class="btn primary" id="searchViaChatGPT">שמור וחפש דרך ChatGPT</button>
+  <button class="btn ghost" id="clearMailSearch">נקה חיפוש שמור</button>
+  <span class="search-hint">הבקשה תיפתח אוטומטית ב־ChatGPT</span>
+</div>
+<div id="mailPromptBox" class="prompt-box hidden"></div>
+<p class="sub" style="margin-bottom:0">הכפתור שומר את הפרטים, מכין בקשה מלאה בעברית ופותח אותה ישירות ב־ChatGPT.</p>
+</section>
+
+</div>
+</main>
+
+<main class="panel hidden" id="screen2">
+<section class="card">
+<h2>זיהוי מקבל השירות</h2><p>המערכת מנסה לזהות שם ותעודת זהות מתוך המסמכים. בדוק ותקן לפני המשך.</p>
+<div class="grid"><div class="field"><label>שם פרטי <span class="required-mark">*</span></label><input id="first" required aria-required="true" autocomplete="given-name"></div><div class="field"><label>שם משפחה <span class="required-mark">*</span></label><input id="last" required aria-required="true" autocomplete="family-name"></div><div class="field"><label>תעודת זהות <span class="required-mark">*</span></label><input id="id" required aria-required="true" inputmode="numeric" maxlength="9" pattern="[0-9]{9}"></div></div>
+<div class="required-note">* חובה לבדוק ולמלא שם פרטי, שם משפחה ותעודת זהות תקינה לפני המשך.</div>
+<div id="identityStatus" class="analysis-note" style="margin-top:10px">ממתין לניתוח המסמכים.</div>
+<div id="analysisProgress" class="location-status" style="margin-top:10px">טרם התחיל ניתוח.</div>
+</section>
+<section class="card docs"><h2>בדיקת מסמכים</h2><p>המערכת קוראת את הקבצים ברקע. ברגע שמסמך אחד מזוהה אפשר לבדוק ולאשר אותו מיד, בלי להמתין לסיום שאר המסמכים.</p><div style="overflow:auto"><table><thead><tr><th>קובץ</th><th>ההצעה שלי</th><th>סוג מסמך לבחירה</th><th>תאריך לרישום</th><th>יישמר ב־</th><th>אישור</th><th>מצב</th></tr></thead><tbody id="docsBody"></tbody></table></div></section>
+<div class="footer review-footer"><button class="btn ghost" id="back">חזור</button><button class="btn primary" id="create">אשר הצעות מוכנות והמשך</button></div>
+</main>
+
+<main class="panel hidden" id="screen3">
+<section class="card">
+<h2>יצירת תיקייה זמנית לבדיקה</h2>
+<p>אפשר לשמור בשתי דרכים: יצירה ישירה בתוך תיקייה שהדפדפן מרשה אליה גישה, או יצירת ZIP מוכן שאפשר לשמור בכל מקום שהמערכת מאפשרת — כולל שולחן העבודה — ולחלץ שם. מגבלות הגישה לשורש שולחן העבודה או לתיקיות מערכת נקבעות על ידי Chrome/Edge ואינן ניתנות לביטול מתוך קובץ HTML.</p>
+<div class="folder-plan">
+  <div>
+    <div class="field"><label>שם התיקייה שתיווצר</label><input id="tempFolderName" readonly></div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn primary" id="chooseTempLocation">בחר תיקייה לגישה ישירה</button>
+      <button class="btn soft" id="createTempFolder" disabled>צור תיקייה והעתק מסמכים</button>
+      <button class="btn ghost" id="saveTempZip" disabled>שמור ZIP בכל מקום</button>
+    </div>
+    <div id="backgroundStatus" class="location-status">בודק את מצב זיהוי המסמכים...</div>
+    <div id="tempLocationStatus" class="location-status" style="margin-top:8px">לא נבחרה תיקייה לגישה ישירה. אפשר גם להשתמש בכפתור שמירת ZIP.</div>
+    <div class="notice" style="margin-top:12px">בשלב זה אין העברה למיקום הקבוע, אין עדכון Excel ואין יצירת קישורים. פעולות אלה יתווספו רק בשלב הבא ולאחר בדיקת התיקייה הזמנית.</div>
+  </div>
+  <div>
+    <b>מבנה התיקייה</b>
+    <div id="folderTree" class="folder-tree"></div>
+  </div>
+</div>
+<div id="copyResults" class="result-list"></div>
+<div id="tempSuccess" class="success-box hidden" style="margin-top:14px"></div>
+</section>
+<div class="footer"><button class="btn ghost" id="backToReview">חזור לבדיקה</button><button class="btn primary" id="continueAfterCreation" disabled>המשך למיקום הקבוע ולעדכון Excel</button></div>
+</main>
+
+<main class="panel hidden" id="screen4">
+<section class="card">
+<h2>העברה למיקום הקבוע</h2>
+<p>אם נשמר ZIP, חלץ אותו ובחר את התיקייה שחולצה. לאחר מכן בחר את התיקייה הראשית הקבועה שבה נמצאים תיקי מקבלי השירות. הבחירה נשמרת בדפדפן. המערכת תעתיק בלבד ולא תמחק את המקור.</p>
+<div class="continuation-grid">
+  <div class="stage-box">
+    <b>1. התיקייה הראשית הקבועה</b>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn primary" id="choosePermanentRoot">בחר תיקייה ראשית קבועה</button>
+      <button class="btn soft" id="restorePermanentRoot">שחזר בחירה שמורה</button>
+      <button class="btn ghost" id="findPersonOnF">חפש תיק קיים לפי שם</button>
+    </div>
+    <div id="permanentRootStatus" class="status-line">לא נבחרה תיקייה קבועה.</div>
+  </div>
+  <div class="stage-box">
+    <b>2. מקור התיק להעברה</b>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn primary" id="chooseExtractedFolder">בחר תיקייה שחולצה מ-ZIP</button>
+      <button class="btn soft" id="useDirectCreatedFolder">השתמש בתיקייה שנוצרה ישירות</button>
+    </div>
+    <div id="sourceFolderStatus" class="status-line">עדיין לא נבחר מקור להעברה.</div>
+  </div>
+</div>
+<div class="actions" style="margin-top:16px">
+  <button class="btn primary" id="transferToPermanent" disabled>העתק לתיקייה הקבועה</button>
+  <button class="btn ghost" id="continueToSystems" disabled>המשך לעדכון Excel וקישורים</button>
+</div>
+<div id="permanentActionStatus" class="status-line" style="margin-top:14px">ממתין לבחירת תיקייה קבועה ומקור.</div>
+</section>
+<div class="footer"><button class="btn ghost" id="backToTempStage">חזור לתיקייה הזמנית</button></div>
+</main>
+
+<main class="panel hidden" id="screen5">
+<section class="card">
+<h2>השלב הבא — עדכון המערכות</h2>
+<div class="success-box">התיק הועבר למיקום הקבוע. כדי להכניס את הנתונים ל-Excel, המערכת צריכה לקבל גישה לקובץ תיק דיגיטלי.xlsx עצמו. בגרסה זו Excel עדיין אינו משתנה. בשלב הבא יתווספו: בחירת קובץ Excel, יצירת גיבוי, בדיקת כפילות לפי תעודת זהות, הוספת שורה, מילוי תאריכים ויצירת קישורים יחסיים לתיק שנמצא בתוך התיקייה הראשית הקבועה.</div>
+<div id="systemsSummary" class="folder-tree" style="margin-top:14px"></div>
+</section>
+<div class="footer"><button class="btn ghost" id="backToPermanent">חזור להעברה</button></div>
+</main>
+</div>
+
+<script>
+let files=[];
+let lastCreatedPersonDir=null;
+let lastCreatedFolderName="";
+let lastCreatedZipBlob=null;
+let lastCreatedZipName="";
+let recognitionFinished=false;
+let permanentRootHandle=null;
+let transferSourceHandle=null;
+let permanentPersonHandle=null;
+const HANDLE_DB="yachdav_onboarding_handles";
+const HANDLE_STORE="handles";
+const PERMANENT_ROOT_KEY="permanentRoot";
+const map={
+  "אישור חשבון בנק / צילום צ׳ק":"כללי",
+  "אפוטרופוס":"אפוטרופוס",
+  "ביטוח לאומי":"כללי",
+  "דוח רפואי":"דוח רפואי",
+  "הועדה":"הועדה",
+  "לא מזוהה":"—",
+  "מסמך ועדה / סל שיקום":"הועדה",
+  "תעודת זהות / ספח":"תיק ראשי"
+};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+function render(list){files=[...list].filter(f=>!f.name.startsWith("~$"));fileList.innerHTML="";files.forEach(f=>{let d=document.createElement("div");d.className="file";d.innerHTML=`<span>${esc(f.webkitRelativePath||f.name)}</span><span>${Math.max(1,Math.round(f.size/1024))} KB</span>`;fileList.appendChild(d)});fileCount.textContent=files.length;fileSummary.classList.toggle("hidden",!files.length)}
+pickFiles.onclick=()=>filesInput.click();pickFolder.onclick=()=>folderInput.click();filesInput.onchange=e=>render(e.target.files);folderInput.onchange=e=>render(e.target.files);clear.onclick=()=>{filesInput.value="";folderInput.value="";render([])}
+
+const OCR_ANCHORS=[
+  "תעודת זהות","אישור ניהול חשבון","מספר חשבון","המוסד לביטוח לאומי","ביטוח לאומי",
+  "נכות כללית","דרגת אי כושר","תעודת שחרור","סיכום רפואי","בית חולים","משרד הבריאות",
+  "החלטת ועדת השיקום","ועדת השיקום","מפעל מוגן","תכנית שיקום עתידית","תוכנית שיקום עתידית",
+  "סל שיקום","אפוטרופוס"
+];
+
+function findIncluded(s,keys){return keys.filter(k=>s.includes(k))}
+
+function bituachLeumiEvidence(text){
+  const s=String(text||"").toLowerCase();
+  const institution=findIncluded(s,["המוסד לביטוח לאומי","המוסד לבטוח לאומי","www.btl.gov.il","btl.gov.il"]);
+  const weakInstitution=findIncluded(s,["ביטוח לאומי"]);
+  const benefits=findIncluded(s,["נכות כללית","דרגת אי כושר","קצבת נכות","קצבה חודשית","אישור זכאות לקצבאות","סניף המוסד"]);
+  const allInstitution=institution.concat(weakInstitution);
+  return {institution:allInstitution,benefits,isMatch:institution.length>0 || weakInstitution.length+benefits.length>=2 || benefits.length>=2};
+}
+
+function classifyDocument(text, fileName=""){
+  const s=(fileName+" "+(text||"")).toLowerCase();
+  const candidates=[];
+  const add=(type,score,matches)=>{if(score>0)candidates.push({type,score,matches})};
+
+  const idStrong=findIncluded(s,["תעודת זהות","identity card"]);
+  const idOther=findIncluded(s,["מספר זהות","ת.ז","ספח","id number"]);
+  add("תעודת זהות / ספח",idStrong.length*6+idOther.length,idStrong.concat(idOther));
+
+  const bankStrong=findIncluded(s,["אישור ניהול חשבון","אישור בעלות","חשבון בנק","bank account","צילום צק","צילום צ׳ק"]);
+  const bankOther=findIncluded(s,["פרטי חשבון","מספר חשבון","שם הבנק","מספר בנק","מספר סניף"]);
+  add("אישור חשבון בנק / צילום צ׳ק",bankStrong.length*7+bankOther.length*2,bankStrong.concat(bankOther));
+
+  const medicalStrong=findIncluded(s,["תעודת שחרור","מכתב שחרור","סיכום רפואי","אישור רפואי","discharge","depressive episode"]);
+  const medicalOther=findIncluded(s,["אבחנה","תרופות","רופא מטפל","בית חולים","קופת חולים","מטופל","אשפוז","מגבית חולים","clonex","vie pax","vipeax"]);
+  add("דוח רפואי",medicalStrong.length*8+medicalOther.length*2,medicalStrong.concat(medicalOther));
+
+  const committeeStrong=findIncluded(s,["החלטת ועדת השיקום","החלטת ועדת שיקום","החלטת הוועדה","ועדת השיקום האזורית","ועדת השיקום האיזורית"]);
+  const committeeOther=findIncluded(s,["מפעל מוגן","מפעל מגן","בתוקף עד","תוקף עד","מס' החלטה","מספר החלטה","השירותים הבאים","ועדת השיקום שהתקיימה","אושרו לחצי שנה","החלטות ועדה","99352"]);
+  const hasProtectedWorkshop=s.includes("מפעל מוגן")||s.includes("מפעל מגן");
+  const hasCommitteeDate=/\b\d{1,2}[.\/\-]\d{1,2}[.\/\-]20\d{2}\b/.test(s);
+  const hasValidity=s.includes("בתוקף עד")||s.includes("תוקף עד")||(s.includes("חודשים")&&s.includes("למשך"))||s.includes("אושרו לחצי שנה")||hasCommitteeDate;
+  const isProtectedWorkshopDecision=committeeStrong.length>0 && hasProtectedWorkshop && hasValidity;
+  if(isProtectedWorkshopDecision)add("הועדה",50+committeeStrong.length*10+committeeOther.length*3,committeeStrong.concat(committeeOther));
+
+  const salStrong=findIncluded(s,["הבקשה לוועדת השיקום","תכנית שיקום עתידית","תוכנית שיקום עתידית","בקשת המתמודד במילותיו","בקשת מרובת שירותים","השירותים המבוקשים"]);
+  const salOther=findIncluded(s,["פרטי המשתקם","שותפות המשפחה בתכנית השיקום","שותפות המשפחה בתוכנית השיקום","קשר עם גורמי תמך בקהילה","פורטל שקדיה","סל שיקום","תוכנית שיקום","תכנית שיקום","תאריך קליטת בקשה","פרטי הבקשה","רקע על המשתקם","תכנית שיקום נוכחית","תוכנית שיקום נוכחית","מועדון חברתי למבוגרים"]);
+  const committeeGeneric=committeeStrong.concat(committeeOther);
+  add("מסמך ועדה / סל שיקום",salStrong.length*7+salOther.length*2+committeeGeneric.length*2,salStrong.concat(salOther,committeeGeneric));
+
+  const guardian=findIncluded(s,["צו מינוי אפוטרופוס","מינוי אפוטרופוס","אפוטרופוס"]);
+  add("אפוטרופוס",guardian.length*5,guardian);
+
+  const btl=bituachLeumiEvidence(text);
+  if(btl.isMatch) add("ביטוח לאומי",btl.institution.length*8+btl.benefits.length*3,btl.institution.concat(btl.benefits));
+
+  if(!candidates.length)return {type:"לא מזוהה",score:0,matches:[]};
+  candidates.sort((a,b)=>b.score-a.score);
+  return candidates[0];
+}
+
+async function extractPdfText(file){
+  try{
+    const pdfjsLib=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+    const data=new Uint8Array(await file.arrayBuffer());
+    const pdf=await pdfjsLib.getDocument({data}).promise;
+    let text="";
+    const pages=Math.min(pdf.numPages,6);
+    for(let i=1;i<=pages;i++){
+      const page=await pdf.getPage(i);
+      const content=await page.getTextContent();
+      text+=" "+content.items.map(x=>x.str).join(" ");
+    }
+    return text;
+  }catch(e){return ""}
+}
+
+async function loadImageSource(file){
+  if(window.createImageBitmap)return await createImageBitmap(file);
+  return await new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file),img=new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);resolve(img)};
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error("image load failed"))};
+    img.src=url;
+  });
+}
+
+function preparedImageCanvas(source,angle){
+  const swap=angle===90||angle===270;
+  const originalW=source.width,originalH=source.height;
+  const maxSide=1800,scale=Math.min(1,maxSide/Math.max(originalW,originalH));
+  const w=Math.max(1,Math.round(originalW*scale)),h=Math.max(1,Math.round(originalH*scale));
+  const canvas=document.createElement("canvas");
+  canvas.width=swap?h:w;canvas.height=swap?w:h;
+  const ctx=canvas.getContext("2d",{willReadFrequently:true});
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(angle*Math.PI/180);ctx.drawImage(source,-w/2,-h/2,w,h);ctx.restore();
+  const image=ctx.getImageData(0,0,canvas.width,canvas.height),data=image.data;
+  let min=255,max=0;
+  for(let i=0;i<data.length;i+=16){const y=.299*data[i]+.587*data[i+1]+.114*data[i+2];if(y<min)min=y;if(y>max)max=y}
+  const range=Math.max(45,max-min);
+  for(let i=0;i<data.length;i+=4){
+    let y=.299*data[i]+.587*data[i+1]+.114*data[i+2];
+    y=(y-min)*255/range;
+    y=Math.max(0,Math.min(255,(y-128)*1.18+128));
+    data[i]=data[i+1]=data[i+2]=y;
+  }
+  ctx.putImageData(image,0,0);return canvas;
+}
+
+function ocrTextQuality(text){
+  const s=String(text||"").toLowerCase();
+  const hebrew=(s.match(/[\u0590-\u05ff]/g)||[]).length;
+  const anchors=OCR_ANCHORS.filter(x=>s.includes(x)).length;
+  return hebrew+anchors*180;
+}
+
+async function extractImageText(file){
+  try{
+    if(!window.Tesseract)return "";
+    const source=await loadImageSource(file);
+    let bestText="",bestScore=-1;
+    for(const angle of [0,90,270,180]){
+      const canvas=preparedImageCanvas(source,angle);
+      const result=await Tesseract.recognize(canvas,"heb+eng",{logger:()=>{}});
+      const text=result?.data?.text||"",score=ocrTextQuality(text);
+      if(score>bestScore){bestText=text;bestScore=score}
+      const hasAnchor=OCR_ANCHORS.some(x=>text.toLowerCase().includes(x));
+      if(hasAnchor && score>=200)break;
+    }
+    if(source.close)source.close();
+    return bestText;
+  }catch(e){return ""}
+}
+
+
+function normalizeYear(y){
+  y=Number(y);
+  if(y<100) return y>=50 ? 1900+y : 2000+y;
+  return y;
+}
+
+function parseDateParts(d,m,y){
+  d=Number(d);m=Number(m);y=normalizeYear(y);
+  if(y<1990 || y>2100 || m<1 || m>12 || d<1 || d>31) return null;
+  const dt=new Date(y,m-1,d);
+  if(dt.getFullYear()!==y || dt.getMonth()!==m-1 || dt.getDate()!==d) return null;
+  return dt;
+}
+
+function formatDateInput(dt){
+  if(!dt)return "";
+  const y=dt.getFullYear();
+  const m=String(dt.getMonth()+1).padStart(2,"0");
+  const d=String(dt.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+
+function addOneYear(dt){
+  if(!dt)return null;
+  const copy=new Date(dt.getTime());
+  copy.setFullYear(copy.getFullYear()+1);
+  return copy;
+}
+
+function extractDocumentDate(text){
+  const s=String(text||"");
+  const candidates=[];
+
+  const labeled=/תאריך(?:\s+(?:המסמך|הבדיקה|החתימה|הנפקה))?\s*[:\-]?\s*(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/g;
+  let m;
+  while((m=labeled.exec(s))){
+    const dt=parseDateParts(m[1],m[2],m[3]);
+    if(dt)candidates.push({dt,priority:3});
+  }
+
+  const general=/\b(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})\b/g;
+  while((m=general.exec(s))){
+    const dt=parseDateParts(m[1],m[2],m[3]);
+    if(dt)candidates.push({dt,priority:1});
+  }
+
+  const iso=/\b(20\d{2})-(\d{1,2})-(\d{1,2})\b/g;
+  while((m=iso.exec(s))){
+    const dt=parseDateParts(m[3],m[2],m[1]);
+    if(dt)candidates.push({dt,priority:2});
+  }
+
+  if(!candidates.length)return null;
+  candidates.sort((a,b)=>b.priority-a.priority);
+  return candidates[0].dt;
+}
+
+function extractCommitteeInfo(text){
+  const s=String(text||"").replace(/[\u200e\u200f]/g," ").replace(/\s+/g," ");
+  const out={service:"",committeeDate:null,validUntil:null,decisionNumber:""};
+  if(/מפעל\s*(?:מוגן|מגן)/.test(s))out.service="מפעל מוגן";
+  let m=s.match(/(?:ועדת\s+השיקום[^\n]{0,80}?(?:שהתקיימה\s*)?בתאריך|התקיימה\s*בתאריך)\s*[:\-]?\s*(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/);
+  if(m)out.committeeDate=parseDateParts(m[1],m[2],m[3]);
+  m=s.match(/בתוקף\s*עד\s*[:\-]?\s*(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/);
+  if(m)out.validUntil=parseDateParts(m[1],m[2],m[3]);
+  if(!out.validUntil && out.service && /החלטת\s+ועדת\s+השיקום/.test(s)){
+    const dates=[];
+    const allDates=/\b(\d{1,2})[.\/\-](\d{1,2})[.\/\-](20\d{2})\b/g;
+    while((m=allDates.exec(s))){const dt=parseDateParts(m[1],m[2],m[3]);if(dt)dates.push(dt)}
+    if(dates.length){dates.sort((a,b)=>b-a);out.validUntil=dates[0]}
+  }
+  m=s.match(/(?:מס(?:פר|['׳])?\s*החלטה)\s*[:\-]?\s*(\d{5,12})/);
+  if(m)out.decisionNumber=m[1];
+  return out;
+}
+
+
+function cleanHebrewName(value){
+  return String(value||"")
+    .replace(/[^\u0590-\u05FF\s\-׳״']/g," ")
+    .replace(/\s+/g," ")
+    .trim();
+}
+
+function isValidIsraeliId(value){
+  const digits=String(value||"").replace(/\D/g,"").padStart(9,"0");
+  if(!/^\d{9}$/.test(digits))return false;
+  let sum=0;
+  for(let i=0;i<9;i++){
+    let n=Number(digits[i])*(i%2===0?1:2);
+    sum+=n>9?n-9:n;
+  }
+  return sum%10===0;
+}
+
+function extractPersonIdentity(text){
+  const s=String(text||"").replace(/[\u200e\u200f]/g," ");
+  const out={first:"",last:"",id:"",confidence:0};
+
+  const idPatterns=[
+    /(?:תעודת\s*זהות|מספר\s*זהות|ת\.?\s*ז\.?)\s*[:\-]?\s*(\d[\d\s\-]{7,12}\d)/i,
+    /\b(\d{9})\b/
+  ];
+  for(const p of idPatterns){
+    const m=s.match(p);
+    if(m){
+      const digits=m[1].replace(/\D/g,"");
+      if(digits.length===9 && isValidIsraeliId(digits)){
+        out.id=digits;
+        out.confidence+=3;
+        break;
+      }
+    }
+  }
+
+  const firstMatch=s.match(/שם\s*פרטי\s*[:\-]?\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})/);
+  const lastMatch=s.match(/שם\s*משפחה\s*[:\-]?\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
+  if(firstMatch){out.first=cleanHebrewName(firstMatch[1]);out.confidence+=2}
+  if(lastMatch){out.last=cleanHebrewName(lastMatch[1]);out.confidence+=2}
+
+  if(!out.first || !out.last){
+    const full=s.match(/(?:שם\s*המבוטח|שם\s*המטופל|שם\s*הפונה|שם)\s*[:\-]\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
+    if(full){
+      if(!out.first) out.first=cleanHebrewName(full[1]);
+      if(!out.last) out.last=cleanHebrewName(full[2]);
+      out.confidence+=2;
+    }
+  }
+  if(!out.first || !out.last){
+    const subject=s.match(/(?:^|[^\u0590-\u05FF])(?:מר\s*\/\s*גברת|מר|גב(?:רת)?)[\s,;.:\-]+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})/);
+    if(subject){
+      if(!out.last)out.last=cleanHebrewName(subject[1]);
+      if(!out.first)out.first=cleanHebrewName(subject[2]);
+      out.confidence+=2;
+    }
+  }
+  if(!out.first || !out.last){
+    const participant=s.match(/(?:משתקם|מטופל|פונה)\s*[:\-–]\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
+    if(participant){
+      if(!out.first)out.first=cleanHebrewName(participant[1]);
+      if(!out.last)out.last=cleanHebrewName(participant[2]);
+      out.confidence+=2;
+    }
+  }
+  return out;
+}
+
+function applyIdentityCandidate(candidate, fileName){
+  let changed=false;
+  if(candidate.first && !first.value.trim()){first.value=candidate.first;changed=true}
+  if(candidate.last && !last.value.trim()){last.value=candidate.last;changed=true}
+  if(candidate.id && !id.value.trim()){id.value=candidate.id;changed=true}
+
+  const found=[];
+  if(first.value.trim()) found.push(`שם פרטי: ${first.value.trim()}`);
+  if(last.value.trim()) found.push(`שם משפחה: ${last.value.trim()}`);
+  if(id.value.trim()) found.push(`תעודת זהות: ${id.value.trim()}`);
+
+  if(found.length){
+    identityStatus.textContent=(changed ? `זוהו פרטים מתוך ${fileName}: ` : "פרטים שנמצאו: ")+found.join(" | ");
+    identityStatus.className="analysis-note ok";
+  }
+}
+
+async function analyzeFile(file){
+  const name=file.name.toLowerCase();
+  let text="";
+  if(file.type==="application/pdf" || name.endsWith(".pdf")) text=await extractPdfText(file);
+  else if(file.type.startsWith("image/")) text=await extractImageText(file);
+  else if(file.type.startsWith("text/") || /\.(txt|csv|md)$/i.test(name)) {
+    try{text=await file.text()}catch(e){}
+  }
+  const result=classifyDocument(text,file.name);
+  result.extractedText=text;
+  result.documentDate=extractDocumentDate(text);
+  result.committeeInfo=extractCommitteeInfo(text);
+  result.registrationDate=result.type==="הועדה" && result.committeeInfo.validUntil
+    ? result.committeeInfo.validUntil
+    : result.documentDate;
+  result.identity=extractPersonIdentity(text);
+  return result;
+}
+function openSelectedFile(index){
+  const f=files[index];
+  if(!f)return;
+  const url=URL.createObjectURL(f);
+  const w=window.open(url,"_blank");
+  if(!w){
+    alert("הדפדפן חסם את פתיחת הקובץ. יש לאפשר חלונות קופצים לקובץ זה.");
+    URL.revokeObjectURL(url);
+    return;
+  }
+  try{w.opener=null}catch(e){}
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+
+async function docs(){
+  docsBody.innerHTML="";
+  let completed=0;
+  const total=files.length;
+  const updateProgress=()=>{
+    const approved=[...docsBody.querySelectorAll("tr")].filter(tr=>tr.dataset.approved==="1").length;
+    analysisProgress.innerHTML=`הושלמו <b>${completed}</b> מתוך <b>${total}</b> מסמכים. אושרו <b>${approved}</b>. אפשר להמשיך מיד; מסמכים שנותרו ימשיכו ברקע.`;
+    recognitionFinished=completed===total;
+    updateCreationAvailability();
+  };
+
+  files.forEach((f,i)=>{
+    const tr=document.createElement("tr");
+    tr.dataset.i=i;tr.dataset.ready="0";tr.dataset.approved="0";
+    tr.innerHTML=`
+      <td><button class="btn ghost pv" data-i="${i}" style="padding:7px 9px">${esc(f.name)}</button></td>
+      <td class="suggestion"><span class="analyzing">מנתח תוכן...</span><div class="analysis-note">הבדיקה מתבצעת ברקע.</div></td>
+      <td><select class="type">${Object.keys(map).map(t=>`<option>${t}</option>`).join("")}</select></td>
+      <td><input class="docDate" type="date" style="min-width:145px"></td>
+      <td class="target">—</td>
+      <td><button class="btn agree acceptSuggestion" disabled>מסכים</button></td>
+      <td class="warn">ממתין לניתוח</td>`;
+    docsBody.appendChild(tr);
+
+    tr.querySelector(".pv").onclick=()=>openSelectedFile(i);
+    const sel=tr.querySelector(".type");
+    const agree=tr.querySelector(".acceptSuggestion");
+    sel.onchange=()=>{
+      tr.querySelector(".target").textContent=map[sel.value];
+      agree.disabled=sel.value==="לא מזוהה";
+      agree.textContent="אשר בחירה";
+      tr.dataset.approved="0";
+      const st=tr.lastElementChild;
+      st.textContent=sel.value==="לא מזוהה"?"דורש בדיקה":"נבחר ידנית — ממתין לאישור";
+      st.className=sel.value==="לא מזוהה"?"warn":"ok";
+      updateProgress();
+    };
+    agree.onclick=()=>{
+      const chosen=sel.value;
+      tr.querySelector(".target").textContent=map[chosen];
+      const st=tr.lastElementChild;
+      st.textContent=chosen===tr.dataset.suggestion ? "אושר" : "אושר לאחר תיקון";
+      st.className="ok";
+      agree.textContent="אושר";agree.disabled=true;tr.dataset.approved="1";
+      updateProgress();
+    };
+  });
+  updateProgress();
+
+  const analyzeOne=async(i)=>{
+    const tr=docsBody.querySelector(`tr[data-i="${i}"]`);
+    try{
+      const result=await analyzeFile(files[i]);
+      tr.dataset.suggestion=result.type;tr.dataset.ready="1";
+      tr.dataset.originalDate=result.documentDate ? result.documentDate.toISOString() : "";
+      applyIdentityCandidate(result.identity, files[i].name);
+      let dateText=result.documentDate ? `תאריך המסמך זוהה ונשמר כתאריך המקורי.` : `לא זוהה תאריך. ניתן להזין ידנית.`;
+      if(result.type==="הועדה" && result.committeeInfo.validUntil){
+        const parts=[`תוקף הוועדה עד ${formatDateInput(result.committeeInfo.validUntil)}`];
+        if(result.committeeInfo.service)parts.push(`שירות: ${result.committeeInfo.service}`);
+        if(result.committeeInfo.committeeDate)parts.push(`תאריך הוועדה: ${formatDateInput(result.committeeInfo.committeeDate)}`);
+        dateText=parts.join(" | ")+". תאריך התוקף נרשם בטבלה.";
+      }
+      tr.querySelector(".suggestion").innerHTML=`<span class="suggestion-text">${esc(result.type)}</span>`+
+        `<div class="analysis-note">${result.score ? "נמצאו סימנים בתוכן: "+esc(result.matches.join(", ")) : "לא נמצאו מספיק סימנים ברורים בתוכן. יש לבדוק ידנית."}</div>`+
+        `<div class="analysis-note">${dateText}</div>`;
+      tr.querySelector(".docDate").value=formatDateInput(result.registrationDate);
+      const sel=tr.querySelector(".type");sel.value=result.type;
+      tr.querySelector(".target").textContent=map[result.type];
+      const agree=tr.querySelector(".acceptSuggestion");agree.disabled=result.type==="לא מזוהה";
+      const status=tr.lastElementChild;status.textContent=result.type==="לא מזוהה"?"דורש בדיקה":"הצעה מוכנה — אפשר לאשר עכשיו";status.className=result.type==="לא מזוהה"?"warn":"ok";
+    }catch(e){
+      tr.dataset.ready="1";
+      tr.querySelector(".suggestion").innerHTML='<span class="warn">הניתוח נכשל. יש לבחור סוג ידנית.</span>';
+      tr.lastElementChild.textContent="דורש בדיקה ידנית";
+    }finally{completed++;updateProgress()}
+  };
+
+  // שני ניתוחים במקביל: תוצאה מוכנה מופיעה מיד, בלי לחכות לכל הרשימה.
+  let nextIndex=0;
+  const worker=async()=>{while(nextIndex<total){const i=nextIndex++;await analyzeOne(i)}};
+  await Promise.all(Array.from({length:Math.min(2,total)},worker));
+  recognitionFinished=true;
+  updateCreationAvailability();
+}
+
+function step(n){document.querySelectorAll(".step").forEach((s,i)=>{s.className="step";if(i<n-1)s.classList.add("done");if(i===n-1)s.classList.add("active")})}
+next.onclick=()=>{if(!files.length)return alert("יש לבחור קבצים או תיקייה.");screen1.classList.add("hidden");screen2.classList.remove("hidden");step(2);scrollTo(0,0);docs()}
+back.onclick=()=>{screen2.classList.add("hidden");screen1.classList.remove("hidden");step(1);scrollTo(0,0)}
+function clearIdentityErrors(){[first,last,id].forEach(x=>x.classList.remove("input-error"))}
+let tempBaseHandle=null;
+const STANDARD_FOLDERS=["דוח רפואי","הועדה","ויתור סודיות","כללי","מדריך","עו_ס"];
+function safeFolderName(value){return String(value||"").replace(/[\/:*?"<>|]/g,"-").replace(/\s+/g," ").trim()}
+function currentFolderName(){return safeFolderName(`${first.value.trim()} ${last.value.trim()}`)}
+function selectedDocumentRows(){
+  return [...docsBody.querySelectorAll("tr")].map(tr=>({
+    index:Number(tr.dataset.i),
+    type:tr.querySelector(".type").value,
+    target:tr.querySelector(".target").textContent.trim()
+  }));
+}
+function requiredFolders(){
+  const folders=[...STANDARD_FOLDERS];
+  if(selectedDocumentRows().some(x=>x.type==="אפוטרופוס"))folders.push("אפוטרופוס");
+  return folders;
+}
+function refreshFolderPlan(){
+  const name=currentFolderName();
+  tempFolderName.value=name;
+  const lines=[name||"שם התיקייה",...requiredFolders().map(x=>`  ├── ${x}`),"  └── תעודת זהות / ספח נשמרים בתיקייה הראשית"];
+  folderTree.textContent=lines.join("\n");
+}
+async function directoryExists(parent,name){
+  try{await parent.getDirectoryHandle(name,{create:false});return true}catch(e){if(e.name==="NotFoundError")return false;throw e}
+}
+async function uniqueFileName(dir,name){
+  const dot=name.lastIndexOf(".");
+  const base=dot>0?name.slice(0,dot):name,ext=dot>0?name.slice(dot):"";
+  let candidate=name,n=2;
+  while(true){
+    try{await dir.getFileHandle(candidate,{create:false});candidate=`${base} (${n++})${ext}`}
+    catch(e){if(e.name==="NotFoundError")return candidate;throw e}
+  }
+}
+async function copyFileToDirectory(file,dir){
+  const targetName=await uniqueFileName(dir,file.name);
+  const handle=await dir.getFileHandle(targetName,{create:true});
+  const writable=await handle.createWritable();
+  await writable.write(file);
+  await writable.close();
+  return targetName;
+}
+function autoApproveReadyDocuments(){
+  let count=0;
+  for(const tr of docsBody.querySelectorAll("tr")){
+    if(tr.dataset.ready==="1" && tr.dataset.approved!=="1"){
+      const sel=tr.querySelector(".type");
+      if(sel.value!=="לא מזוהה"){
+        tr.dataset.approved="1";
+        const agree=tr.querySelector(".acceptSuggestion");
+        agree.textContent="אושר";agree.disabled=true;
+        const st=tr.lastElementChild;st.textContent="אושר";st.className="ok";
+        count++;
+      }
+    }
+  }
+  return count;
+}
+function updateCreationAvailability(){
+  if(typeof backgroundStatus!=="undefined" && backgroundStatus){
+    const rows=[...docsBody.querySelectorAll("tr")];
+    const pending=rows.filter(tr=>tr.dataset.ready!=="1").length;
+    const unresolved=rows.filter(tr=>tr.dataset.ready==="1" && tr.querySelector(".type").value==="לא מזוהה").length;
+    const unapproved=rows.filter(tr=>tr.dataset.ready==="1" && tr.querySelector(".type").value!=="לא מזוהה" && tr.dataset.approved!=="1").length;
+    if(pending) backgroundStatus.innerHTML=`הזיהוי ממשיך ברקע: נותרו <b>${pending}</b> מסמכים. אפשר להישאר במסך זה; כפתורי השמירה ייפתחו אוטומטית בסיום.`;
+    else if(unresolved) backgroundStatus.innerHTML=`הזיהוי הסתיים, אך <b>${unresolved}</b> מסמכים דורשים בחירת סוג ידנית. חזור לבדיקה, בחר סוג ואשר.`;
+    else if(unapproved) backgroundStatus.innerHTML=`הזיהוי הסתיים. נותר לאשר <b>${unapproved}</b> מסמכים. חזור לבדיקה או לחץ שוב על כפתור ההמשך כדי לאשר את כל ההצעות.`;
+    else backgroundStatus.innerHTML=`כל המסמכים זוהו ואושרו. אפשר ליצור ZIP או תיקייה ישירה.`;
+    const ready=!pending&&!unresolved&&!unapproved;
+    saveTempZip.disabled=!ready;
+    if(tempBaseHandle)createTempFolder.disabled=!ready;
+  }
+}
+create.onclick=()=>{
+  clearIdentityErrors();
+  const fn=first.value.trim(),ln=last.value.trim(),pid=id.value.replace(/\D/g,"");
+  if(!fn){first.classList.add("input-error");first.focus();return alert("חובה למלא שם פרטי.")}
+  if(!ln){last.classList.add("input-error");last.focus();return alert("חובה למלא שם משפחה.")}
+  if(pid.length!==9 || !isValidIsraeliId(pid)){id.classList.add("input-error");id.focus();return alert("חובה למלא תעודת זהות ישראלית תקינה בת 9 ספרות.")}
+  id.value=pid;
+  autoApproveReadyDocuments();
+  refreshFolderPlan();
+  screen2.classList.add("hidden");screen3.classList.remove("hidden");step(4);scrollTo(0,0);
+  updateCreationAvailability();
+}
+backToReview.onclick=()=>{screen3.classList.add("hidden");screen2.classList.remove("hidden");step(3);scrollTo(0,0)};
+async function buildTemporaryZip(){
+  if(!window.JSZip)throw new Error("רכיב יצירת ZIP לא נטען. יש חיבור לאינטרנט בפתיחה הראשונה.");
+  const folderName=currentFolderName();
+  if(!folderName)throw new Error("שם התיקייה חסר.");
+  const zip=new JSZip();
+  const root=zip.folder(folderName);
+  for(const name of requiredFolders())root.folder(name);
+  const rows=selectedDocumentRows();
+  let copied=0;
+  for(const row of rows){
+    if(row.type==="לא מזוהה")continue;
+    const file=files[row.index];
+    const target=map[row.type];
+    const dir=target==="תיק ראשי"?root:root.folder(target);
+    dir.file(file.name,file);copied++;
+  }
+  return {blob:await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:6}}),folderName,copied};
+}
+
+saveTempZip.onclick=async()=>{
+  clearIdentityErrors();
+  const fn=first.value.trim(),ln=last.value.trim(),pid=id.value.replace(/\D/g,"");
+  if(!fn||!ln||pid.length!==9||!isValidIsraeliId(pid))return alert("יש למלא ולאשר שם פרטי, שם משפחה ותעודת זהות תקינה לפני השמירה.");
+  const unresolved=[...document.querySelectorAll(".type")].filter(x=>x.value==="לא מזוהה");
+  if(unresolved.length)return alert(`נשארו ${unresolved.length} מסמכים שלא זוהו. יש לבחור להם סוג לפני יצירת ZIP.`);
+  const unapproved=[...docsBody.querySelectorAll("tr")].filter(tr=>tr.dataset.approved!=="1");
+  if(unapproved.length)return alert(`יש לאשר את הסיווג של ${unapproved.length} מסמכים לפני יצירת ZIP.`);
+  saveTempZip.disabled=true;
+  try{
+    const {blob,folderName,copied}=await buildTemporaryZip();
+    const fileName=`${folderName}.zip`;
+    lastCreatedZipBlob=blob;lastCreatedZipName=fileName;
+    if(window.showSaveFilePicker){
+      try{
+        const h=await window.showSaveFilePicker({suggestedName:fileName,types:[{description:"ZIP",accept:{"application/zip":[".zip"]}}]});
+        const w=await h.createWritable();await w.write(blob);await w.close();
+      }catch(e){if(e.name==="AbortError")return;throw e}
+    }else{
+      const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=fileName;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);
+    }
+    tempSuccess.innerHTML=`נוצר קובץ ZIP בשם <b>${esc(fileName)}</b> עם ${copied} מסמכים ומבנה התיקיות המלא. אפשר לשמור אותו בשולחן העבודה ולחלץ שם.`;
+    tempSuccess.classList.remove("hidden");
+    
+    continueAfterCreation.disabled=false;
+  }catch(e){alert(e.message||"יצירת ZIP נכשלה.")}
+  finally{saveTempZip.disabled=false}
+};
+
+chooseTempLocation.onclick=async()=>{
+  if(!window.showDirectoryPicker)return alert("הדפדפן אינו תומך בבחירת תיקייה מקומית. יש לפתוח את הקובץ ב-Chrome או Edge מעודכן.");
+  try{
+    tempBaseHandle=await window.showDirectoryPicker({mode:"readwrite"});
+    tempLocationStatus.innerHTML=`המקום שנבחר: <b>${esc(tempBaseHandle.name)}</b>`;
+    updateCreationAvailability();copyResults.innerHTML="";tempSuccess.classList.add("hidden");lastCreatedPersonDir=null;lastCreatedFolderName="";
+  }catch(e){
+    if(e.name==="AbortError")return;
+    if(e.name==="SecurityError"){
+      alert("הדפדפן חסם את הגישה לתיקייה. יש לפתוח את הקובץ ישירות ב-Chrome או Edge ולא מתוך תצוגה מקדימה, ZIP או חלון דואר.");
+      return;
+    }
+    alert("לא ניתן לפתוח את התיקייה שנבחרה: "+e.message)
+  }
+};
+createTempFolder.onclick=async()=>{
+  if(!tempBaseHandle)return alert("יש לבחור תחילה מקום מקומי לשמירה.");
+  const folderName=currentFolderName();
+  if(!folderName)return alert("שם התיקייה חסר.");
+  createTempFolder.disabled=true;chooseTempLocation.disabled=true;copyResults.innerHTML="";tempSuccess.classList.add("hidden");
+  try{
+    if(await directoryExists(tempBaseHandle,folderName)){
+      throw new Error(`כבר קיימת תיקייה בשם ${folderName} במקום שנבחר. לא בוצעה החלפה ולא נכתב דבר.`);
+    }
+    const personDir=await tempBaseHandle.getDirectoryHandle(folderName,{create:true});
+    const dirs={"תיק ראשי":personDir};
+    for(const name of requiredFolders())dirs[name]=await personDir.getDirectoryHandle(name,{create:true});
+    const rows=selectedDocumentRows();
+    let copied=0;
+    for(const row of rows){
+      const file=files[row.index];
+      const targetName=map[row.type];
+      const targetDir=dirs[targetName]||personDir;
+      try{
+        const savedName=await copyFileToDirectory(file,targetDir);
+        copied++;
+        const div=document.createElement("div");div.className="result-row";
+        div.innerHTML=`<span>${esc(file.name)}</span><span class="ok">${esc(targetName==="תיק ראשי"?folderName:targetName)} / ${esc(savedName)}</span>`;
+        copyResults.appendChild(div);
+      }catch(e){
+        const div=document.createElement("div");div.className="result-row error";
+        div.innerHTML=`<span>${esc(file.name)}</span><span>שגיאה: ${esc(e.message)}</span>`;copyResults.appendChild(div);
+        throw e;
+      }
+    }
+    lastCreatedPersonDir=personDir;
+    lastCreatedFolderName=folderName;
+    
+    continueAfterCreation.disabled=false;
+    tempSuccess.innerHTML=`התיקייה הזמנית <b>${esc(folderName)}</b> נוצרה בהצלחה. נוצרו ${requiredFolders().length} תיקיות משנה והועתקו ${copied} מסמכים. הקבצים המקוריים נשארו במקומם.<br><b>לחץ על המשך כדי לבחור את המיקום הקבוע ואת קובץ Excel.</b>`;
+    tempSuccess.classList.remove("hidden");
+    tempLocationStatus.innerHTML+=`<br><span class="ok">היצירה הושלמה ללא מחיקה או העברה של המקור.</span>`;
+  }catch(e){
+    alert(e.message||"אירעה שגיאה ביצירת התיקייה.");
+    createTempFolder.disabled=false;chooseTempLocation.disabled=false;
+    return;
+  }
+  chooseTempLocation.disabled=false;
+};
+
+
+
+[first,last,id].forEach(x=>x.addEventListener("input",()=>x.classList.remove("input-error")));
+
+
+function openHandleDb(){
+  return new Promise((resolve,reject)=>{
+    const req=indexedDB.open(HANDLE_DB,1);
+    req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(HANDLE_STORE))req.result.createObjectStore(HANDLE_STORE)};
+    req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+  });
+}
+async function saveHandle(key,handle){
+  const db=await openHandleDb();
+  await new Promise((resolve,reject)=>{const tx=db.transaction(HANDLE_STORE,"readwrite");tx.objectStore(HANDLE_STORE).put(handle,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});
+  db.close();
+}
+async function loadHandle(key){
+  const db=await openHandleDb();
+  const value=await new Promise((resolve,reject)=>{const tx=db.transaction(HANDLE_STORE,"readonly");const r=tx.objectStore(HANDLE_STORE).get(key);r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>reject(r.error)});
+  db.close();return value;
+}
+async function ensurePermission(handle,write=false){
+  if(!handle)return false;
+  const options={mode:write?"readwrite":"read"};
+  if((await handle.queryPermission(options))==="granted")return true;
+  return (await handle.requestPermission(options))==="granted";
+}
+function updateTransferAvailability(){
+  transferToPermanent.disabled=!(permanentRootHandle&&transferSourceHandle);
+}
+async function setPermanentRoot(handle,remember=true){
+  if(!handle)return;
+  if(!await ensurePermission(handle,true))throw new Error("לא ניתן אישור כתיבה לתיקייה שנבחרה.");
+  permanentRootHandle=handle;
+  if(remember)await saveHandle(PERMANENT_ROOT_KEY,handle);
+  permanentRootStatus.className="status-line good";
+  permanentRootStatus.innerHTML=`התיקייה הקבועה שנבחרה ונשמרה: <b>${esc(handle.name)}</b>`;
+  updateTransferAvailability();
+}
+async function restoreSavedRoot(showMessage=true){
+  try{
+    const h=await loadHandle(PERMANENT_ROOT_KEY);
+    if(!h){if(showMessage)alert("לא נמצאה בחירה שמורה.");return false}
+    if(!await ensurePermission(h,true)){permanentRootStatus.className="status-line bad";permanentRootStatus.textContent="נמצאה בחירה שמורה, אך הדפדפן דורש אישור מחדש.";return false}
+    await setPermanentRoot(h,false);return true;
+  }catch(e){if(showMessage)alert("שחזור התיקייה השמורה נכשל: "+(e.message||e));return false}
+}
+async function countDirectory(handle,depth=0){
+  let filesCount=0,foldersCount=0,lines=[];
+  for await(const [name,child] of handle.entries()){
+    if(child.kind==="file"){filesCount++;lines.push(`${"  ".repeat(depth)}📄 ${name}`)}
+    else{foldersCount++;lines.push(`${"  ".repeat(depth)}📁 ${name}`);if(depth<1){const sub=await countDirectory(child,depth+1);filesCount+=sub.filesCount;foldersCount+=sub.foldersCount;lines.push(...sub.lines)}}
+  }
+  return {filesCount,foldersCount,lines};
+}
+async function copyDirectoryRecursive(source,target){
+  for await(const [name,child] of source.entries()){
+    if(child.kind==="file"){
+      const file=await child.getFile();
+      const out=await target.getFileHandle(name,{create:true});
+      const w=await out.createWritable();await w.write(file);await w.close();
+    }else{
+      const dir=await target.getDirectoryHandle(name,{create:true});
+      await copyDirectoryRecursive(child,dir);
+    }
+  }
+}
+continueAfterCreation.onclick=async()=>{
+  screen3.classList.add("hidden");screen4.classList.remove("hidden");step(5);scrollTo(0,0);
+  if(lastCreatedPersonDir){transferSourceHandle=lastCreatedPersonDir;sourceFolderStatus.className="status-line good";sourceFolderStatus.innerHTML=`מקור נבחר אוטומטית: <b>${esc(lastCreatedFolderName)}</b>`}
+  await restoreSavedRoot(false);updateTransferAvailability();
+};
+backToTempStage.onclick=()=>{screen4.classList.add("hidden");screen3.classList.remove("hidden");step(4);scrollTo(0,0)};
+choosePermanentRoot.onclick=async()=>{
+  if(!window.showDirectoryPicker)return alert("הדפדפן אינו תומך בבחירת תיקייה.");
+  try{const h=await window.showDirectoryPicker({mode:"readwrite"});await setPermanentRoot(h,true)}catch(e){if(e.name!=="AbortError")alert(e.message||e)}
+};
+restorePermanentRoot.onclick=()=>restoreSavedRoot(true);
+chooseExtractedFolder.onclick=async()=>{
+  if(!window.showDirectoryPicker)return alert("הדפדפן אינו תומך בבחירת תיקייה.");
+  try{
+    const h=await window.showDirectoryPicker({mode:"read"});
+    if(!await ensurePermission(h,false))throw new Error("לא ניתן אישור קריאה לתיקייה.");
+    transferSourceHandle=h;
+    sourceFolderStatus.className="status-line good";sourceFolderStatus.innerHTML=`נבחרה תיקייה שחולצה: <b>${esc(h.name)}</b>`;
+    updateTransferAvailability();
+    if(!permanentRootHandle){permanentActionStatus.className="status-line";permanentActionStatus.innerHTML="תיק המקור נבחר. כעת לחץ על ‘בחר תיקייה ראשית קבועה’.";choosePermanentRoot.focus();}
+  }catch(e){if(e.name!=="AbortError")alert(e.message||e)}
+};
+useDirectCreatedFolder.onclick=()=>{
+  if(!lastCreatedPersonDir)return alert("לא נוצרה תיקייה ישירה. אם שמרת ZIP, חלץ אותו ובחר את התיקייה שחולצה.");
+  transferSourceHandle=lastCreatedPersonDir;sourceFolderStatus.className="status-line good";sourceFolderStatus.innerHTML=`נבחרה התיקייה שנוצרה ישירות: <b>${esc(lastCreatedFolderName)}</b>`;updateTransferAvailability();
+};
+findPersonOnF.onclick=async()=>{
+  if(!permanentRootHandle)return alert("יש לבחור או לשחזר תחילה את התיקייה הראשית הקבועה.");
+  const name=currentFolderName();
+  try{
+    const h=await permanentRootHandle.getDirectoryHandle(name,{create:false});
+    permanentPersonHandle=h;continueToSystems.disabled=false;
+    permanentActionStatus.className="status-line good";permanentActionStatus.innerHTML=`נמצאה תיקייה קיימת בשם <b>${esc(name)}</b> בתוך התיקייה הקבועה. לא בוצעה העתקה.`;
+  }catch(e){
+    if(e.name==="NotFoundError"){permanentActionStatus.className="status-line";permanentActionStatus.innerHTML=`לא נמצאה תיקייה בשם <b>${esc(name)}</b>. אפשר להעתיק אותה כעת.`}
+    else alert(e.message||e)
+  }
+};
+transferToPermanent.onclick=async()=>{
+  if(!permanentRootHandle||!transferSourceHandle)return alert("יש לבחור תיקייה קבועה ומקור להעברה.");
+  const folderName=currentFolderName();
+  if(!folderName)return alert("שם התיקייה חסר.");
+  transferToPermanent.disabled=true;
+  try{
+    if(await directoryExists(permanentRootHandle,folderName))throw new Error(`כבר קיימת תיקייה בשם ${folderName} בתיקייה הקבועה. לא בוצעה דריסה.`);
+    const target=await permanentRootHandle.getDirectoryHandle(folderName,{create:true});
+    await copyDirectoryRecursive(transferSourceHandle,target);
+    permanentPersonHandle=target;
+    const info=await countDirectory(target);
+    permanentActionStatus.className="status-line good";
+    permanentActionStatus.innerHTML=`התיק <b>${esc(folderName)}</b> הועתק בהצלחה למיקום הקבוע. המקור לא נמחק. כעת לחץ על המשך לעדכון Excel וקישורים.`;
+    continueToSystems.disabled=false;
+  }catch(e){permanentActionStatus.className="status-line bad";permanentActionStatus.textContent=e.message||e}
+  finally{updateTransferAvailability()}
+};
+continueToSystems.onclick=()=>{
+  screen4.classList.add("hidden");screen5.classList.remove("hidden");step(5);scrollTo(0,0);
+  systemsSummary.textContent=`שם: ${first.value.trim()} ${last.value.trim()}\nתעודת זהות: ${id.value}\nתיק קבוע: ${currentFolderName()}\nהשלב הבא: תיק דיגיטלי.xlsx, תאריכים וקישורים יחסיים.`;
+};
+backToPermanent.onclick=()=>{screen5.classList.add("hidden");screen4.classList.remove("hidden");step(5);scrollTo(0,0)};
+window.addEventListener("DOMContentLoaded",()=>restoreSavedRoot(false));
+
+const MAIL_SEARCH_KEY="yachdav_mail_search_v2";
+function loadMailSearch(){
+  try{
+    const x=JSON.parse(localStorage.getItem(MAIL_SEARCH_KEY)||"{}");
+    mailSender.value=x.sender||"";
+    mailKeyword.value=x.keyword||"";
+    mailFromDate.value=x.fromDate||"";
+    mailToDate.value=x.toDate||"";
+    mailAttachmentsOnly.checked=x.attachmentsOnly!==false;
+  }catch(e){}
+}
+function getMailSearch(){
+  return {sender:mailSender.value.trim(),keyword:mailKeyword.value.trim(),fromDate:mailFromDate.value,toDate:mailToDate.value,attachmentsOnly:mailAttachmentsOnly.checked};
+}
+function buildMailPrompt(x){
+  return [
+    "חפש מייל אך ורק בתיבת הדואר של העבודה שלי ב-Outlook / Microsoft 365. אין להשתמש ב-Gmail.",
+    "תחילה מצא ובדוק את התיקייה: Входящие / חשבונית / גבע, כולל כל תיקיות המשנה שלה הרלוונטיות לטווח התאריכים. אל תבצע חיפוש כללי בכל תיבת הדואר לפני שבדקת תיקיות אלה.",
+    x.sender ? `שולח: ${x.sender}.` : "שולח לא צוין.",
+    x.fromDate ? `מתאריך: ${x.fromDate}.` : "תאריך התחלה לא צוין.",
+    x.toDate ? `עד תאריך כולל: ${x.toDate}.` : "תאריך סיום לא צוין.",
+    x.keyword ? `מילה מפתח או טקסט לחיפוש: ${x.keyword}.` : "מילה מפתח לא צוינה.",
+    x.attachmentsOnly ? "הצג רק מיילים עם קבצים מצורפים." : "אין חובה שלמייל יהיו קבצים מצורפים.",
+    "בדוק התאמה מדויקת לפי השולח, טווח התאריכים והמילה המפתח. ודא שהמילה או השם נמצאים בפועל בנושא, בגוף המייל או בשם קובץ מצורף; אל תסתמך רק על תוצאות דומות של Outlook.",
+    "הצג תחילה התאמות מדויקות, ובתוכן הצג קודם מיילים עם קבצים מצורפים.",
+    "לכל מייל הצג: תאריך, שולח, נושא, התיקייה שבה נמצא המייל, האם יש קובץ מצורף, והיכן נמצאה המילה או השם — בנושא, בגוף המייל או בשם הקובץ המצורף.",
+    "אם אין התאמה מדויקת, הצג בנפרד מיילים דומים באותו טווח תאריכים והסבר במפורש מדוע הם נחשבים דומים."
+  ].join("\n");
+}
+searchViaChatGPT.onclick=()=>{
+  const x=getMailSearch();localStorage.setItem(MAIL_SEARCH_KEY,JSON.stringify(x));
+  const prompt=buildMailPrompt(x);mailPromptBox.textContent=prompt;mailPromptBox.classList.remove("hidden");
+  const chatUrl=`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`;
+  const chatWindow=window.open(chatUrl,"_blank");
+  if(chatWindow){
+    try{chatWindow.opener=null}catch(e){}
+  }else if(confirm("הדפדפן חסם פתיחת חלון חדש. האם לפתוח את ChatGPT בחלון הנוכחי?")){
+    window.location.href=chatUrl;
+  }
+};
+clearMailSearch.onclick=()=>{
+  localStorage.removeItem(MAIL_SEARCH_KEY);mailSender.value="";mailKeyword.value="";mailFromDate.value="";mailToDate.value="";
+  mailAttachmentsOnly.checked=true;mailPromptBox.textContent="";mailPromptBox.classList.add("hidden");
+};
+loadMailSearch();
+
+</script>
+</body></html>

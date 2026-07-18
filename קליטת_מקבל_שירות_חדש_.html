@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<!-- saved from url=(0142)file:///C:/Users/User/Downloads/%D7%A7%D7%9C%D7%99%D7%98%D7%AA_%D7%9E%D7%A7%D7%91%D7%9C_%D7%A9%D7%99%D7%A8%D7%95%D7%AA_%D7%97%D7%93%D7%A9.html -->
+<html lang="he" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קליטת מקבל שירות חדש</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1a3a5c;
+  --primary-mid: #2563a8;
+  --primary-light: #e8f1fb;
+  --gold: #c9933a;
+  --green: #2e7d52;
+  --red: #b83232;
+  --text: #1e2535;
+  --muted: #6b7280;
+  --bg: #f4f7fc;
+  --white: #ffffff;
+  --border: #b8d0ee;
+  --shadow: 0 2px 16px rgba(26,58,92,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Heebo', 'Arial Hebrew', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.6;
+  direction: rtl;
+}
+
+/* TOP BAR */
+.top-bar {
+  background: var(--primary);
+  color: white;
+  padding: 10px 24px;
+  display: grid;
+  grid-template-columns: 140px 1fr 140px;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.top-bar-logo { display: flex; align-items: center; }
+.top-bar-logo-right { justify-content: flex-start; }
+.top-bar-logo-left { justify-content: flex-end; }
+.top-bar-logo img { height: 42px; width: auto; max-width: 120px; border-radius: 5px; }
+.top-bar-center { text-align: center; justify-self: center; }
+.top-bar-title { font-size: 20px; font-weight: 800; line-height: 1.2; }
+.top-bar-sub { font-size: 12px; color: #a8c4e0; margin-top: 3px; }
+
+/* PAGE */
+.page { max-width: 900px; margin: 28px auto; padding: 0 16px 40px; }
+
+/* SECTION */
+.section {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.section-header {
+  background: var(--primary);
+  color: white;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.section-header .icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #ffffff;
+  color: var(--primary);
+  border-radius: 8px;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+}
+.section-body { padding: 20px; }
+
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+
+/* FIELD */
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 700; color: var(--primary); }
+.field input, .field select, .field textarea {
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--text);
+  background: white;
+  transition: border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--primary-mid);
+  box-shadow: 0 0 0 3px rgba(37,99,168,0.10);
+}
+.field textarea { resize: none; overflow: hidden; min-height: 70px; transition: height .10s ease; }
+.field .hint { font-size: 11px; color: var(--muted); }
+
+/* CHECKBOX ROW */
+.check-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.check-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; }
+.check-row label { font-size: 14px; cursor: pointer; }
+
+/* ACTIONS */
+.actions {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 22px; border-radius: 8px;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  cursor: pointer; border: none; transition: all .18s;
+}
+.btn-primary { background: var(--primary); color: white; font-size: 16px; padding: 12px 32px; }
+.btn-primary:hover { background: #0f2540; }
+.btn-copy { background: var(--gold); color: white; }
+.btn-copy:hover { background: #b07d2c; }
+.btn-draft  { background: #7c3aed; color: white; font-size: 13px; }
+  .btn-draft:hover  { background: #6d28d9; }
+  .btn-drafts { background: #0e7490; color: white; font-size: 13px; }
+  .btn-drafts:hover { background: #0c4a6e; }
+  .btn-reset { background: #f1f5f9; color: var(--muted); }
+.btn-reset:hover { background: #e2e8f0; }
+
+/* DOCS PANEL */
+.docs-panel {
+  display: none;
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.docs-panel.visible { display: block; }
+.docs-header {
+  background: var(--green);
+  color: white;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 700;
+}
+.docs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+.doc-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px 12px; gap: 8px;
+  border: none; border-left: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  background: white; cursor: pointer; font-family: inherit;
+  transition: background .15s;
+  text-decoration: none;
+}
+.doc-btn:hover { background: var(--primary-light); }
+.doc-btn .doc-icon { font-size: 28px; }
+.doc-btn .doc-name { font-size: 13px; font-weight: 700; color: var(--primary); text-align: center; }
+.doc-btn .doc-status { font-size: 11px; color: var(--muted); }
+
+/* STATUS */
+.status-bar {
+  display: none; padding: 12px 16px; border-radius: 8px;
+  font-size: 14px; font-weight: 600; margin-bottom: 16px;
+}
+.status-bar.success { background: #ecfdf5; color: var(--green); display: block; }
+.status-bar.error { background: #fef2f2; color: var(--red); display: block; }
+
+/* COPY BOX */
+.copy-box {
+  display: none;
+  background: #f8fbff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+  margin-top: 12px;
+}
+.copy-box.visible { display: block; }
+
+
+/* INLINE DRAFT SUGGESTION NEAR NAME FIELD */
+.inline-draft-hint {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border: 1.5px solid #0e7490;
+  background: #f0f9ff;
+  color: #0c4a6e;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(14,116,144,.12);
+}
+.inline-draft-hint:hover { background: #e0f2fe; }
+.inline-draft-hint .small {
+  display:block;
+  font-size:11px;
+  font-weight:500;
+  color:#64748b;
+  margin-top:2px;
+}
+.inline-draft-hint .draft-option {
+  display:block;
+  width:100%;
+  text-align:right;
+  margin-top:7px;
+  padding:8px 10px;
+  border:1px solid #bae6fd;
+  border-radius:7px;
+  background:#ffffff;
+  color:#0c4a6e;
+  font-family:inherit;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+.inline-draft-hint .draft-option:hover { background:#e0f2fe; }
+
+@media (max-width: 640px) {
+  .top-bar { grid-template-columns: 70px 1fr 70px; padding: 8px 10px; }
+  .top-bar-logo img { height: 32px; max-width: 62px; }
+  .top-bar-title { font-size: 15px; }
+  .top-bar-sub { font-size: 10px; line-height: 1.2; }
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .span-2, .span-3 { grid-column: span 1; }
+  .docs-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-logo top-bar-logo-right">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAADCCAYAAADzRP8zAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAABA4UlEQVR4nO29y5Mkx5Xu9zvHIzKzqqv6BTQeTQLgAyRA0sjhkDOyEWds7h2za6adzLSapf462V1IG5nsLrTQ4kpzZyi7Q10+QHJIgA+ABAmiu9GvqsrMCHc/Wrh7RGRWdXdVdwONAv1rq47MyHh4eLh/fl5+HCoqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKv6cIM+6ABUVzxb6ZKdLfLLz7QnvzxPe/5zhSWuroqKi4hNDJayKiopzg0pYFRUV5waVsCoqKs4NKmFVVFScG1TCqqioODeohFVRUXFuUOOwKj7TmM/nrNdrAJxzhBBYLBbs7u5ydHSEWeoCIoJI+hxjRERQffR4bkDf98znc7quo21bvPd06zVN26KqNE2zcU3vPc45+r6nbZqHXr9pGpbLJSJC27aEEAghoKqI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" alt="יחדיו">
+  </div>
+  <div class="top-bar-center">
+    <div class="top-bar-title">קליטת מקבל שירות חדש</div>
+    <div class="top-bar-sub" data-org="name">מפעל מוגן שיקומי לבריאות הנפש – עמותת יחדיו, באר שבע</div>
+  </div>
+  <div class="top-bar-logo top-bar-logo-left">
+    <img data-logo="ministry" src="" style="height:40px;width:auto;object-fit:contain;" alt="משרד הבריאות">
+  </div>
+</div>
+
+<div class="page">
+
+  <div id="statusBar" class="status-bar"></div>
+
+  <!-- 1. פרטים אישיים -->
+  <div class="section">
+    <div class="section-header"><span class="icon">👤</span> פרטים אישיים</div>
+    <div class="section-body">
+      <div class="grid-3">
+        <div class="field span-2">
+          <label>שם מקבל השירות *</label>
+          <input type="text" id="f_shem" placeholder="שם פרטי ומשפחה" oninput="checkDraftSuggestion(this.value)">
+        </div>
+        <div class="field">
+          <label>תעודת זהות *</label>
+          <input type="text" id="f_tz" placeholder="000000000" maxlength="9">
+        </div>
+        <div class="field">
+          <label>תאריך לידה</label>
+          <input type="date" id="f_dob">
+        </div>
+        <div class="field">
+          <label>גיל</label>
+          <input type="number" id="f_gyl" placeholder="גיל" readonly="" style="background:#f8fbff">
+        </div>
+        <div class="field">
+          <label>גר עם</label>
+          <input type="text" id="f_gar_im" placeholder="לבד / משפחה / ...">
+        </div>
+        <div class="field span-3">
+          <label>רחוב / כתובת</label>
+          <input type="text" id="f_rechov" placeholder="רחוב, מספר, עיר">
+        </div>
+        <div class="field">
+          <label>תאריך קליטה</label>
+          <input type="date" id="f_klita_date">
+        </div>
+        <div class="field">
+          <label>נייד</label>
+          <input type="tel" id="f_nayad" placeholder="05...">
+        </div>
+        <div class="field">
+          <label>בבית</label>
+          <input type="tel" id="f_bayt" placeholder="08-...">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. פרטי שירות -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🏭</span> פרטי שירות במפעל</div>
+    <div class="section-body">
+      <div class="grid-3">
+        <div class="field">
+          <label>סוג שירות</label>
+          <select id="f_sug_shirut">
+            <option value="">בחר...</option>
+            <option>משרד הבריאות</option>
+            <option>משרד הביטחון</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>סדנה</label>
+          <select id="f_sadna">
+            <option value="">בחר...</option>
+            <option>אריסטרך</option>
+            <option>אנדרי</option>
+            <option>רוזט</option>
+            <option>שלום</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>שירות יחיד</label>
+          <select id="f_shirut_yachid">
+            <option value="">—</option>
+            <option>כן</option>
+            <option>לא</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ממ"ד</label>
+          <select id="f_mamad">
+            <option value="">—</option>
+            <option>כן</option>
+            <option>לא</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>מקלט</label>
+          <select id="f_miklat">
+            <option value="">—</option>
+            <option>כן</option>
+            <option>לא</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. רפואי -->
+  <div class="section">
+    <div class="section-header"><span class="icon">🏥</span> מידע רפואי</div>
+    <div class="section-body">
+      <div class="grid-3">
+        <div class="field">
+          <label>קופת חולים</label>
+          <select id="f_kupat">
+            <option value="">בחר...</option>
+            <option>מכבי</option>
+            <option>כללית</option>
+            <option>מאוחדת</option>
+            <option>לאומית</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>סניף</label>
+          <input type="text" id="f_snif" placeholder="סניף קופת חולים">
+        </div>
+        <div class="field">
+          <label>מס׳ טלפון קופת חולים</label>
+          <input type="tel" id="f_tel" placeholder="08-...">
+        </div>
+        <div class="field span-3">
+          <label>מחלות רקע</label>
+          <textarea id="f_machalot" placeholder="פרט מחלות רקע..."></textarea>
+        </div>
+        <div class="field span-3">
+          <label>מגבלה</label>
+          <textarea id="f_migbala" placeholder="פרט מגבלות..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. איש קשר -->
+  <div class="section">
+    <div class="section-header"><span class="icon">📞</span> איש קשר</div>
+    <div class="section-body">
+      <div class="grid-3">
+        <div class="field span-2">
+          <label>שם איש קשר</label>
+          <input type="text" id="f_ish_kesher" placeholder="שם פרטי ומשפחה">
+        </div>
+        <div class="field">
+          <label>קירבה</label>
+          <input type="text" id="f_kirva" placeholder="אם / אב / אח...">
+        </div>
+        <div class="field">
+          <label>טלפון איש קשר</label>
+          <input type="tel" id="f_tel_kesher" placeholder="05...">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. עו"ס -->
+  <div class="section">
+    <div class="section-header"><span class="icon">👩‍💼</span> עובד סוציאלי</div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div class="field">
+          <label>שם עו"ס</label>
+          <div style="position:relative">
+            <input type="text" id="f_vos" placeholder="הקלד שם..." autocomplete="off" oninput="filterVos(this.value)" onblur="setTimeout(hideVosList,200)">
+            <div id="vos_list" style="display:none;position:absolute;top:100%;right:0;left:0;background:white;border:1.5px solid var(--border);border-radius:0 0 8px 8px;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.1)"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>טלפון עו"ס</label>
+          <input type="tel" id="f_tel_vos" placeholder="05..." oninput="syncVosPhone()">
+        </div>
+        <div class="field span-2" style="justify-content:flex-end;flex-direction:row;align-items:center;gap:10px;padding-top:4px">
+          <button type="button" class="btn btn-save" style="padding:6px 14px;font-size:13px" onclick="saveVos()">💾 שמור עו"ס לרשימה</button>
+          <span id="vos_save_msg" style="font-size:12px;color:var(--green);display:none">✓ נשמר</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="actions">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button type="button" class="btn btn-primary" onclick="submitForm()">✓ קלוט מקבל שירות חדש</button>
+      <button type="button" class="btn btn-reset" onclick="resetForm()">↺ נקה טופס</button>
+      <button type="button" class="btn btn-draft" id="btnSaveDraft">💾 שמור טיוטה</button>
+      <button type="button" class="btn btn-drafts" id="btnShowDrafts">🗂 טיוטות שמורות</button>
+    </div>
+    <button type="button" class="btn btn-copy" onclick="copyRow()" id="btnCopy" style="display:none">📋 העתק שורה לאקסל</button>
+  </div>
+  <!-- DRAFT PANEL -->
+  <div id="draftPanel" style="display:none;margin-top:12px;background:#f0f9ff;border:1.5px solid #0e7490;border-radius:10px;padding:14px 18px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <span style="font-size:14px;font-weight:700;color:#0c4a6e;">📋 טיוטות שמורות</span>
+      <button type="button" id="btnCloseDraftPanel" style="background:none;border:none;cursor:pointer;font-size:18px;color:#0c4a6e;line-height:1;">✕</button>
+    </div>
+    <div id="draftList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+    <div id="draftEmpty" style="font-size:13px;color:#6b7280;display:none;">אין טיוטות שמורות</div>
+  </div>
+
+  <div class="copy-box" id="copyBox"></div>
+
+  <!-- DOCS PANEL -->
+  <div class="docs-panel" id="docsPanel">
+    <div class="docs-header">✅ המסמכים מוכנים לחתימה — לחץ על כל מסמך לפתיחה</div>
+    <div class="docs-grid">
+      <button class="doc-btn" onclick="openDoc(0)">
+        <div class="doc-icon">📄</div>
+        <div class="doc-name">כתב ויתור על סודיות</div>
+        <div class="doc-status" id="status_0">ממתין לחתימה</div>
+      </button>
+      <button class="doc-btn" onclick="openDoc(1)">
+        <div class="doc-icon">📄</div>
+        <div class="doc-name">חוזה אישי</div>
+        <div class="doc-status" id="status_1">ממתין לחתימה</div>
+      </button>
+      <button class="doc-btn" onclick="openDoc(2)">
+        <div class="doc-icon">📄</div>
+        <div class="doc-name">מכתב קבלת מועמד</div>
+        <div class="doc-status" id="status_2">ממתין לחתימה</div>
+      </button>
+      <button class="doc-btn" onclick="openDoc(3)">
+        <div class="doc-icon">📄</div>
+        <div class="doc-name">אישור צילום</div>
+        <div class="doc-status" id="status_3">ממתין לחתימה</div>
+      </button>
+      <button class="doc-btn" onclick="openDoc(4)">
+        <div class="doc-icon">📄</div>
+        <div class="doc-name">הדרכת בטיחות</div>
+        <div class="doc-status" id="status_4">ממתין לחתימה</div>
+      </button>
+      <button class="doc-btn" onclick="openDoc(5)">
+        <div class="doc-icon">📄</div>
+        <div class="doc-name">כניסה למפעל בטיחות</div>
+        <div class="doc-status" id="status_5">ממתין לחתימה</div>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let currentData = null;
+let __activeLoadedDraftId = null;
+let __activeLoadedDraftName = null;
+let __klitaCompleted = false;
+
+// ── עו"ס localStorage ──
+function getVosList() {
+  try { return JSON.parse(localStorage.getItem("vosList") || "[]"); } catch { return []; }
+}
+function saveVos() {
+  const name = document.getElementById("f_vos").value.trim();
+  const tel  = document.getElementById("f_tel_vos").value.trim();
+  if (!name) return;
+  const list = getVosList().filter(v => v.name !== name);
+  list.unshift({ name, tel });
+  localStorage.setItem("vosList", JSON.stringify(list.slice(0, 20)));
+  const msg = document.getElementById("vos_save_msg");
+  msg.style.display = "inline";
+  setTimeout(() => msg.style.display = "none", 2000);
+}
+function filterVos(q) {
+  const list = getVosList();
+  const filtered = q ? list.filter(v => v.name.includes(q)) : list;
+  const el = document.getElementById("vos_list");
+  if (!filtered.length) { el.style.display = "none"; return; }
+  el.innerHTML = filtered.map(v =>
+    `<div onclick="selectVos('${v.name}','${v.tel}')"
+      style="padding:9px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid #f0f4fa"
+      onmouseenter="this.style.background='#e8f1fb'" onmouseleave="this.style.background='white'">
+      <strong>${v.name}</strong>${v.tel ? ' — ' + v.tel : ''}
+    </div>`
+  ).join("");
+  el.style.display = "block";
+}
+function selectVos(name, tel) {
+  document.getElementById("f_vos").value = name;
+  document.getElementById("f_tel_vos").value = tel || "";
+  hideVosList();
+}
+function hideVosList() {
+  document.getElementById("vos_list").style.display = "none";
+}
+function syncVosPhone() {
+  // auto-update if name already saved
+}
+
+// גיל אוטומטי
+document.getElementById("f_dob").addEventListener("change", function() {
+  const dob = new Date(this.value);
+  const age = Math.floor((new Date() - dob) / (365.25 * 24 * 3600 * 1000));
+  document.getElementById("f_gyl").value = isNaN(age) ? "" : age;
+});
+
+
+function getFormData() {
+  const vos = document.getElementById("f_vos").value.trim();
+  return {
+    shem:         document.getElementById("f_shem").value.trim(),
+    tz:           document.getElementById("f_tz").value.trim(),
+    dob:          document.getElementById("f_dob").value,
+    gyl:          document.getElementById("f_gyl").value,
+    gar_im:       document.getElementById("f_gar_im").value.trim(),
+    rechov:       document.getElementById("f_rechov").value.trim(),
+    tel:          document.getElementById("f_tel").value.trim(),
+    nayad:        document.getElementById("f_nayad").value.trim(),
+    bayt:         document.getElementById("f_bayt").value.trim(),
+    mispar_sadna: "",
+    sug_shirut:   document.getElementById("f_sug_shirut").value,
+    sadna:        document.getElementById("f_sadna").value,
+    shirut_yachid:document.getElementById("f_shirut_yachid").value,
+    mamad:        document.getElementById("f_mamad").value,
+    miklat:       document.getElementById("f_miklat").value,
+    kupat:        document.getElementById("f_kupat").value,
+    snif:         document.getElementById("f_snif").value.trim(),
+    machalot:     document.getElementById("f_machalot").value.trim(),
+    migbala:      document.getElementById("f_migbala").value.trim(),
+    ish_kesher:   document.getElementById("f_ish_kesher").value.trim(),
+    kirva:        document.getElementById("f_kirva").value.trim(),
+    tel_kesher:   document.getElementById("f_tel_kesher").value.trim(),
+    vos:          vos,
+    tel_vos:      document.getElementById("f_tel_vos").value.trim(),
+    klita_date:   document.getElementById("f_klita_date").value,
+    today:        new Date().toLocaleDateString("he-IL")
+  };
+}
+
+function submitForm() {
+  const d = getFormData();
+  if (!d.shem) { showStatus("יש להזין שם מקבל שירות", "error"); return; }
+  if (!d.tz || d.tz.length < 8) { showStatus("יש להזין תעודת זהות תקינה", "error"); return; }
+  currentData = d;
+  __klitaCompleted = true;
+  document.getElementById("docsPanel").classList.add("visible");
+  document.getElementById("btnCopy").style.display = "inline-flex";
+  showStatus("המסמכים מוכנים! פתח כל אחד לחתימה.", "success");
+  document.getElementById("docsPanel").scrollIntoView({behavior:"smooth"});
+  // After successful klita, remove the active draft so it will not be offered again.
+  deleteDraftAfterKlita(d.shem);
+}
+
+function formatPhone(p) {
+  if (!p) return "";
+  const digits = p.replace(/\D/g, "");
+  if (digits.length >= 10) return digits.slice(0,3) + "-" + digits.slice(3);
+  if (digits.length === 9) return digits.slice(0,2) + "-" + digits.slice(2);
+  return p;
+}
+
+function formatDOB(dob) {
+  if (!dob) return "";
+  const [y, m, d] = dob.split("-");
+  return d + "/" + m + "/" + y;
+}
+
+function copyRow() {
+  if (!currentData) return;
+  const d = currentData;
+  const dobFormatted = formatDOB(d.dob);
+  const mamad  = d.mamad  === "כן" ? "כן" : "";
+  const miklat = d.miklat === "כן" ? "כן" : "";
+  const ein    = (!mamad && !miklat) ? "X" : "";
+  const cols = [
+    d.shem,
+    d.tz,
+    d.sug_shirut,
+    d.sadna,
+    d.kupat,
+    d.snif,
+    formatPhone(d.tel),
+    d.machalot,
+    d.migbala,
+    d.rechov,
+    formatPhone(d.nayad),
+    formatPhone(d.bayt),
+    dobFormatted,
+    "",
+    d.gar_im,
+    d.ish_kesher,
+    d.kirva,
+    formatPhone(d.tel_kesher),
+    d.vos,
+    formatPhone(d.tel_vos),
+    d.shirut_yachid,
+    mamad,
+    miklat,
+    ein,
+    d.klita_date ? formatDOB(d.klita_date) : new Date().toLocaleDateString('he-IL')
+  ];
+  const row = cols.join("\t");
+  // method 1 - clipboard API
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(row).then(() => {
+      showStatus("✓ השורה הועתקה! לחץ על תא C בשורה חדשה באקסל → Ctrl+V", "success");
+    }).catch(() => fallbackCopy(row));
+  } else {
+    fallbackCopy(row);
+  }
+  document.getElementById("copyBox").textContent = row;
+  document.getElementById("copyBox").classList.add("visible");
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.position = "fixed";
+  ta.style.opacity = "0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+  showStatus("✓ השורה הועתקה! לחץ על תא C בשורה חדשה באקסל → Ctrl+V", "success");
+}
+
+function openDoc(idx) {
+  if (!currentData) return;
+  const docs = [
+    "ויתור_סודיות",
+    "חוזה_אישי",
+    "מכתב_קבלת_מועמד",
+    "אישור_צילום",
+    "הדרכת_בטיחות",
+    "כניסה_למפעל_בטיחות"
+  ];
+  // Save data to sessionStorage for doc to read
+  sessionStorage.setItem("personData", JSON.stringify(currentData));
+  // Open doc file
+  window.open(docs[idx] + ".html", "_blank");
+  document.getElementById("status_" + idx).textContent = "✓ נפתח";
+  document.getElementById("status_" + idx).style.color = "#2e7d52";
+}
+
+function resetForm() {
+  document.querySelectorAll("input, select, textarea").forEach(el => el.value = "");
+  // Restore today's date after clearing all fields
+  const todayISO = new Date().toISOString().split('T')[0];
+  const klitaField = document.getElementById("f_klita_date");
+  if (klitaField) klitaField.value = todayISO;
+  document.getElementById("docsPanel").classList.remove("visible");
+  document.getElementById("btnCopy").style.display = "none";
+  document.getElementById("copyBox").classList.remove("visible");
+  document.getElementById("statusBar").className = "status-bar";
+  currentData = null;
+  for(let i=0;i<6;i++) {
+    document.getElementById("status_"+i).textContent = "ממתין לחתימה";
+    document.getElementById("status_"+i).style.color = "";
+  }
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById("statusBar");
+  el.textContent = msg;
+  el.className = "status-bar " + type;
+  if (type === "success") setTimeout(() => el.className = "status-bar", 5000);
+}
+
+
+
+// ── טיוטות (localStorage) ── תיקון יציב
+const DRAFT_KEY = 'klita_drafts_v2';
+let __draftMemoryFallback = [];
+
+function safeGetStorage() {
+  try {
+    const testKey = '__draft_test__';
+    localStorage.setItem(testKey, '1');
+    localStorage.removeItem(testKey);
+    return localStorage;
+  } catch (e) {
+    return null;
+  }
+}
+
+function getDrafts() {
+  const storage = safeGetStorage();
+  try {
+    if (!storage) return __draftMemoryFallback;
+    const raw = storage.getItem(DRAFT_KEY);
+    if (raw) return JSON.parse(raw) || [];
+    // Compatibility with previous broken version
+    const oldRaw = storage.getItem('klita_drafts_v1');
+    if (oldRaw) {
+      const oldDrafts = JSON.parse(oldRaw) || [];
+      storage.setItem(DRAFT_KEY, JSON.stringify(oldDrafts));
+      return oldDrafts;
+    }
+    return [];
+  } catch (e) {
+    return __draftMemoryFallback;
+  }
+}
+
+function saveDraftsToStorage(drafts) {
+  const storage = safeGetStorage();
+  __draftMemoryFallback = drafts;
+  if (storage) {
+    storage.setItem(DRAFT_KEY, JSON.stringify(drafts));
+    // מידת ביטחון: קוראים חזרה כדי לוודא שהשמירה באמת נקלטה
+    const verify = JSON.parse(storage.getItem(DRAFT_KEY) || '[]');
+    if (!Array.isArray(verify) || verify.length !== drafts.length) {
+      throw new Error('Draft storage verification failed');
+    }
+  }
+}
+
+function showDraftToast(msg, type) {
+  // הודעות טיוטה מוצגות רק בתחתית המסך, לא בשורת הסטטוס העליונה.
+  let toast = document.getElementById('draftToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'draftToast';
+    toast.style.cssText = 'position:fixed;left:16px;right:16px;bottom:18px;z-index:9999;padding:14px 18px;border-radius:10px;font-family:Heebo,Arial,sans-serif;font-size:15px;font-weight:700;text-align:center;box-shadow:0 4px 18px rgba(0,0,0,.22);direction:rtl;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  if (type === 'error') {
+    toast.style.background = '#fef2f2';
+    toast.style.color = '#b83232';
+    toast.style.border = '1px solid #fecaca';
+  } else {
+    toast.style.background = '#ecfdf5';
+    toast.style.color = '#2e7d52';
+    toast.style.border = '1px solid #bbf7d0';
+  }
+  toast.style.display = 'block';
+  clearTimeout(window.__draftToastTimer);
+  window.__draftToastTimer = setTimeout(() => { toast.style.display = 'none'; }, 3500);
+}
+
+function getFormRawData() {
+  const fields = document.querySelectorAll('input[id], select[id], textarea[id]');
+  const data = {};
+  fields.forEach(el => {
+    if (el.id && el.id.startsWith('f_')) data[el.id] = el.value || '';
+  });
+  data.shem = (document.getElementById('f_shem')?.value || '').trim();
+  return data;
+}
+
+function setFormRawData(data) {
+  Object.entries(data || {}).forEach(([id, value]) => {
+    if (!id.startsWith('f_')) return;
+    const el = document.getElementById(id);
+    if (el) el.value = value || '';
+  });
+  // recalc age if date exists
+  const dob = document.getElementById('f_dob');
+  if (dob) dob.dispatchEvent(new Event('change'));
+}
+
+window.saveDraft = function saveDraft() {
+  __klitaCompleted = false;
+  const d = getFormRawData();
+  if (!d.shem) {
+    showDraftToast('יש להזין שם לפני שמירת טיוטה', 'error');
+    return false;
+  }
+  const drafts = getDrafts();
+  const draft = { ...d, _shem: d.shem, _savedAt: new Date().toISOString(), _draftId: 'draft_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8) };
+  const index = drafts.findIndex(x => (x._shem || x.shem || x.f_shem) === d.shem);
+  if (index >= 0) {
+    draft._draftId = drafts[index]._draftId || draft._draftId;
+    drafts[index] = draft;
+    showDraftToast('✅ טיוטה עודכנה: ' + d.shem, 'success');
+  } else {
+    drafts.unshift(draft);
+    showDraftToast('✅ טיוטה נשמרה: ' + d.shem, 'success');
+  }
+  try {
+    saveDraftsToStorage(drafts.slice(0, 50));
+    __lastAutoSavedSnapshot = JSON.stringify(getFormRawData());
+    __formHasUserChanges = false;
+    renderDraftList();
+    hideInlineDraftSuggestion();
+    const savedCount = getDrafts().length;
+    showDraftToast('✅ הטיוטה נשמרה. מספר טיוטות שמורות: ' + savedCount, 'success');
+  } catch (e) {
+    showDraftToast('❌ השמירה נכשלה. בדוק שהקובץ נפתח בדפדפן רגיל ולא מתוך תצוגה מקדימה.', 'error');
+  }
+  return false;
+};
+
+window.loadDraft = function loadDraft(name) {
+  const drafts = getDrafts();
+  const draft = drafts.find(x => (x._shem || x.shem || x.f_shem) === name);
+  if (!draft) {
+    showDraftToast('הטיוטה לא נמצאה', 'error');
+    return false;
+  }
+  __klitaCompleted = false;
+  __activeLoadedDraftId = draft._draftId || null;
+  __activeLoadedDraftName = name || (draft._shem || draft.shem || draft.f_shem || null);
+  window.__suppressInlineDraftSuggestion = true;
+  setFormRawData(draft);
+  __lastAutoSavedSnapshot = JSON.stringify(getFormRawData());
+  __formHasUserChanges = false;
+  hideInlineDraftSuggestion();
+  const panel = document.getElementById('draftPanel');
+  if (panel) panel.style.display = 'none';
+  showDraftToast('✅ טיוטה נטענה: ' + name, 'success');
+  setTimeout(() => { window.__suppressInlineDraftSuggestion = false; }, 800);
+  return false;
+};
+
+window.deleteDraft = function deleteDraft(name) {
+  const drafts = getDrafts().filter(x => (x._shem || x.shem || x.f_shem) !== name);
+  saveDraftsToStorage(drafts);
+  renderDraftList();
+  showDraftToast('🗑 טיוטה נמחקה: ' + name, 'success');
+  return false;
+};
+
+window.deleteDraftAfterKlita = function deleteDraftAfterKlita(name) {
+  const targetName = String(name || __activeLoadedDraftName || '').trim();
+  const targetId = __activeLoadedDraftId;
+  const currentIdentity = getDraftIdentity ? getDraftIdentity(getFormRawData()) : '';
+
+  const before = getDrafts();
+  const after = before.filter(x => {
+    const draftName = String(x._shem || x.shem || x.f_shem || '').trim();
+    const draftId = x._draftId || '';
+    const draftIdentity = x._identity || (getDraftIdentity ? getDraftIdentity(x) : '');
+
+    // Preferred: delete exactly the loaded draft.
+    if (targetId && draftId === targetId) return false;
+
+    // Fallback: delete the draft that belongs to the same current person.
+    if (!targetId && currentIdentity && draftIdentity === currentIdentity) return false;
+
+    // Last fallback: delete by exact name only when there is no safer identifier.
+    if (!targetId && !currentIdentity && targetName && draftName === targetName) return false;
+
+    return true;
+  });
+
+  saveDraftsToStorage(after);
+  renderDraftList();
+  hideInlineDraftSuggestion();
+  __activeLoadedDraftId = null;
+  __activeLoadedDraftName = null;
+  __lastAutoSavedSnapshot = JSON.stringify(getFormRawData());
+  __formHasUserChanges = false;
+  showDraftToast('✅ הטיוטה נמחקה לאחר קליטה', 'success');
+};
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[ch]));
+}
+
+window.renderDraftList = function renderDraftList() {
+  const drafts = getDrafts();
+  const list = document.getElementById('draftList');
+  const empty = document.getElementById('draftEmpty');
+  if (!list) return;
+  list.innerHTML = '';
+  if (!drafts.length) {
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  drafts.forEach(d => {
+    const name = d._shem || d.shem || d.f_shem || 'ללא שם';
+    const date = d._savedAt ? new Date(d._savedAt).toLocaleString('he-IL') : '';
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;background:white;border:1px solid #0e7490;border-radius:8px;padding:8px 12px;flex-wrap:wrap;';
+    row.innerHTML = '<span style="font-size:13px;font-weight:700;color:#0c4a6e;">' + escapeHtml(name) + '</span>' +
+                    '<span style="font-size:11px;color:#6b7280;">' + escapeHtml(date) + '</span>';
+    const loadBtn = document.createElement('button');
+    loadBtn.type = 'button';
+    loadBtn.textContent = '📂 טען';
+    loadBtn.style.cssText = 'padding:4px 12px;background:#0e7490;color:white;border:none;border-radius:5px;cursor:pointer;font-size:12px;font-weight:600;';
+    loadBtn.addEventListener('click', () => loadDraft(name));
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.textContent = '🗑 מחק';
+    delBtn.style.cssText = 'padding:4px 8px;background:#fee2e2;color:#b83232;border:none;border-radius:5px;cursor:pointer;font-size:12px;';
+    delBtn.addEventListener('click', () => deleteDraft(name));
+    row.appendChild(loadBtn);
+    row.appendChild(delBtn);
+    list.appendChild(row);
+  });
+};
+
+window.toggleDraftPanel = function toggleDraftPanel() {
+  const panel = document.getElementById('draftPanel');
+  if (!panel) return false;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) renderDraftList();
+  return false;
+};
+
+
+function getDraftDisplayName(draft) {
+  return draft?._shem || draft?.shem || draft?.f_shem || 'ללא שם';
+}
+
+function getDraftId(draft, fallbackIndex) {
+  return draft?._draftId || draft?._id || ('legacy_' + fallbackIndex + '_' + getDraftDisplayName(draft));
+}
+
+function normalizeDraftText(value) {
+  return String(value || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function findMatchingDraftsForNameInput(value) {
+  const drafts = getDrafts();
+  if (!drafts.length) return [];
+  const typed = normalizeDraftText(value);
+  if (typed.length < 2) return [];
+
+  // הצעה מוצגת רק אם הטקסט שהוקלד הוא תחילת השם המלא בטיוטה.
+  // לדוגמה: טיוטה "אלכס חטקביץ" תוצג עבור "אלכס ח",
+  // אבל תיעלם מיד כאשר מקלידים "אלכס כ".
+  return drafts
+    .map((draft, index) => ({ draft, index }))
+    .filter(item => normalizeDraftText(getDraftDisplayName(item.draft)).startsWith(typed));
+}
+
+function hideInlineDraftSuggestion() {
+  const old = document.getElementById('inlineDraftHint');
+  if (old) old.remove();
+}
+
+function loadDraftById(draftId, fallbackName, fallbackSavedAt) {
+  window.__loadingDraftNow = true;
+  window.__suppressInlineDraftSuggestion = true;
+  clearTimeout(__autoSaveTimer);
+
+  const drafts = getDrafts();
+  let found = drafts.map((draft, index) => ({ draft, index }))
+    .find(item => getDraftId(item.draft, item.index) === draftId);
+
+  // Fallback: on mobile, blur/page events can refresh the draft list before click finishes.
+  // Therefore we also identify the selected draft by name + saved date, then by name.
+  if (!found && fallbackName) {
+    found = drafts.map((draft, index) => ({ draft, index }))
+      .find(item => getDraftDisplayName(item.draft) === fallbackName && String(item.draft._savedAt || '') === String(fallbackSavedAt || ''));
+  }
+  if (!found && fallbackName) {
+    const sameName = drafts.map((draft, index) => ({ draft, index }))
+      .filter(item => getDraftDisplayName(item.draft) === fallbackName);
+    if (sameName.length === 1) found = sameName[0];
+    else if (sameName.length > 1) {
+      found = sameName.sort((a,b) => String(b.draft._savedAt || '').localeCompare(String(a.draft._savedAt || '')))[0];
+    }
+  }
+
+  if (!found) {
+    window.__loadingDraftNow = false;
+    showDraftToast('הטיוטה לא נמצאה', 'error');
+    setTimeout(() => { window.__suppressInlineDraftSuggestion = false; }, 800);
+    return false;
+  }
+
+  __klitaCompleted = false;
+  __activeLoadedDraftId = found.draft._draftId || getDraftId(found.draft, found.index);
+  __activeLoadedDraftName = getDraftDisplayName(found.draft);
+  setFormRawData(found.draft);
+  __lastAutoSavedSnapshot = JSON.stringify(getFormRawData());
+  __formHasUserChanges = false;
+  hideInlineDraftSuggestion();
+  const panel = document.getElementById('draftPanel');
+  if (panel) panel.style.display = 'none';
+  setTimeout(() => {
+    window.__loadingDraftNow = false;
+    window.__suppressInlineDraftSuggestion = false;
+  }, 900);
+  return false;
+}
+
+function showInlineDraftSuggestionsNearNameField(matches) {
+  const nameInput = document.getElementById('f_shem');
+  if (!nameInput || !matches || !matches.length) return;
+  const field = nameInput.closest('.field') || nameInput.parentElement;
+  if (!field) return;
+
+  hideInlineDraftSuggestion();
+
+  const hint = document.createElement('div');
+  hint.id = 'inlineDraftHint';
+  hint.className = 'inline-draft-hint';
+  hint.innerHTML = '<div>נמצאו טיוטות שמורות. לחץ על הטיוטה המתאימה לטעינה:</div>';
+
+  matches.forEach(({ draft, index }) => {
+    const name = getDraftDisplayName(draft);
+    const date = draft._savedAt ? new Date(draft._savedAt).toLocaleString('he-IL') : '';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'draft-option';
+    btn.innerHTML = escapeHtml(name) + (date ? '<span class="small">נשמר בתאריך: ' + escapeHtml(date) + '</span>' : '');
+    function prepareDraftLoad(e) {
+      if (e) e.stopPropagation();
+      window.__loadingDraftNow = true;
+      window.__suppressInlineDraftSuggestion = true;
+      clearTimeout(__autoSaveTimer);
+    }
+    btn.addEventListener('mousedown', prepareDraftLoad);
+    btn.addEventListener('touchstart', prepareDraftLoad, { passive: true });
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      loadDraftById(getDraftId(draft, index), name, draft._savedAt || '');
+    });
+    hint.appendChild(btn);
+  });
+
+  field.appendChild(hint);
+}
+
+function maybeShowInlineDraftSuggestion() {
+  if (window.__suppressInlineDraftSuggestion) return;
+  const nameInput = document.getElementById('f_shem');
+  if (!nameInput) return;
+  const typed = nameInput.value.trim();
+  if (!typed || typed.length < 2) { hideInlineDraftSuggestion(); return; }
+  const matches = findMatchingDraftsForNameInput(typed);
+  if (matches.length) showInlineDraftSuggestionsNearNameField(matches);
+  else hideInlineDraftSuggestion();
+}
+
+window.checkDraftSuggestion = function checkDraftSuggestion(name) {
+  // No green top message. Only inline message near the name field.
+  maybeShowInlineDraftSuggestion();
+};
+
+
+
+// ── שמירה אוטומטית ברקע כמו Gmail ──
+let __autoSaveTimer = null;
+let __lastAutoSavedSnapshot = '';
+let __formHasUserChanges = false;
+let __lastAutoSaveText = '';
+
+function hasMeaningfulFormData(data) {
+  if (!data) return false;
+  return Object.entries(data).some(([key, value]) => {
+    if (!key.startsWith('f_')) return false;
+    return String(value || '').trim().length > 0;
+  });
+}
+
+function getDraftIdentity(data) {
+  const name = String(data?.shem || data?.f_shem || '').trim();
+  const idNumber = String(data?.f_id || data?.f_teudat_zehut || data?.teudat_zehut || '').trim();
+  if (idNumber) return 'id:' + idNumber;
+  if (name) return 'name:' + name;
+  return 'autosave:current';
+}
+
+function saveAutoDraftNow() {
+  if (__klitaCompleted) return true;
+  if (window.__loadingDraftNow) return true;
+  const data = getFormRawData();
+  if (!hasMeaningfulFormData(data)) return false;
+
+  const snapshot = JSON.stringify(data);
+  if (snapshot === __lastAutoSavedSnapshot) return true;
+
+  const drafts = getDrafts();
+  const now = new Date().toISOString();
+  const identity = getDraftIdentity(data);
+  const displayName = data.shem || data.f_shem || 'טיוטה אוטומטית ללא שם';
+
+  const draft = {
+    ...data,
+    _shem: displayName,
+    _savedAt: now,
+    _autoSaved: true,
+    _draftId: 'draft_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+    _identity: identity
+  };
+
+  const index = drafts.findIndex(x => {
+    const xIdentity = x._identity || getDraftIdentity(x);
+    return xIdentity === identity;
+  });
+
+  if (index >= 0) {
+    draft._draftId = drafts[index]._draftId || draft._draftId;
+    drafts[index] = { ...drafts[index], ...draft };
+  } else {
+    drafts.unshift(draft);
+  }
+
+  try {
+    saveDraftsToStorage(drafts.slice(0, 50));
+    __lastAutoSavedSnapshot = snapshot;
+    __formHasUserChanges = false;
+    showAutoSaveIndicator('נשמר אוטומטית');
+    renderDraftList();
+    return true;
+  } catch (e) {
+    showAutoSaveIndicator('השמירה האוטומטית נכשלה', true);
+    return false;
+  }
+}
+
+function markFormChangedOnly() {
+  // The user is still typing. Do not create/update a draft yet.
+  __formHasUserChanges = true;
+}
+
+function scheduleAutoSave() {
+  // Save only after the user finished the field and moved away from it.
+  __formHasUserChanges = true;
+  clearTimeout(__autoSaveTimer);
+  __autoSaveTimer = setTimeout(saveAutoDraftNow, 250);
+}
+
+function showAutoSaveIndicator(text, isError) {
+  if (__lastAutoSaveText === text && !isError) return;
+  __lastAutoSaveText = text;
+  let el = document.getElementById('autoSaveIndicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'autoSaveIndicator';
+    el.style.cssText = 'position:fixed;left:14px;bottom:76px;z-index:9998;padding:8px 12px;border-radius:999px;font-family:Heebo,Arial,sans-serif;font-size:12px;font-weight:700;box-shadow:0 2px 10px rgba(0,0,0,.18);direction:rtl;opacity:.96;';
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+  el.style.background = isError ? '#fef2f2' : '#f0fdf4';
+  el.style.color = isError ? '#b83232' : '#166534';
+  el.style.border = isError ? '1px solid #fecaca' : '1px solid #bbf7d0';
+  el.style.display = 'block';
+  clearTimeout(window.__autoSaveIndicatorTimer);
+  window.__autoSaveIndicatorTimer = setTimeout(() => { el.style.display = 'none'; }, 3200);
+}
+
+function attachAutoSaveListeners() {
+  document.querySelectorAll('input[id^="f_"], select[id^="f_"], textarea[id^="f_"]').forEach(el => {
+    if (el.dataset.autosaveAttached === '1') return;
+    el.dataset.autosaveAttached = '1';
+
+    // While typing: only mark that there are unsaved changes.
+    // This prevents creating a draft after just 1-2 letters.
+    el.addEventListener('input', markFormChangedOnly);
+
+    // Save only when the user leaves the field or changes a select/checkbox/date.
+    el.addEventListener('blur', scheduleAutoSave);
+    el.addEventListener('change', scheduleAutoSave);
+  });
+}
+
+function saveAutoDraftBeforeLeaving(reason) {
+  clearTimeout(__autoSaveTimer);
+  const saved = saveAutoDraftNow();
+  if (saved) {
+    const nowText = new Date().toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+    showAutoSaveIndicator('טיוטה נשמרה אוטומטית ' + nowText);
+  }
+  return saved;
+}
+
+function attachMobileSafeSaveEvents() {
+  if (window.__mobileSafeSaveAttached) return;
+  window.__mobileSafeSaveAttached = true;
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+      saveAutoDraftBeforeLeaving('visibilitychange');
+    }
+  });
+
+  window.addEventListener('pagehide', function() {
+    saveAutoDraftBeforeLeaving('pagehide');
+  });
+
+  window.addEventListener('blur', function() {
+    saveAutoDraftBeforeLeaving('blur');
+  });
+
+  window.addEventListener('popstate', function() {
+    saveAutoDraftBeforeLeaving('popstate');
+  });
+}
+
+function autoResizeField(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = Math.max(el.scrollHeight, 70) + 'px';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Set klita date to today by default
+  const klitaField = document.getElementById('f_klita_date');
+  if (klitaField && !klitaField.value) {
+    klitaField.value = new Date().toISOString().split('T')[0];
+  }
+
+  document.querySelectorAll('.field textarea').forEach(function(ta) {
+    autoResizeField(ta);
+    ta.addEventListener('input', function() { autoResizeField(ta); });
+  });
+  document.querySelectorAll('button').forEach(btn => { if (!btn.getAttribute('type')) btn.setAttribute('type', 'button'); });
+  const saveBtn = document.getElementById('btnSaveDraft') || document.querySelector('.btn-draft');
+  if (saveBtn) saveBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); window.saveDraft(); });
+
+  const draftsBtn = document.getElementById('btnShowDrafts') || document.querySelector('.btn-drafts');
+  if (draftsBtn) draftsBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); window.toggleDraftPanel(); });
+
+  const closeDraftBtn = document.getElementById('btnCloseDraftPanel');
+  if (closeDraftBtn) closeDraftBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const panel = document.getElementById('draftPanel');
+    if (panel) panel.style.display = 'none';
+  });
+
+  renderDraftList();
+  attachAutoSaveListeners();
+  attachMobileSafeSaveEvents();
+  showAutoSaveIndicator('שמירה אוטומטית פעילה ביציאה משדה');
+
+  const nameInput = document.getElementById('f_shem');
+  if (nameInput) {
+    nameInput.addEventListener('input', maybeShowInlineDraftSuggestion);
+    nameInput.addEventListener('focus', function() {
+      if (nameInput.value.trim()) maybeShowInlineDraftSuggestion();
+    });
+
+    // אם המשתמש עבר לשדה הבא בלי לבחור טיוטה - מסתירים את ההצעה.
+    // כך ההצעה לא נשארת על המסך כאשר הוא בעצם מקליד אדם אחר.
+    nameInput.addEventListener('blur', function() {
+      setTimeout(function() {
+        if (window.__loadingDraftNow) return;
+        const hint = document.getElementById('inlineDraftHint');
+        if (!hint) return;
+        const active = document.activeElement;
+        if (active && hint.contains(active)) return;
+        hideInlineDraftSuggestion();
+      }, 180);
+    });
+  }
+});
+
+
+// לפני סגירת הדף: ניסיון שמירה מיידי + אזהרת דפדפן רגילה במקרה שיש שינוי שלא הספיק להישמר.
+window.addEventListener('beforeunload', function(e) {
+  if (typeof saveAutoDraftBeforeLeaving === 'function') saveAutoDraftBeforeLeaving('beforeunload');
+  if (__formHasUserChanges) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+</script>
+<script>
+/**
+ * ═══════════════════════════════════════════════════
+ *  config.js — הגדרות ארגוניות
+ *  שנה כאן בלבד. כל הטפסים יתעדכנו אוטומטית.
+ * ═══════════════════════════════════════════════════
+ */
+
+const ORG_CONFIG = {
+
+  // ── פרטי הארגון ──────────────────────────────────
+  orgName:  "מפעל מוגן שיקומי לבריאות הנפש, באר שבע – עמותת יחדיו",
+  orgShort: "עמותת יחדיו",
+  city:     "באר שבע",
+
+  // ── מנהל (חתימה קבועה במסמכים) ──────────────────
+  director: {
+    name:  "אלכסנדר חטקביץ",
+    title: "מנהל מפעל שיקומי לבריאות הנפש"
+  },
+
+  // ── עובדת סוציאלית (חתימה קבועה במסמכים) ────────
+  socialWorker: {
+    name:  "ליבי יוסופוב",
+    title: "עובדת סוציאלית"
+  },
+
+  // ── מדריכים (רשימות נפתחות) ──────────────────────
+  guides: [
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── כל הצוות (לתיעוד שיחות וכד') ────────────────
+  allStaff: [
+    "אלכסנדר חטקביץ",
+    "ליבי יוסופוב",
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── קבצים ─────────────────────────────────────────
+  // שנה כאן את הנתיבים לפי מבנה השרת שלך
+  files: {
+    // קובץ Excel עם נתוני מקבלי השירות
+    excel: "מחלות רקע.xlsx",
+
+    // לוגו העמותה — קובץ בתיקיית images/ או URL חיצוני
+    logoOrg: "https://mnz.org.il/sites/www.mnz.org.il/files/logo-yachdav.png",
+
+    // לוגו משרד הבריאות
+    logoMinistry: "https://upload.wikimedia.org/wikipedia/he/thumb/f/fb/Israeli_Ministry_of_Health_logo.png/3840px-Israeli_Ministry_of_Health_logo.png"
+  },
+
+  // ── גדלי לוגואים במסמכים ─────────────────────────
+  logoSizes: {
+    orgHeight:      "50px",
+    ministryHeight: "40px"
+  }
+};
+
+/**
+ * פונקציות עזר — נטענות אוטומטית בכל הטפסים
+ */
+
+// מילוי שם ארגון בכל מקום עם data-org="name"
+function fillOrgNames() {
+  document.querySelectorAll('[data-org="name"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgName;
+  });
+  document.querySelectorAll('[data-org="short"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgShort;
+  });
+  document.querySelectorAll('[data-org="city"]').forEach(el => {
+    el.textContent = ORG_CONFIG.city;
+  });
+}
+
+// מילוי שם מנהל ועו"ס בכל מקום עם data-staff
+function fillStaffNames() {
+  document.querySelectorAll('[data-staff="director"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name;
+  });
+  document.querySelectorAll('[data-staff="director-full"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name + ' – ' + ORG_CONFIG.director.title;
+  });
+  document.querySelectorAll('[data-staff="social-worker"]').forEach(el => {
+    el.textContent = ORG_CONFIG.socialWorker.name;
+  });
+}
+
+// בניית רשימה נפתחת של מדריכים
+function buildGuidesSelect(selectEl, includeEmpty = true) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר/י מדריך';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.guides.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+}
+
+// בניית רשימה נפתחת של כל הצוות
+function buildAllStaffSelect(selectEl, includeEmpty = true, extraOptions = []) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר...';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.allStaff.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+  extraOptions.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.value || item;
+    opt.textContent = item.label || item;
+    selectEl.appendChild(opt);
+  });
+}
+
+// האתחול מתבצע בתחתית הקובץ
+
+// החלפת לוגואים בכל הטפסים
+function fillLogos() {
+  // לוגו עמותה
+  document.querySelectorAll('[data-logo="org"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoOrg;
+    img.style.height = ORG_CONFIG.logoSizes.orgHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+  // לוגו משרד הבריאות
+  document.querySelectorAll('[data-logo="ministry"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoMinistry;
+    img.style.height = ORG_CONFIG.logoSizes.ministryHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+}
+
+// הוסף fillLogos לאתחול
+document.addEventListener('DOMContentLoaded', function() {
+  fillOrgNames();
+  fillStaffNames();
+  fillLogos();
+});
+
+</script>
+</body></html>

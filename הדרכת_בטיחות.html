@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>הדרכה בנושא בטיחות</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1a3a5c;
+  --primary-mid: #2563a8;
+  --primary-light: #e8f1fb;
+  --gold: #c9933a;
+  --green: #2e7d52;
+  --red: #b83232;
+  --text: #1e2535;
+  --muted: #6b7280;
+  --bg: #f4f7fc;
+  --white: #ffffff;
+  --border: #b8d0ee;
+  --shadow: 0 2px 16px rgba(26,58,92,0.10);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Heebo, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 15px; line-height: 1.7; direction: rtl; }
+.top-bar { background: var(--primary); color: white; padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.25); }
+.top-bar-text { flex: 1; }
+.top-bar-title { font-size: 16px; font-weight: 700; }
+.top-bar-sub { font-size: 12px; color: #a8c4e0; margin-top: 2px; }
+.top-bar-actions { display: flex; gap: 8px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 6px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .18s; }
+.btn-email { background: var(--gold); color: white; } .btn-email:hover { background: #b07d2c; }
+.btn-print { background: white; color: var(--primary); } .btn-print:hover { background: #e2ecf7; }
+.btn-save { background: var(--green); color: white; } .btn-save:hover { background: #235f3e; }
+.btn-clear { background: transparent; color: #9bb8d4; border: 1px solid #4a6a88; font-size: 12px; padding: 6px 12px; } .btn-clear:hover { background: rgba(255,255,255,0.08); }
+.page { max-width: 820px; margin: 28px auto; background: var(--white); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+.load-panel { padding: 20px 32px; border-bottom: 1px solid var(--border); background: var(--primary-light); }
+.manual-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 10px; }
+.manual-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.manual-grid label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 4px; display: block; }
+.manual-grid input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 14px; }
+.doc-body { padding: 28px 32px; min-height: 1100px; display: flex; flex-direction: column; }
+.doc-header { padding: 24px 32px 16px; border-bottom: 2px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 16px; background: #ffffff; }
+.doc-header-logos { display: flex; align-items: center; gap: 22px; }
+.doc-header-logos img { height: 50px; width: auto; max-width: 170px; object-fit: contain; background: transparent; filter: none; mix-blend-mode: normal; }
+.doc-title { text-align: center; flex: 1; }
+.doc-title h1 { font-size: 22px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+.doc-title p { font-size: 13px; color: var(--muted); }
+.doc-intro { font-size: 14.5px; color: var(--text); margin-bottom: 18px; line-height: 1.7; }
+.section-title { margin-top: 16px; margin-bottom: 10px; color: var(--primary); font-weight: 800; font-size: 18px; border-right: 4px solid var(--primary-mid); padding-right: 12px; }
+.rules-list { list-style: none; padding: 0; margin: 0 0 18px 0; }
+.rules-list li { padding: 8px 0 8px 0; border-bottom: 1px solid #eef3f9; font-size: 14px; line-height: 1.75; color: var(--text); position: relative; padding-right: 22px; }
+.rules-list li:last-child { border-bottom: none; }
+.rules-list li::before { content: "–"; position: absolute; right: 4px; color: var(--primary-mid); font-weight: 700; }
+.rules-list li strong { color: var(--primary); } .highlight-red { color: var(--red); font-weight: 700; } .highlight-gold { color: var(--gold); font-weight: 700; }
+.hours-box { background: var(--primary-light); border-right: 4px solid var(--primary-mid); border-radius: 8px; padding: 10px 16px; margin: 8px 0 14px 0; font-size: 14px; font-weight: 600; color: var(--primary); }
+.notice-box { background: #fff7ed; border-right: 4px solid var(--gold); border-radius: 8px; padding: 10px 16px; margin: 8px 0 14px 0; font-size: 14px; color: var(--text); }
+.sig-section-title { margin-top: 28px; margin-bottom: 18px; text-align: center; color: var(--primary); font-weight: 800; font-size: 20px; line-height: 1.2; border-top: 2px solid var(--primary); padding-top: 16px; }
+.confirm-text { font-size: 14px; margin-bottom: 20px; color: var(--text); line-height: 1.7; }
+.sig-table { width: 100%; border-collapse: collapse; margin-top: 8px; table-layout: fixed; }
+.sig-table th { background: var(--primary); color: white; padding: 10px 12px; font-size: 13px; font-weight: 700; text-align: center; border: 1px solid #3a5f85; }
+.sig-table td { border: 1px solid var(--border); padding: 6px 10px; text-align: center; font-size: 13px; vertical-align: top; }
+.sig-table td:first-child { font-weight: 600; color: var(--primary); background: var(--primary-light); }
+.sig-cell { height: 70px; position: relative; cursor: pointer; }
+.sig-cell canvas { width: 100%; height: 70px; touch-action: none; display: block; pointer-events: none; }
+.sig-placeholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 4px 6px; font-size: 11px; font-weight: 600; color: #9aa7bb; pointer-events: none; }
+.sig-cell.has-sig .sig-placeholder { display: none; }
+.sig-cell-btn { position: absolute; bottom: 3px; left: 3px; padding: 2px 7px; font-size: 10px; font-family: inherit; font-weight: 600; cursor: pointer; border: none; border-radius: 4px; background: #fee2e2; color: var(--red); }
+
+/* SIGNATURE MODAL — единый паттерн для всех форм, как в חוזה_אישי */
+.sig-modal-overlay { position: fixed; inset: 0; background: rgba(15, 30, 58, .6); display: none; align-items: center; justify-content: center; z-index: 9999; padding: 16px; }
+.sig-modal-overlay.open { display: flex; }
+.sig-modal-box { background: #fff; border-radius: 18px; padding: 18px; width: min(94vw, 640px); box-shadow: 0 20px 60px rgba(15, 30, 58, .35); }
+.sig-modal-title { font-size: 15px; font-weight: 800; color: var(--primary); text-align: center; margin-bottom: 10px; }
+.sig-modal-canvas-wrap { border: 2px dashed var(--primary); border-radius: 12px; overflow: hidden; height: min(50vh, 320px); touch-action: none; background: #fbfcfe; }
+#sigModalCanvas { width: 100%; height: 100%; display: block; cursor: crosshair; touch-action: none; }
+.sig-modal-actions { display: flex; gap: 10px; margin-top: 14px; }
+.sig-modal-btn { flex: 1; padding: 13px 10px; font-size: 14px; font-weight: 700; border-radius: 10px; border: none; font-family: inherit; cursor: pointer; min-height: 46px; }
+.sig-modal-btn-ghost { background: var(--primary-light); color: var(--primary); }
+.sig-modal-btn-primary { background: var(--primary); color: #fff; }
+
+.staff-name { font-weight: 700; color: var(--primary); font-size: 13px; padding: 6px 0; }
+.status-bar-top { display: none; position: sticky; top: 60px; z-index: 200; padding: 10px 24px; font-size: 14px; font-weight: 700; text-align: center; }
+.status-bar-top.success { background: #ecfdf5; color: var(--green); display: block; border-bottom: 2px solid var(--green); } .status-bar-top.error { background: #fef2f2; color: var(--red); display: block; border-bottom: 2px solid var(--red); }
+@media (max-width: 600px) { body { font-size: 14px; } .top-bar { position: static; flex-direction: column; padding: 8px 10px; gap: 8px; } .top-bar-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; } .btn { width: 100%; justify-content: center; padding: 8px 6px; font-size: 12px; } .page { width: 100%; margin: 0; border-radius: 0; box-shadow: none; } .load-panel { padding: 14px 12px; } .manual-grid { grid-template-columns: 1fr; } .doc-header { flex-direction: column; text-align: center; padding: 14px 12px 10px; } .doc-header-logos { gap: 10px; } .doc-header-logos img { height: 34px; max-width: 92px; } .doc-title h1 { font-size: 18px; } .doc-body { padding: 12px; } .sig-table { font-size: 11px; } }
+@page { size: A4 portrait; margin: 6mm; }
+@media print { html, body { width: auto; height: auto; min-height: 0; margin: 0; padding: 0; background: #ffffff; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; } .top-bar, .load-panel, .top-bar-actions, .status-bar-top, .sig-cell-btn, .sig-placeholder, .sig-modal-overlay { display: none !important; } .page { width: 198mm; max-width: 198mm; margin: 0 auto; padding: 0; border-radius: 0; box-shadow: none; overflow: visible; } .doc-body { padding: 0; margin: 0; min-height: 285mm; display: flex; flex-direction: column; } .doc-header { padding: 0 0 2mm; margin: 0 0 2mm; border-bottom: 1px solid var(--border); display: flex; flex-direction: row; align-items: center; justify-content: space-between; } .doc-header-logos img { height: 12.5mm; max-width: 39mm; } .doc-title h1 { font-size: 15.5pt; line-height: 1.12; } .doc-title p { font-size: 8pt; } .doc-intro { font-size: 9.5pt; margin-bottom: 2mm; } .section-title { font-size: 11.5pt; margin-top: 2mm; margin-bottom: 1mm; padding-right: 2mm; border-right: 1mm solid var(--primary-mid); } .rules-list { margin-bottom: 2mm; } .rules-list li { font-size: 8.6pt; padding: 2px 16px 2px 0; line-height: 1.35; } .hours-box, .notice-box { font-size: 8.7pt; padding: 1.5mm 2.5mm; margin: 1mm 0 1mm; } .confirm-text { font-size: 9pt; margin-bottom: 2mm; line-height: 1.35; } .sig-section-title { font-size: 13pt; margin-top: 2mm; margin-bottom: 2mm; padding-top: 2mm; border-top: 0.45mm solid var(--primary); } .sig-table th { font-size: 8.5pt; padding: 1.5mm 2mm; } .sig-table td { font-size: 8.5pt; padding: 1mm 2mm; } .sig-cell { height: 18mm; } .sig-cell canvas { height: 18mm; } }
+
+
+/* Header logo layout: logo on each side, title centered */
+.doc-header {
+  display: grid !important;
+  grid-template-columns: 170px minmax(0, 1fr) 170px !important;
+  grid-template-areas: "left title right" !important;
+  align-items: center !important;
+  gap: 16px !important;
+  direction: ltr !important;
+}
+.doc-header-logo { display: flex !important; align-items: center !important; min-width: 0 !important; }
+.doc-header-logo-right { grid-area: right !important; justify-content: flex-end !important; }
+.doc-header-logo-left { grid-area: left !important; justify-content: flex-start !important; }
+.doc-header-logo img {
+  height: 50px !important;
+  width: auto !important;
+  max-width: 170px !important;
+  object-fit: contain !important;
+  background: transparent !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+.doc-title { grid-area: title !important; text-align: center !important; direction: rtl !important; min-width: 0 !important; }
+
+@media (max-width: 600px) {
+  .doc-header {
+    grid-template-columns: 76px minmax(0, 1fr) 76px !important;
+    grid-template-areas: "left title right" !important;
+    gap: 8px !important;
+    padding: 14px 12px 10px !important;
+  }
+  .doc-header-logo img { height: 34px !important; max-width: 76px !important; }
+  .doc-title h1 { font-size: 17px !important; line-height: 1.2 !important; }
+  .doc-title p { font-size: 11px !important; line-height: 1.25 !important; }
+}
+
+@media print {
+  .doc-header {
+    display: grid !important;
+    grid-template-columns: 39mm minmax(0, 1fr) 39mm !important;
+    grid-template-areas: "left title right" !important;
+    align-items: center !important;
+    justify-content: initial !important;
+    gap: 6mm !important;
+  }
+  .doc-header-logo img { height: 12.5mm !important; max-width: 39mm !important; }
+}
+
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="top-bar-text"><div class="top-bar-title">הדרכה בנושא בטיחות</div><div class="top-bar-sub" data-org="name">מפעל מוגן שיקומי לבריאות הנפש – עמותת יחדיו</div></div>
+  <div class="top-bar-actions">
+    <button class="btn btn-clear" onclick="clearAll()">✕ נקה</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
+    <button class="btn btn-email" onclick="emailDoc()">✉ שלח במייל</button>
+    <button class="btn btn-save" onclick="savePDF()">📄 שמור PDF</button>
+  </div>
+</div>
+<div id="statusBar" class="status-bar-top"></div>
+<div class="page">
+  <div class="load-panel"><div class="manual-title">פרטי מקבל השירות</div><div class="manual-grid">
+    <div><label for="manualName">שם פרטי ומשפחה</label><input id="manualName" type="text" autocomplete="off" placeholder="שם מלא" oninput="applyManualLive()"></div>
+    <div><label for="manualTZ">תעודת זהות</label><input id="manualTZ" type="text" inputmode="numeric" placeholder="מספר ת.ז." oninput="applyManualLive()"></div>
+    <div><label for="manualDate">תאריך</label><input id="manualDate" type="date" onchange="applyManualLive()"></div>
+  </div></div>
+  <div class="doc-body">
+    <div class="doc-header">
+      <div class="doc-header-logo doc-header-logo-right"><img class="logo-health" data-logo="ministry" src="" style="height:40px;width:auto;object-fit:contain;"></div>
+      <div class="doc-title"><h1>הדרכה בנושא בטיחות</h1><p>טופס הדרכת עובד / מקבל שירות חדש</p></div>
+      <div class="doc-header-logo doc-header-logo-left"><img class="logo-yachdav" data-logo="org" src="" style="height:50px;width:auto;object-fit:contain;"></div>
+    </div>
+    <div class="doc-intro">מטרת ההדרכה היא להציג לעובד / מקבל שירות חדש את הסיכונים הבטיחותיים והגהותיים הקיימים בעבודתו, ולאפשר לו לעבוד בבטיחות מרבית במפעל מוגן.</div>
+    <div class="section-title">1. כללי</div><ul class="rules-list">
+      <li>הנוהל חל על כל העובדים / המשתקמים החדשים המתקבלים למפעל מוגן.</li>
+      <li>האחריות לביצוע ההדרכה חלה על מנהל המפעל או על מדריך הקולט עובד / מקבל שירות חדש.</li>
+    </ul>
+    <div class="section-title">2. הדרכת עובד / מקבל שירות חדש</div><ul class="rules-list">
+      <li>העובד / המשתקם החדש יודרך על ידי מנהל המפעל / מדריך לגבי כל הסיכונים הבטיחותיים והגהותיים הקיימים בעבודתו החדשה.</li>
+      <li>המנהל / המדריך יסביר לעובד / למשתקם גם את נוהלי המפעל / המרכז.</li>
+      <li>המדריך יוודא שהעובד / המשתקם אכן הבין את החומר הנלמד באמצעות שאלות מתאימות.</li>
+      <li>בהמשך להדרכה יעבוד העובד / המשתקם החדש לצד עובד / מקבל שירות מנוסה ובחפיפה, עד שהמנהל / המדריך יהיה משוכנע שהוא כשיר לעבודה באופן עצמאי.</li>
+      <li>המדריך ינחה את העובד / המשתקם לגבי ציוד מגן אישי בהתאם לסוג העבודה: כפפות, משקפי מגן, נעלי עבודה, אטמי אוזניים וכדומה.</li>
+    </ul>
+    <div class="section-title">3. חובות העובד / המשתקם החדש</div><ul class="rules-list">
+      <li>עובד / מקבל שירות חדש לא ייטול על עצמו ביצוע עצמאי של עבודות שסיכוניהן אינם ברורים לו.</li>
+      <li>העובד / המשתקם ישאל את המנהל / המדריך לגבי כל פרט שאינו ידוע לו, על מנת למנוע משגים בטיחותיים.</li>
+      <li>העובד / המשתקם החדש יציית לנוהל הבטיחות של המרכז / יחידת המשנה.</li>
+    </ul>
+    <div class="section-title">4. הוראות בטיחות אש, חשמל ובטיחות כללית</div><div class="hours-box">יש להודיע למורה / למדריך בסדנה בכל אחד מהמקרים הבאים:</div><ul class="rules-list">
+      <li>כאשר רואים סימני עשן או אש.</li><li>כאשר שומעים או רואים הבזקי ניצוצות או רעש חוזר מאחד המכשירים.</li><li>כאשר מריחים ריחות של שריפה של חלק חשמלי.</li><li>כאשר יש שינוי בצבע של מכסה שקע או תקע, או כאשר שקע יצא ממקומו בקיר.</li><li>כאשר יש פגם בחוט חשמל, בכבל חשמל או בחוטי תקשורת.</li><li>כאשר יש כבלי תקשורת על הרצפה או כבלים חשמליים מתוחים ויש סכנה לפציעה.</li><li>כאשר יש פגם בציוד כגון שולחנות, כיסאות או כל פריט ציוד אחר, נייד או נייח, המהווה סכנת פציעה.</li>
+    </ul>
+    <div class="section-title"><span class="highlight-red">אסור</span></div><ul class="rules-list"><li>לבצע עבודות שסיכוניהן אינם ברורים.</li><li>להשתמש בפריטים, מכשירים או כלי עבודה חדשים ללא אישור מדריך / מנהל.</li></ul>
+    <div class="notice-box"><strong>חל איסור מוחלט על עישון בבנייני מרכז / מפעל שיקום.</strong></div>
+    <div class="sig-section-title">הצהרת עובד / מקבל שירות חדש</div>
+    <div class="confirm-text">אני מצהיר/ה כי קיבלתי מהמנהל / המדריך הסבר ותדרוך לגבי אופי העבודה, סוג החומרים איתם אעבוד, הסיכונים והאמצעים בהם צריך לנקוט. אני מתחייב/ת לשמור על כללי הבטיחות המקובלים במרכז / במפעל / ביחידת המשנה.</div>
+    <table class="sig-table"><thead><tr><th>פרט</th><th>שם פרטי ומשפחה</th><th>תאריך</th><th>חתימה</th></tr></thead><tbody>
+      <tr><td>עובד / מקבל שירות</td><td id="fName"></td><td><input id="fDate0" type="date" style="width:100%;border:0;text-align:center;font-family:inherit;font-weight:600;color:#1a3a5c;" onchange="syncDatesFromSignature()"></td><td class="sig-cell" onclick="openSigModal(0)"><canvas id="sigCanvas0"></canvas><div class="sig-placeholder">הקש כדי לחתום</div><button class="sig-cell-btn" onclick="event.stopPropagation(); clearSig(0)">נקה</button></td></tr>
+      <tr><td>המתדרך</td><td><div class="staff-name" data-staff="director-full">אלכסנדר חטקביץ – מנהל מפעל שיקומי לבריאות הנפש</div></td><td><input id="fDate1" type="date" style="width:100%;border:0;text-align:center;font-family:inherit;font-weight:600;color:#1a3a5c;" onchange="syncDatesFromSignature()"></td><td class="sig-cell" onclick="openSigModal(1)"><canvas id="sigCanvas1"></canvas><div class="sig-placeholder">הקש כדי לחתום</div><button class="sig-cell-btn" onclick="event.stopPropagation(); clearSig(1)">נקה</button></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+<div class="sig-modal-overlay" id="sigModalOverlay">
+  <div class="sig-modal-box">
+    <div class="sig-modal-title" id="sigModalTitle">חתימה</div>
+    <div class="sig-modal-canvas-wrap">
+      <canvas id="sigModalCanvas"></canvas>
+    </div>
+    <div class="sig-modal-actions">
+      <button type="button" class="sig-modal-btn sig-modal-btn-ghost" onclick="clearModalCanvas()">נקה</button>
+      <button type="button" class="sig-modal-btn sig-modal-btn-ghost" onclick="closeSigModal(false)">ביטול</button>
+      <button type="button" class="sig-modal-btn sig-modal-btn-primary" onclick="closeSigModal(true)">אישור וסגירה</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SIGNATURES v2 — модальное окно (единый паттерн, как в חוזה_אישי) ──
+// Раньше рисовали прямо в маленьком инлайн-канвасе — на WACOM без экрана
+// перо промахивается по маленькой цели, а pointerleave обрывал штрих при
+// выходе за границы. Теперь клик по всей ячейке открывает модальное окно
+// с большим canvas (без pointerleave, с setPointerCapture), готовый рисунок
+// вписывается (только уменьшение, автоцентровка) в маленький canvas-превью.
+const SIG_COUNT = 2;
+const SIG_LABELS = {
+  0: 'חתימה — עובד / מקבל שירות',
+  1: 'חתימה — המדריך'
+};
+
+const sigState = Array.from({length: SIG_COUNT}, () => ({ imageData: null, prefilled: false }));
+const SIG_PADDING_RATIO = 0.08;
+
+function formatDateInput(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function getRawPoint(canvas, clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  return {
+    x: (clientX - rect.left) * (canvas.width / rect.width),
+    y: (clientY - rect.top) * (canvas.height / rect.height)
+  };
+}
+
+function drawContain(canvas, img) {
+  const ctx = canvas.getContext('2d');
+  const pad = Math.min(canvas.width, canvas.height) * SIG_PADDING_RATIO;
+  const availW = Math.max(canvas.width - 2 * pad, 1);
+  const availH = Math.max(canvas.height - 2 * pad, 1);
+  const scale = Math.min(availW / img.width, availH / img.height);
+  const w = img.width * scale, h = img.height * scale;
+  const x = (canvas.width - w) / 2, y = (canvas.height - h) / 2;
+  ctx.drawImage(img, x, y, w, h);
+}
+
+function renderPreview(i) {
+  const canvas = document.getElementById('sigCanvas' + i);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const cell = canvas.closest('.sig-cell');
+  if (sigState[i].imageData) {
+    if (cell) cell.classList.add('has-sig');
+    const img = new Image();
+    img.onload = () => drawContain(canvas, img);
+    img.src = sigState[i].imageData;
+  } else if (cell) {
+    cell.classList.remove('has-sig');
+  }
+}
+
+function clearSig(i) {
+  sigState[i].imageData = null;
+  sigState[i].prefilled = false;
+  renderPreview(i);
+  const canvas = document.getElementById('sigCanvas' + i);
+  if (canvas) canvas.removeAttribute('data-saved-signature');
+}
+
+function resizeCanvases() {
+  for (let i = 0; i < SIG_COUNT; i++) {
+    const canvas = document.getElementById('sigCanvas' + i);
+    if (!canvas) continue;
+    const w = canvas.offsetWidth || 240;
+    const h = canvas.offsetHeight || 70;
+    canvas.width = w; canvas.height = h;
+    renderPreview(i);
+  }
+}
+
+// ── Модальное окно подписи (большой canvas) ──
+let modalStrokes = [];
+let modalDrawing = false;
+let modalActivePtr = null;
+let modalCurrentStroke = null;
+let modalOpenIndex = null;
+let modalHasContent = false;
+
+function renderModalStrokes() {
+  const canvas = document.getElementById('sigModalCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (!modalStrokes.length) return;
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  modalStrokes.forEach(stroke => stroke.forEach(p => {
+    if (p.x < minX) minX = p.x;
+    if (p.y < minY) minY = p.y;
+    if (p.x > maxX) maxX = p.x;
+    if (p.y > maxY) maxY = p.y;
+  }));
+
+  const padX = canvas.width * SIG_PADDING_RATIO;
+  const padY = canvas.height * SIG_PADDING_RATIO;
+  const availW = canvas.width - 2 * padX;
+  const availH = canvas.height - 2 * padY;
+  const sigW = Math.max(maxX - minX, 1);
+  const sigH = Math.max(maxY - minY, 1);
+
+  const scale = Math.min(1, availW / sigW, availH / sigH);
+  const drawnW = sigW * scale, drawnH = sigH * scale;
+  const offsetX = (canvas.width - drawnW) / 2 - minX * scale;
+  const offsetY = (canvas.height - drawnH) / 2 - minY * scale;
+
+  ctx.strokeStyle = '#1a3a5c';
+  ctx.lineWidth = Math.max(2, canvas.height * 0.02);
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  modalStrokes.forEach(stroke => {
+    if (stroke.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(stroke[0].x * scale + offsetX, stroke[0].y * scale + offsetY);
+    for (let k = 1; k < stroke.length; k++) {
+      ctx.lineTo(stroke[k].x * scale + offsetX, stroke[k].y * scale + offsetY);
+    }
+    ctx.stroke();
+  });
+}
+
+function setupModalCanvas() {
+  const canvas = document.getElementById('sigModalCanvas');
+
+  function pointFrom(e) {
+    if (e.touches && e.touches.length) return getRawPoint(canvas, e.touches[0].clientX, e.touches[0].clientY);
+    return getRawPoint(canvas, e.clientX, e.clientY);
+  }
+  function onDown(e) {
+    if (e.cancelable) e.preventDefault();
+    if (modalActivePtr !== null && e.pointerId !== undefined && e.pointerId !== modalActivePtr) return;
+    modalDrawing = true;
+    modalHasContent = true;
+    modalActivePtr = e.pointerId !== undefined ? e.pointerId : 'legacy';
+    if (e.pointerId !== undefined && canvas.setPointerCapture) { try { canvas.setPointerCapture(e.pointerId); } catch(_) {} }
+    modalCurrentStroke = [pointFrom(e)];
+    modalStrokes.push(modalCurrentStroke);
+  }
+  function onMove(e) {
+    if (!modalDrawing || !modalCurrentStroke) return;
+    if (e.pointerId !== undefined && modalActivePtr !== e.pointerId) return;
+    if (e.cancelable) e.preventDefault();
+    modalCurrentStroke.push(pointFrom(e));
+    renderModalStrokes();
+  }
+  function onUp(e) {
+    if (e && e.pointerId !== undefined && modalActivePtr !== e.pointerId) return;
+    modalDrawing = false; modalActivePtr = null; modalCurrentStroke = null;
+    if (e && e.pointerId !== undefined && canvas.releasePointerCapture) { try { canvas.releasePointerCapture(e.pointerId); } catch(_) {} }
+    renderModalStrokes();
+  }
+
+  // НЕТ обработчика pointerleave/mouseleave — перо может уйти за пределы холста,
+  // штрих не обрывается (setPointerCapture продолжает доставлять события).
+  canvas.addEventListener('pointerdown', onDown);
+  canvas.addEventListener('pointermove', onMove);
+  canvas.addEventListener('pointerup', onUp);
+  canvas.addEventListener('pointercancel', onUp);
+  window.addEventListener('pointerup', onUp);
+
+  if (!window.PointerEvent) {
+    canvas.addEventListener('mousedown', onDown);
+    canvas.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    canvas.addEventListener('touchstart', onDown, {passive:false});
+    canvas.addEventListener('touchmove', onMove, {passive:false});
+    canvas.addEventListener('touchend', onUp);
+  }
+}
+
+function sizeModalCanvas() {
+  const canvas = document.getElementById('sigModalCanvas');
+  const w = canvas.offsetWidth || 300;
+  const h = canvas.offsetHeight || 200;
+  canvas.width = w; canvas.height = h;
+}
+
+function openSigModal(i) {
+  modalOpenIndex = i;
+  modalStrokes = [];
+  modalDrawing = false; modalActivePtr = null; modalCurrentStroke = null;
+  modalHasContent = false;
+
+  document.getElementById('sigModalTitle').textContent = SIG_LABELS[i] || 'חתימה';
+  document.getElementById('sigModalOverlay').classList.add('open');
+
+  requestAnimationFrame(() => {
+    sizeModalCanvas();
+    const canvas = document.getElementById('sigModalCanvas');
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    if (sigState[i].imageData) {
+      const img = new Image();
+      img.onload = () => { drawContain(canvas, img); modalHasContent = true; };
+      img.src = sigState[i].imageData;
+    }
+  });
+}
+
+function clearModalCanvas() {
+  modalStrokes = [];
+  modalCurrentStroke = null;
+  modalHasContent = false;
+  const canvas = document.getElementById('sigModalCanvas');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function closeSigModal(save) {
+  const i = modalOpenIndex;
+  if (save && i !== null) {
+    const canvas = document.getElementById('sigModalCanvas');
+    sigState[i].imageData = modalHasContent ? canvas.toDataURL('image/png') : null;
+    sigState[i].prefilled = false;
+    renderPreview(i);
+  }
+  document.getElementById('sigModalOverlay').classList.remove('open');
+  modalOpenIndex = null;
+}
+
+function syncDatesFromManual() {
+  const date = document.getElementById('manualDate').value || formatDateInput();
+  const d0 = document.getElementById('fDate0');
+  const d1 = document.getElementById('fDate1');
+  if (d0 && !d0.value) d0.value = date;
+  if (d1 && !d1.value) d1.value = date;
+}
+
+function syncDatesFromSignature() {
+  const d0 = document.getElementById('fDate0');
+  const date = d0 && d0.value ? d0.value : (document.getElementById('manualDate').value || formatDateInput());
+  document.getElementById('manualDate').value = date;
+  const d1 = document.getElementById('fDate1');
+  if (d1 && !d1.value) d1.value = date;
+}
+
+function applyManualLive() {
+  const name = document.getElementById('manualName').value.trim();
+  const fName = document.getElementById('fName');
+  if (fName) fName.textContent = name;
+  const date = document.getElementById('manualDate').value || formatDateInput();
+  const d0 = document.getElementById('fDate0');
+  const d1 = document.getElementById('fDate1');
+  if (d0) d0.value = date;
+  if (d1 && !d1.value) d1.value = date;
+}
+
+function clearAll() {
+  ['manualName','manualTZ'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  const d = formatDateInput();
+  document.getElementById('manualDate').value = d;
+  const f0 = document.getElementById('fDate0');
+  const f1 = document.getElementById('fDate1');
+  if (f0) f0.value = d;
+  if (f1) f1.value = d;
+  const fName = document.getElementById('fName');
+  if (fName) fName.textContent = '';
+  for (let i = 0; i < SIG_COUNT; i++) clearSig(i);
+  const st = document.getElementById('statusBar');
+  st.className = 'status-bar-top';
+  st.textContent = '';
+}
+
+function showStatus(msg, type) {
+  const el = document.getElementById('statusBar');
+  el.textContent = msg;
+  el.className = 'status-bar-top ' + type;
+  el.scrollIntoView({behavior:'smooth', block:'nearest'});
+  setTimeout(() => { el.className = 'status-bar-top'; el.textContent = ''; }, 6000);
+}
+
+function safeFileName(v) {
+  return ((v || 'ללא_שם').toString().trim().replace(/[\\/:*?"<>|]/g,'-').replace(/\s+/g,'_')).slice(0,80);
+}
+
+function buildFilledCurrentHTML() {
+  applyManualLive();
+  const clone = document.documentElement.cloneNode(true);
+
+  document.querySelectorAll('input, textarea, select').forEach(el => {
+    if (!el.id) return;
+    const c = clone.querySelector('#' + CSS.escape(el.id));
+    if (!c) return;
+
+    if (el.tagName === 'TEXTAREA') {
+      c.textContent = el.value || '';
+    } else if (el.tagName === 'SELECT') {
+      Array.from(c.options).forEach(opt => opt.removeAttribute('selected'));
+      if (c.options[el.selectedIndex]) c.options[el.selectedIndex].setAttribute('selected', 'selected');
+    } else {
+      c.setAttribute('value', el.value || '');
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        if (el.checked) c.setAttribute('checked', 'checked');
+        else c.removeAttribute('checked');
+      }
+    }
+  });
+
+  for (let i = 0; i < SIG_COUNT; i++) {
+    const clonedCanvas = clone.querySelector('#sigCanvas' + i);
+    if (!clonedCanvas) continue;
+    if (sigState[i].imageData) {
+      clonedCanvas.setAttribute('data-saved-signature', sigState[i].imageData);
+    } else {
+      clonedCanvas.removeAttribute('data-saved-signature');
+    }
+  }
+
+  return '<!DOCTYPE html>\n' + clone.outerHTML;
+}
+
+function restoreSavedSignatures() {
+  for (let i = 0; i < SIG_COUNT; i++) {
+    const canvas = document.getElementById('sigCanvas' + i);
+    if (!canvas) continue;
+    const data = canvas.getAttribute('data-saved-signature');
+    if (!data) continue;
+    sigState[i].imageData = data;
+    renderPreview(i);
+  }
+}
+
+function savePDF() {
+  const name = document.getElementById('manualName').value.trim();
+  if (!name) { showStatus('יש להזין שם מקבל שירות', 'error'); return; }
+  applyManualLive();
+  const prevTitle = document.title;
+  document.title = safeFileName(name) + '_הדרכת_בטיחות_' + formatDateInput().slice(0,7);
+  window.print();
+  setTimeout(() => { document.title = prevTitle; }, 1000);
+}
+
+async function emailDoc() {
+  const name = document.getElementById('manualName').value.trim();
+  if (!name) { showStatus('יש להזין שם מקבל שירות', 'error'); return; }
+
+  const html = buildFilledCurrentHTML();
+  const filename = safeFileName(name) + '_הדרכת_בטיחות_' + formatDateInput().slice(0,7) + '.html';
+  const file = new File([html], filename, { type: 'text/html' });
+
+  if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+    try {
+      await navigator.share({
+        title: 'הדרכת בטיחות – ' + name,
+        text: 'מצורף טופס הדרכת בטיחות.',
+        files: [file]
+      });
+      showStatus('נפתח שיתוף עם קובץ מצורף', 'success');
+      return;
+    } catch (err) {
+      if (err.name === 'AbortError') return;
+    }
+  }
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' }));
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  const subject = encodeURIComponent('הדרכת בטיחות – ' + name);
+  const body = encodeURIComponent('הקובץ ירד למכשיר. יש לצרף אותו למייל ידנית אם תוכנת הדואר אינה תומכת בצירוף אוטומטי מתוך הדפדפן.');
+  window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
+  showStatus('הקובץ הורד. בדפדפן זה אין אפשרות בטוחה לצרף אוטומטית למייל.', 'error');
+}
+
+
+function getIncomingPersonData() {
+  const keys = [
+    () => sessionStorage.getItem('personData'),
+    () => localStorage.getItem('personData'),
+    () => localStorage.getItem('currentPerson'),
+    () => localStorage.getItem('rehab_current_person_v1')
+  ];
+  for (const get of keys) {
+    try {
+      const raw = get();
+      if (!raw) continue;
+      const d = JSON.parse(raw);
+      if (d && typeof d === 'object') return d;
+    } catch(e) {}
+  }
+  return null;
+}
+function pickIncomingName(d) {
+  return (d && (d.shem || d.name || d.fullName || d['שם'] || d['שם מלא'] || d['שם מקבל השרות'] || d['שם מקבל השירות'])) || '';
+}
+function pickIncomingTZ(d) {
+  return (d && (d.tz || d.id || d.teudatZehut || d['תעודת זהות'] || d['ת.ז'] || d['מספר זהות'])) || '';
+}
+
+window.addEventListener('load', () => {
+  const today = formatDateInput();
+  const manualDate = document.getElementById('manualDate');
+  const d0 = document.getElementById('fDate0');
+  const d1 = document.getElementById('fDate1');
+  if (manualDate && !manualDate.value) manualDate.value = today;
+  if (d0 && !d0.value) d0.value = manualDate.value || today;
+  if (d1 && !d1.value) d1.value = manualDate.value || today;
+  // Auto-fill from main intake form
+  try {
+    const d = getIncomingPersonData();
+    if (d) {
+      const incomingName = pickIncomingName(d);
+      const incomingTZ = pickIncomingTZ(d);
+      const nm = document.getElementById('manualName');
+      const tz = document.getElementById('manualTZ');
+      if (nm && !nm.value && incomingName) nm.value = incomingName;
+      if (tz && !tz.value && incomingTZ) tz.value = incomingTZ;
+    }
+  } catch(e) {}
+  setupModalCanvas();
+  resizeCanvases();
+  restoreSavedSignatures();
+  applyManualLive();
+});
+window.addEventListener('resize', resizeCanvases);
+
+  window.addEventListener('beforeunload', (e) => { e.preventDefault(); e.returnValue = ''; });
+</script>
+<script>
+/**
+ * ═══════════════════════════════════════════════════
+ *  config.js — הגדרות ארגוניות
+ *  שנה כאן בלבד. כל הטפסים יתעדכנו אוטומטית.
+ * ═══════════════════════════════════════════════════
+ */
+
+const ORG_CONFIG = {
+
+  // ── פרטי הארגון ──────────────────────────────────
+  orgName:  "מפעל מוגן שיקומי לבריאות הנפש, באר שבע – עמותת יחדיו",
+  orgShort: "עמותת יחדיו",
+  city:     "באר שבע",
+
+  // ── מנהל (חתימה קבועה במסמכים) ──────────────────
+  director: {
+    name:  "אלכסנדר חטקביץ",
+    title: "מנהל מפעל שיקומי לבריאות הנפש"
+  },
+
+  // ── עובדת סוציאלית (חתימה קבועה במסמכים) ────────
+  socialWorker: {
+    name:  "ליבי יוסופוב",
+    title: "עובדת סוציאלית"
+  },
+
+  // ── מדריכים (רשימות נפתחות) ──────────────────────
+  guides: [
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── כל הצוות (לתיעוד שיחות וכד') ────────────────
+  allStaff: [
+    "אלכסנדר חטקביץ",
+    "ליבי יוסופוב",
+    "אריסטרך קפוסטה",
+    "שלום מימון",
+    "אנדרי אברמוביץ",
+    "רוזט פירוזה"
+  ],
+
+  // ── קבצים ─────────────────────────────────────────
+  // שנה כאן את הנתיבים לפי מבנה השרת שלך
+  files: {
+    // קובץ Excel עם נתוני מקבלי השירות
+    excel: "מחלות רקע.xlsx",
+
+    // לוגו העמותה — קובץ בתיקיית images/ או URL חיצוני
+    logoOrg: "https://mnz.org.il/sites/www.mnz.org.il/files/logo-yachdav.png",
+
+    // לוגו משרד הבריאות
+    logoMinistry: "https://upload.wikimedia.org/wikipedia/he/thumb/f/fb/Israeli_Ministry_of_Health_logo.png/3840px-Israeli_Ministry_of_Health_logo.png"
+  },
+
+  // ── גדלי לוגואים במסמכים ─────────────────────────
+  logoSizes: {
+    orgHeight:      "50px",
+    ministryHeight: "40px"
+  }
+};
+
+/**
+ * פונקציות עזר — נטענות אוטומטית בכל הטפסים
+ */
+
+// מילוי שם ארגון בכל מקום עם data-org="name"
+function fillOrgNames() {
+  document.querySelectorAll('[data-org="name"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgName;
+  });
+  document.querySelectorAll('[data-org="short"]').forEach(el => {
+    el.textContent = ORG_CONFIG.orgShort;
+  });
+  document.querySelectorAll('[data-org="city"]').forEach(el => {
+    el.textContent = ORG_CONFIG.city;
+  });
+}
+
+// מילוי שם מנהל ועו"ס בכל מקום עם data-staff
+function fillStaffNames() {
+  document.querySelectorAll('[data-staff="director"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name;
+  });
+  document.querySelectorAll('[data-staff="director-full"]').forEach(el => {
+    el.textContent = ORG_CONFIG.director.name + ' – ' + ORG_CONFIG.director.title;
+  });
+  document.querySelectorAll('[data-staff="social-worker"]').forEach(el => {
+    el.textContent = ORG_CONFIG.socialWorker.name;
+  });
+}
+
+// בניית רשימה נפתחת של מדריכים
+function buildGuidesSelect(selectEl, includeEmpty = true) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר/י מדריך';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.guides.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+}
+
+// בניית רשימה נפתחת של כל הצוות
+function buildAllStaffSelect(selectEl, includeEmpty = true, extraOptions = []) {
+  if (!selectEl) return;
+  selectEl.innerHTML = '';
+  if (includeEmpty) {
+    const empty = document.createElement('option');
+    empty.value = '';
+    empty.textContent = 'בחר...';
+    selectEl.appendChild(empty);
+  }
+  ORG_CONFIG.allStaff.forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name;
+    opt.textContent = name;
+    selectEl.appendChild(opt);
+  });
+  extraOptions.forEach(item => {
+    const opt = document.createElement('option');
+    opt.value = item.value || item;
+    opt.textContent = item.label || item;
+    selectEl.appendChild(opt);
+  });
+}
+
+// האתחול מתבצע בתחתית הקובץ
+
+// החלפת לוגואים בכל הטפסים
+function fillLogos() {
+  // לוגו עמותה
+  document.querySelectorAll('[data-logo="org"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoOrg;
+    img.style.height = ORG_CONFIG.logoSizes.orgHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+  // לוגו משרד הבריאות
+  document.querySelectorAll('[data-logo="ministry"]').forEach(img => {
+    img.src    = ORG_CONFIG.files.logoMinistry;
+    img.style.height = ORG_CONFIG.logoSizes.ministryHeight;
+    img.style.width  = 'auto';
+    img.style.objectFit = 'contain';
+  });
+}
+
+// הוסף fillLogos לאתחול
+document.addEventListener('DOMContentLoaded', function() {
+  fillOrgNames();
+  fillStaffNames();
+  fillLogos();
+});
+
+</script>
+</body>
+</html>

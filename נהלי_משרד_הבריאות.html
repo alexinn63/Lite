@@ -239,6 +239,13 @@ const items=[...document.querySelectorAll('.item')];
 const input=document.getElementById('searchInput');
 const noResults=document.getElementById('noResults');
 
+// מנרמל אותיות סופיות (ך ם ן ף ץ -> כ מ נ פ צ) כדי שחיפוש מילה שלמה ("מדריך")
+// ימצא אותה גם כשהיא מופיעה כתחילית של מילה ארוכה יותר ("מדריכה"), ולהפך.
+// ההמרה שומרת על אורך המחרוזת, כך שאינדקסים נשארים תקפים גם על הטקסט המקורי.
+function normalizeFinal(s){
+  return s.replace(/ך/g,'כ').replace(/ם/g,'מ').replace(/ן/g,'נ').replace(/ף/g,'פ').replace(/ץ/g,'צ');
+}
+
 function highlight(el,q){
   el.querySelectorAll('mark').forEach(m=>{ m.replaceWith(document.createTextNode(m.textContent)); });
   if(!q) return;
@@ -246,7 +253,7 @@ function highlight(el,q){
   const nodes=[]; let n;
   while(n=walker.nextNode()) nodes.push(n);
   nodes.forEach(node=>{
-    const idx=node.textContent.toLowerCase().indexOf(q.toLowerCase());
+    const idx=normalizeFinal(node.textContent.toLowerCase()).indexOf(normalizeFinal(q.toLowerCase()));
     if(idx>-1){
       const span=document.createElement('span');
       span.appendChild(document.createTextNode(node.textContent.slice(0,idx)));
@@ -259,7 +266,8 @@ function highlight(el,q){
 }
 
 function runSearch(){
-  const raw=input.value.trim().toLowerCase();
+  const rawInput=input.value.trim();
+  const raw=normalizeFinal(rawInput.toLowerCase());
   if(!raw){
     items.forEach(it=>{ it.classList.remove('hidden','open'); highlight(it,''); });
     noResults.style.display='none';
@@ -267,11 +275,11 @@ function runSearch(){
   }
   let visibleCount=0;
   items.forEach(it=>{
-    const kw=(it.dataset.keywords||'').toLowerCase();
-    const body=it.querySelector('.item-body-inner').textContent.toLowerCase();
+    const kw=normalizeFinal((it.dataset.keywords||'').toLowerCase());
+    const body=normalizeFinal(it.querySelector('.item-body-inner').textContent.toLowerCase());
     const match=kw.includes(raw)||body.includes(raw);
     it.classList.toggle('hidden',!match);
-    if(match){ visibleCount++; highlight(it,raw); it.classList.add('open'); }
+    if(match){ visibleCount++; highlight(it,rawInput); it.classList.add('open'); }
     else it.classList.remove('open');
   });
   noResults.style.display=visibleCount?'none':'block';
