@@ -7,7 +7,7 @@
 :root{--navy:#0f1e3a;--blue:#2563a8;--soft:#dbeafe;--bg:#f4f6fb;--card:#fff;--line:#e7ebf2;--muted:#7b8497;--green:#1f9d68;--amber:#b7791f}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Segoe UI,Arial,Heebo,sans-serif;color:#1c2333}
 .app{max-width:1400px;margin:auto;padding:20px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(15,30,58,.07)}
-header{padding:22px;margin-bottom:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{display:flex;gap:12px;align-items:center}.mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#2563a8,#1d4ed8);color:white;display:grid;place-items:center;font-size:22px}h1{margin:0;color:var(--navy);font-size:28px}.sub{color:var(--muted);font-size:13px;margin-top:5px}.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:18px}.step{padding:10px;border-radius:10px;border:1px solid var(--line);background:#fafbfe;text-align:center;color:var(--muted);font-size:12px}.step.active{background:var(--blue);color:white;border-color:var(--blue)}.step.done{background:#edf9f4;color:#146c49;border-color:#bfe4d3}
+header{padding:22px;margin-bottom:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{display:flex;gap:12px;align-items:center}.mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#2563a8,#1d4ed8);color:white;display:grid;place-items:center;font-size:22px}h1{margin:0;color:var(--navy);font-size:28px}.sub{color:var(--muted);font-size:13px;margin-top:5px}.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:18px}.step{padding:10px;border-radius:10px;border:1px solid var(--line);background:#fafbfe;text-align:center;color:var(--muted);font-size:12px}.step.active{background:var(--blue);color:white;border-color:var(--blue)}.step.done{background:#edf9f4;color:#146c49;border-color:#bfe4d3}.step{font:inherit}.step.reachable{cursor:pointer}.step:not(.reachable):not(.active){cursor:not-allowed;opacity:.72}
 main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{border:1px solid var(--line);border-radius:16px;padding:22px;background:white}.card h2{margin:0;color:var(--navy);font-size:20px}.card p{color:var(--muted);font-size:13px;line-height:1.6}.btn{border:0;border-radius:10px;padding:12px 16px;cursor:pointer}.primary{background:var(--blue);color:white}.soft{background:var(--soft);color:#1d4ed8;border:1px solid #bfd3f7}.ghost{background:white;border:1px solid var(--line);color:#44506a}.actions{display:flex;gap:8px;flex-wrap:wrap}.files{display:grid;gap:8px;margin-top:14px}.file{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;font-size:13px}.summary{margin-top:14px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcff}.layout{display:grid;grid-template-columns:1fr 340px;gap:16px}.preview{border:1px dashed #cfd8e7;border-radius:12px;min-height:145px;background:#fafbfe;display:grid;place-items:center;text-align:center;padding:15px;color:var(--muted);font-size:12px}.docs{margin-top:16px}.docs table{width:100%;border-collapse:collapse;font-size:12px}.docs th,.docs td{padding:10px;border-bottom:1px solid var(--line);text-align:right}.docs th{background:#fafbfe;color:var(--muted);font-weight:400}.ok{color:var(--green)}.warn{color:var(--amber)}.agree{background:#edf9f4;color:#146c49;border:1px solid #bfe4d3;padding:8px 11px}.agree:disabled{opacity:.45;cursor:not-allowed}.suggestion{font-weight:600;color:var(--navy)}.footer{display:flex;justify-content:space-between;margin-top:18px;gap:10px}
 
@@ -28,6 +28,9 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 
 .review-footer{position:sticky;bottom:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);padding:14px 0;border-top:1px solid #dbe2ea}
 @media(max-width:700px){.review-footer{gap:8px}.review-footer .btn{min-height:48px;font-size:16px}}
+
+.viewer-modal{position:fixed;inset:0;z-index:1000;background:rgba(15,30,58,.72);display:grid;place-items:center;padding:18px}.viewer-shell{width:min(1320px,96vw);height:min(860px,94vh);background:white;border-radius:16px;display:grid;grid-template-columns:minmax(0,1fr) 360px;overflow:hidden;box-shadow:0 25px 70px rgba(0,0,0,.3)}.viewer-main{display:flex;flex-direction:column;min-width:0;background:#eef2f7}.viewer-toolbar{display:flex;gap:8px;align-items:center;padding:10px;background:white;border-bottom:1px solid var(--line);flex-wrap:wrap}.viewer-title{margin-inline-end:auto;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}.viewer-stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:18px;min-width:0;min-height:0;position:relative}.viewer-frame-wrap{width:100%;height:100%;transform-origin:center center;transition:transform .2s ease;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.viewer-frame,.viewer-image{width:100%;height:100%;border:0;background:white;object-fit:contain;display:block}.viewer-side{padding:20px;overflow:auto;border-inline-start:1px solid var(--line)}.viewer-side h3{margin-top:0}.viewer-side .field{margin-bottom:10px}.viewer-note{font-size:12px;color:var(--muted);line-height:1.5}.warning-box{padding:10px 12px;border-radius:10px;background:#fff8e8;border:1px solid #edd9a7;color:#765615;font-size:12px;margin-top:10px}.compact-action{padding:7px 10px}.bank-inline{min-width:240px;line-height:1.45}.bank-inline b{display:block}.bank-open{margin-top:6px}.date-help{font-size:11px;color:var(--muted);margin-top:4px}
+@media(max-width:850px){.viewer-shell{grid-template-columns:1fr;height:96vh}.viewer-side{border-inline-start:0;border-top:1px solid var(--line);max-height:42vh}.viewer-title{max-width:45%}}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -36,8 +39,8 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.22 — תיק זמני, זכירת כונן F והעברה קבועה</div></div>
-<div class="steps"><div class="step active">1. קבלת מסמכים</div><div class="step">2. זיהוי אדם</div><div class="step">3. בדיקת מסמכים</div><div class="step">4. יצירת תיק</div><div class="step">5. עדכון מערכות</div><div class="step">6. סיום</div></div>
+<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.37 — תיקון הודעת פתיחה וסיבוב מסמכים</div></div>
+<div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
 <main class="panel" id="screen1">
@@ -80,13 +83,13 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <main class="panel hidden" id="screen2">
 <section class="card">
 <h2>זיהוי מקבל השירות</h2><p>המערכת מנסה לזהות שם ותעודת זהות מתוך המסמכים. בדוק ותקן לפני המשך.</p>
-<div class="grid"><div class="field"><label>שם פרטי <span class="required-mark">*</span></label><input id="first" required aria-required="true" autocomplete="given-name"></div><div class="field"><label>שם משפחה <span class="required-mark">*</span></label><input id="last" required aria-required="true" autocomplete="family-name"></div><div class="field"><label>תעודת זהות <span class="required-mark">*</span></label><input id="id" required aria-required="true" inputmode="numeric" maxlength="9" pattern="[0-9]{9}"></div></div>
+<div class="grid"><div class="field"><label>שם פרטי <span class="required-mark">*</span></label><input id="first" required aria-required="true" autocomplete="given-name"></div><div class="field"><label>שם משפחה <span class="required-mark">*</span></label><input id="last" required aria-required="true" autocomplete="family-name"></div><div class="field"><label>תעודת זהות <span class="required-mark">*</span></label><input id="id" required aria-required="true" inputmode="numeric" maxlength="9" pattern="[0-9]{8,9}"></div></div>
 <div class="required-note">* חובה לבדוק ולמלא שם פרטי, שם משפחה ותעודת זהות תקינה לפני המשך.</div>
 <div id="identityStatus" class="analysis-note" style="margin-top:10px">ממתין לניתוח המסמכים.</div>
 <div id="analysisProgress" class="location-status" style="margin-top:10px">טרם התחיל ניתוח.</div>
 </section>
-<section class="card docs"><h2>בדיקת מסמכים</h2><p>המערכת קוראת את הקבצים ברקע. ברגע שמסמך אחד מזוהה אפשר לבדוק ולאשר אותו מיד, בלי להמתין לסיום שאר המסמכים.</p><div style="overflow:auto"><table><thead><tr><th>קובץ</th><th>ההצעה שלי</th><th>סוג מסמך לבחירה</th><th>תאריך לרישום</th><th>יישמר ב־</th><th>אישור</th><th>מצב</th></tr></thead><tbody id="docsBody"></tbody></table></div></section>
-<div class="footer review-footer"><button class="btn ghost" id="back">חזור</button><button class="btn primary" id="create">אשר הצעות מוכנות והמשך</button></div>
+<section class="card docs"><h2>בדיקת מסמכים</h2><p>המערכת קוראת את הקבצים ברקע. ברגע שמסמך אחד מזוהה אפשר לבדוק ולאשר אותו מיד, בלי להמתין לסיום שאר המסמכים.</p><div style="overflow:auto"><table><thead><tr><th>קובץ</th><th>ההצעה שלי</th><th>סוג מסמך לבחירה</th><th>תאריך / פרטי בנק</th><th>יישמר ב־</th><th>אישור</th><th>מצב</th></tr></thead><tbody id="docsBody"></tbody></table></div></section>
+<div class="footer review-footer"><button class="btn ghost" id="back">חזור</button><button class="btn secondary" id="approveAll">מאשר הכל</button><button class="btn primary" id="create">המשך</button></div>
 </main>
 
 <main class="panel hidden" id="screen3">
@@ -103,7 +106,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
     </div>
     <div id="backgroundStatus" class="location-status">בודק את מצב זיהוי המסמכים...</div>
     <div id="tempLocationStatus" class="location-status" style="margin-top:8px">לא נבחרה תיקייה לגישה ישירה. אפשר גם להשתמש בכפתור שמירת ZIP.</div>
-    <div class="notice" style="margin-top:12px">בשלב זה אין העברה למיקום הקבוע, אין עדכון Excel ואין יצירת קישורים. פעולות אלה יתווספו רק בשלב הבא ולאחר בדיקת התיקייה הזמנית.</div>
+    <div class="notice" style="margin-top:12px">לאחר יצירת התיק ניתן להעביר אותו למיקום הקבוע, ואז ליצור עותקי Excel מעודכנים לבדיקה.</div>
   </div>
   <div>
     <b>מבנה התיקייה</b>
@@ -150,12 +153,73 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 
 <main class="panel hidden" id="screen5">
 <section class="card">
-<h2>השלב הבא — עדכון המערכות</h2>
-<div class="success-box">התיק הועבר למיקום הקבוע. כדי להכניס את הנתונים ל-Excel, המערכת צריכה לקבל גישה לקובץ תיק דיגיטלי.xlsx עצמו. בגרסה זו Excel עדיין אינו משתנה. בשלב הבא יתווספו: בחירת קובץ Excel, יצירת גיבוי, בדיקת כפילות לפי תעודת זהות, הוספת שורה, מילוי תאריכים ויצירת קישורים יחסיים לתיק שנמצא בתוך התיקייה הראשית הקבועה.</div>
+<h2>עדכון קובצי Excel — מצב ניסיון בטוח</h2>
+<div class="notice">בשלב הניסיון הקבצים המקוריים אינם משתנים. המערכת יוצרת עותקים חדשים להורדה ולבדיקה. לאחר שנבדוק שהכול נכתב נכון, נעבור לעדכון ישיר עם גיבוי אוטומטי.</div>
 <div id="systemsSummary" class="folder-tree" style="margin-top:14px"></div>
+
+<div class="continuation-grid" style="margin-top:16px">
+  <div class="stage-box">
+    <h3 style="margin-top:0">1. תיק דיגיטלי</h3>
+    <div class="field"><label>מדריך <span class="required-mark">*</span></label>
+      <select id="guideSelect"><option value="">בחר מדריך</option><option>אנדרי</option><option>אריסטרך</option><option>רוזט</option><option>שלום</option><option value="__other">אחר</option></select>
+    </div>
+    <div class="field hidden" id="guideOtherWrap" style="margin-top:8px"><label>שם מדריך</label><input id="guideOther"></div>
+    <div class="grid" style="margin-top:12px">
+      <div class="field"><label>תאריך הועדה</label><input id="dateCommittee" type="date"></div>
+      <div class="field"><label>תוקף ויתור סודיות</label><input id="dateConfidentiality" type="date"><div class="date-help">ברירת מחדל: יום הקליטה + שנה.</div></div>
+      <div class="field"><label>תוקף דוח רפואי</label><input id="dateMedical" type="date"><div class="date-help">תאריך המסמך שזוהה + שנה.</div></div>
+      <div class="field"><label>דוח מדריך</label><input id="dateGuide" value="אין" readonly><div class="date-help">נרשם "אין", אך נשמר קישור לתיקיית מדריך.</div></div>
+      <div class="field"><label>תוכנית אישית</label><input id="dateProgram" value="אין" readonly><div class="date-help">נרשם "אין", אך נשמר קישור לתיקיית עו״ס.</div></div>
+    </div>
+    <div class="actions" style="margin-top:12px"><label class="btn soft" for="digitalExcelInput">בחר קובץ תיק דיגיטלי.xlsx</label><input id="digitalExcelInput" type="file" accept=".xlsx" hidden><button class="btn primary" id="buildDigitalCopy" disabled>צור עותק מעודכן לבדיקה</button></div>
+    <div id="digitalExcelStatus" class="status-line">לא נבחר קובץ.</div>
+  </div>
+
+  <div class="stage-box">
+    <h3 style="margin-top:0">2. פרטי חשבון בנק</h3>
+    <div class="grid">
+      <div class="field"><label>שם בנק</label><input id="bankName"></div>
+      <div class="field"><label>מספר בנק</label><input id="bankNumber" inputmode="numeric"></div>
+      <div class="field"><label>מספר סניף</label><input id="bankBranch" inputmode="numeric"></div>
+      <div class="field"><label>מספר חשבון</label><input id="bankAccount"></div>
+    </div>
+    <div class="actions" style="margin-top:12px"><button class="btn ghost" id="openBankDocumentFromExcel" type="button">פתח מסמך בנק</button><label class="btn soft" for="bankExcelInput">בחר קובץ מספרי חשבון מקבלי שירות גבע.xlsx</label><input id="bankExcelInput" type="file" accept=".xlsx" hidden><button class="btn primary" id="buildBankCopy" disabled>צור עותק מעודכן לבדיקה</button></div>
+    <div id="bankMissingWarning" class="warning-box hidden"></div><div id="bankExcelStatus" class="status-line">לא נבחר קובץ.</div>
+  </div>
+</div>
 </section>
-<div class="footer"><button class="btn ghost" id="backToPermanent">חזור להעברה</button></div>
+<div class="footer"><button class="btn ghost" id="backToPermanent">חזור להעברה</button><button class="btn ghost" id="finishTrial">סיום ניסיון</button></div>
 </main>
+</div>
+
+
+<div id="viewerModal" class="viewer-modal hidden" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
+  <div class="viewer-shell">
+    <div class="viewer-main">
+      <div class="viewer-toolbar">
+        <button class="btn ghost compact-action" id="closeViewer" type="button">סגור</button>
+        <button class="btn ghost compact-action" id="rotateLeft" type="button">↶ 90°</button>
+        <button class="btn ghost compact-action" id="rotateRight" type="button">↷ 90°</button>
+        <button class="btn ghost compact-action" id="fitViewer" type="button">התאם לחלון</button>
+        <button class="btn ghost compact-action" id="openViewerNewTab" type="button">פתח בחלון נפרד</button>
+        <span class="viewer-title" id="viewerTitle"></span>
+      </div>
+      <div class="viewer-stage"><div id="viewerFrameWrap" class="viewer-frame-wrap"></div></div>
+    </div>
+    <aside class="viewer-side">
+      <div id="viewerGeneralPanel"><h3>בדיקת מסמך</h3><p class="viewer-note">אפשר לסובב את התצוגה. הסיבוב הוא לצפייה בלבד ואינו משנה את הקובץ המקורי.</p></div>
+      <div id="viewerBankPanel" class="hidden">
+        <h3>פרטי חשבון בנק</h3>
+        <p class="viewer-note">מלא או תקן את הפרטים תוך כדי צפייה במסמך. הנתונים יעברו למסך Excel.</p>
+        <div class="field"><label>שם בנק</label><input id="viewerBankName"></div>
+        <div class="field"><label>מספר בנק</label><input id="viewerBankNumber" inputmode="numeric"></div>
+        <div class="field"><label>מספר סניף</label><input id="viewerBankBranch" inputmode="numeric"></div>
+        <div class="field"><label>מספר חשבון</label><input id="viewerBankAccount"></div>
+        <button class="btn primary" id="saveViewerBank" type="button">שמור פרטי בנק</button>
+        <div id="viewerBankMessage" class="analysis-note"></div>
+      </div>
+    </aside>
+  </div>
 </div>
 
 <script>
@@ -168,6 +232,13 @@ let recognitionFinished=false;
 let permanentRootHandle=null;
 let transferSourceHandle=null;
 let permanentPersonHandle=null;
+let detectedBankDetails={name:"",number:"",branch:"",account:""};
+let bankDocumentIndex=-1;
+const analysisResults=[];
+let viewerObjectUrl="";
+let viewerRotation=0;
+let viewerCurrentIndex=-1;
+let maxVisitedStep=1;
 const HANDLE_DB="yachdav_onboarding_handles";
 const HANDLE_STORE="handles";
 const PERMANENT_ROOT_KEY="permanentRoot";
@@ -415,6 +486,41 @@ function isValidIsraeliId(value){
   return sum%10===0;
 }
 
+function normalizeIsraeliId(value){
+  const digits=String(value||"").replace(/\D/g,"");
+  if(digits.length===8)return "0"+digits;
+  if(digits.length===9)return digits;
+  return digits;
+}
+
+function readAndValidateId(showAlert=true){
+  const raw=String(id.value||"").replace(/\D/g,"").slice(0,9);
+  id.value=raw;
+  const normalized=normalizeIsraeliId(raw);
+  if(normalized.length!==9){
+    id.classList.add("input-error");
+    if(showAlert)alert("יש להזין 8 או 9 ספרות. אם הוזנו 8 ספרות, המערכת תוסיף 0 בתחילת המספר.");
+    return "";
+  }
+  id.value=normalized;
+  id.classList.remove("input-error");
+  if(!isValidIsraeliId(normalized)){
+    identityStatus.textContent="אזהרה: המספר כולל 9 ספרות אך ספרת הביקורת אינה תואמת. המספר נשמר לפי התיקון הידני שלך.";
+    identityStatus.className="analysis-note warn";
+  }
+  return normalized;
+}
+
+id.addEventListener("input",()=>{
+  const cleaned=String(id.value||"").replace(/\D/g,"").slice(0,9);
+  if(id.value!==cleaned)id.value=cleaned;
+  id.classList.remove("input-error");
+});
+id.addEventListener("blur",()=>{
+  const raw=String(id.value||"").replace(/\D/g,"");
+  if(raw.length===8){id.value="0"+raw;}
+});
+
 function extractPersonIdentity(text){
   const s=String(text||"").replace(/[\u200e\u200f]/g," ");
   const out={first:"",last:"",id:"",confidence:0};
@@ -484,6 +590,52 @@ function applyIdentityCandidate(candidate, fileName){
   }
 }
 
+
+function cleanDigits(v){return String(v||"").replace(/[^0-9]/g,"")}
+function extractBankDetails(text){
+  const raw=String(text||"");
+  const flat=raw.replace(/[\u200e\u200f]/g," ").replace(/\s+/g," ");
+  const banks=[
+    ["הפועלים",["בנק הפועלים","הפועלים"]],
+    ["לאומי",["בנק לאומי","לאומי"]],
+    ["דיסקונט",["בנק דיסקונט","דיסקונט"]],
+    ["מזרחי טפחות",["מזרחי טפחות","בנק מזרחי"]],
+    ["הבינלאומי",["הבנק הבינלאומי","הבינלאומי"]],
+    ["מרכנתיל",["מרכנתיל דיסקונט","מרכנתיל"]],
+    ["יהב",["בנק יהב","יהב"]],
+    ["ירושלים",["בנק ירושלים","ירושלים"]],
+    ["מסד",["בנק מסד","מסד"]],
+    ["אוצר החייל",["אוצר החייל"]],
+    ["One Zero",["ONE ZERO","וואן זירו"]]
+  ];
+  let name="";
+  for(const [canonical,aliases] of banks){if(aliases.some(a=>flat.toLowerCase().includes(a.toLowerCase()))){name=canonical;break}}
+  const pick=(patterns,max=20)=>{
+    for(const re of patterns){const m=flat.match(re);if(m){const d=cleanDigits(m[1]);if(d&&d.length<=max)return d}}
+    return "";
+  };
+  let number=pick([/מס(?:פר|['׳]?)?\s*בנק\s*[:\-]?\s*(\d{1,3})/i,/קוד\s*בנק\s*[:\-]?\s*(\d{1,3})/i],3);
+  let branch=pick([/מס(?:פר|['׳]?)?\s*סניף\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(\d{1,5})/i],5);
+  let account=pick([/מס(?:פר|['׳]?)?\s*חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i],20);
+  return {name,number,branch,account};
+}
+function applyDetectedBankDetails(details){
+  if(!details)return;
+  for(const k of ["name","number","branch","account"])if(details[k]&&!detectedBankDetails[k])detectedBankDetails[k]=details[k];
+  if(detectedBankDetails.name&&!bankName.value)bankName.value=detectedBankDetails.name;
+  if(detectedBankDetails.number&&!bankNumber.value)bankNumber.value=detectedBankDetails.number;
+  if(detectedBankDetails.branch&&!bankBranch.value)bankBranch.value=detectedBankDetails.branch;
+  if(detectedBankDetails.account&&!bankAccount.value)bankAccount.value=detectedBankDetails.account;
+}
+function bankSummary(details){
+  const parts=[];
+  if(details.name)parts.push(`בנק: ${details.name}`);
+  if(details.number)parts.push(`מספר בנק: ${details.number}`);
+  if(details.branch)parts.push(`סניף: ${details.branch}`);
+  if(details.account)parts.push(`חשבון: ${details.account}`);
+  return parts.join(" | ")||"פרטי הבנק לא זוהו במלואם — יש להשלים במסך Excel";
+}
+
 async function analyzeFile(file){
   const name=file.name.toLowerCase();
   let text="";
@@ -500,20 +652,176 @@ async function analyzeFile(file){
     ? result.committeeInfo.validUntil
     : result.documentDate;
   result.identity=extractPersonIdentity(text);
+  result.bankDetails=result.type==="אישור חשבון בנק / צילום צ׳ק"?extractBankDetails(text):null;
   return result;
 }
-function openSelectedFile(index){
-  const f=files[index];
-  if(!f)return;
+function syncBankInputsFromDetected(){
+  const d=detectedBankDetails;
+  if(d.name&&!bankName.value)bankName.value=d.name;
+  if(d.number&&!bankNumber.value)bankNumber.value=d.number;
+  if(d.branch&&!bankBranch.value)bankBranch.value=d.branch;
+  if(d.account&&!bankAccount.value)bankAccount.value=d.account;
+}
+function updateBankMissingWarning(){
+  const fields=[["שם בנק",bankName.value.trim()],["מספר בנק",bankNumber.value.trim()],["מספר סניף",bankBranch.value.trim()],["מספר חשבון",bankAccount.value.trim()]];
+  const missing=fields.filter(x=>!x[1]).map(x=>x[0]);
+  bankMissingWarning.classList.toggle("hidden",!missing.length);
+  bankMissingWarning.textContent=missing.length?`שים לב: השדות הבאים עדיין ריקים: ${missing.join(", ")}. אפשר לשמור גם כך, אך תופיע אזהרה לפני יצירת הקובץ.`:"";
+}
+function closeDocumentViewer(){
+  viewerModal.classList.add("hidden");
+  if(viewerObjectUrl){URL.revokeObjectURL(viewerObjectUrl);viewerObjectUrl=""}
+  viewerFrameWrap.innerHTML="";viewerCurrentIndex=-1;viewerRotation=0;
+}
+function applyViewerRotation(){
+  const normalized=((viewerRotation%360)+360)%360;
+  const r=viewerStage.getBoundingClientRect();
+  if(!r.width||!r.height)return;
+  const pad=36;
+  const availableW=Math.max(180,r.width-pad), availableH=Math.max(180,r.height-pad);
+  if(normalized===90 || normalized===270){
+    viewerFrameWrap.style.width=`${availableH}px`;
+    viewerFrameWrap.style.height=`${availableW}px`;
+  }else{
+    viewerFrameWrap.style.width=`${availableW}px`;
+    viewerFrameWrap.style.height=`${availableH}px`;
+  }
+  viewerFrameWrap.style.transform=`rotate(${viewerRotation}deg)`;
+}
+function prepareBankDocument(index,forceBank=false){
+  const row=docsBody.querySelector(`tr[data-i="${index}"]`);
+  const isBank=forceBank||(row&&row.querySelector(".type")?.value==="אישור חשבון בנק / צילום צ׳ק");
+  if(isBank){
+    bankDocumentIndex=index;
+    const result=analysisResults[index];
+    if(result?.extractedText)applyDetectedBankDetails(extractBankDetails(result.extractedText));
+    syncBankInputsFromDetected();
+  }
+  return isBank;
+}
+function openSelectedFile(index,forceBank=false){
+  const f=files[index];if(!f)return;
+  prepareBankDocument(index,forceBank);
   const url=URL.createObjectURL(f);
-  const w=window.open(url,"_blank");
-  if(!w){
-    alert("הדפדפן חסם את פתיחת הקובץ. יש לאפשר חלונות קופצים לקובץ זה.");
-    URL.revokeObjectURL(url);
+  // With noopener Chrome may return null even when the tab opened successfully.
+  // Therefore do not show a false popup-blocked warning here.
+  window.open(url,"_blank","noopener");
+  setTimeout(()=>URL.revokeObjectURL(url),10*60*1000);
+}
+function openRotatableImage(index){
+  const f=files[index];if(!f)return;
+  if(!f.type.startsWith("image/")){
+    openSelectedFile(index);
+    alert("סיבוב זמין לקובצי תמונה. קובץ PDF נפתח בתצוגת הדפדפן הרגילה.");
     return;
   }
-  try{w.opener=null}catch(e){}
-  setTimeout(()=>URL.revokeObjectURL(url),60000);
+  const isBank=prepareBankDocument(index,false);
+  // Open immediately from the click event so the browser does not block it.
+  const w=window.open("","_blank");
+  if(!w){alert("הדפדפן חסם את פתיחת החלון. יש לאפשר חלונות קופצים לאתר זה.");return;}
+  w.document.write('<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>טוען...</title></head><body style="font-family:Arial;padding:24px">טוען מסמך...</body></html>');
+  w.document.close();
+  const reader=new FileReader();
+  reader.onerror=()=>{try{w.document.body.textContent="לא ניתן היה לקרוא את התמונה.";}catch(e){}};
+  reader.onload=()=>{
+    const dataUrl=reader.result;
+    const safeName=String(f.name).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+    const bankValues=isBank?{name:bankName.value.trim(),number:bankNumber.value.trim(),branch:bankBranch.value.trim(),account:bankAccount.value.trim()}:null;
+    const bankControls=isBank?`<div class="bank-fields">
+      <input id="bn" placeholder="שם הבנק" value="${esc(bankValues.name)}">
+      <input id="bnum" inputmode="numeric" placeholder="מספר בנק" value="${esc(bankValues.number)}">
+      <input id="bbr" inputmode="numeric" placeholder="מספר סניף" value="${esc(bankValues.branch)}">
+      <input id="bac" inputmode="numeric" placeholder="מספר חשבון" value="${esc(bankValues.account)}">
+      <button id="saveBank" class="save-bank">שמור</button>
+      <span id="saveMsg" class="save-msg"></span>
+    </div>`:"";
+    const html=`<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>${safeName}</title><style>
+      *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#202632;color:#fff;overflow:hidden}
+      .bar{min-height:60px;background:#fff;color:#1c2b43;display:flex;align-items:center;gap:8px;padding:8px 14px;box-shadow:0 2px 12px #0005;position:relative;z-index:2;flex-wrap:wrap}
+      button{border:1px solid #cbd5e1;background:#f8fafc;border-radius:9px;padding:9px 12px;cursor:pointer;font-size:14px}.title{margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:28vw}
+      .bank-fields{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.bank-fields input{width:118px;border:1px solid #cbd5e1;border-radius:8px;padding:8px 9px;font-size:13px;direction:rtl}.bank-fields input#bac{width:140px}.save-bank{background:#2367d1;color:#fff;border-color:#2367d1}.save-msg{font-size:12px;color:#16803c;min-width:42px}
+      .stage{position:relative;height:calc(100% - 76px);overflow:auto;background:#2f3948}
+      canvas{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;box-shadow:0 8px 30px #0008;cursor:grab}
+      .hint{font-size:13px;color:#475569}
+    </style></head><body>
+      <div class="bar"><button id="r">↻ 90°</button><button id="l">↺ 90°</button><button id="fit">התאם לחלון</button><button id="plus">＋</button><button id="minus">－</button>${bankControls}<span class="hint">אפשר לגרור את המסמך</span><span class="title">${safeName}</span></div>
+      <div class="stage" id="stage"><canvas id="canvas"></canvas></div>
+      <script>
+      const img=new Image(),stage=document.getElementById('stage'),canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+      let angle=0,zoom=1,fitScale=1,drag=false,startX=0,startY=0,offX=0,offY=0;
+      img.onload=()=>{fit()}; img.src=${JSON.stringify(dataUrl)};
+      function dims(){const a=((angle%360)+360)%360;return (a===90||a===270)?[img.naturalHeight,img.naturalWidth]:[img.naturalWidth,img.naturalHeight]}
+      function draw(){
+        const a=((angle%360)+360)%360,[rw,rh]=dims(),scale=fitScale*zoom;
+        canvas.width=Math.max(1,Math.round(rw*scale));canvas.height=Math.max(1,Math.round(rh*scale));
+        canvas.style.left='calc(50% + '+offX+'px)';canvas.style.top='calc(50% + '+offY+'px)';
+        ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(angle*Math.PI/180);ctx.scale(scale,scale);ctx.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);ctx.restore();
+      }
+      function fit(){const [rw,rh]=dims();fitScale=Math.min((stage.clientWidth-36)/rw,(stage.clientHeight-36)/rh,1);zoom=1;offX=0;offY=0;draw()}
+      document.getElementById('r').onclick=()=>{angle=(angle+90)%360;fit()};
+      document.getElementById('l').onclick=()=>{angle=(angle+270)%360;fit()};
+      document.getElementById('fit').onclick=fit;
+      document.getElementById('plus').onclick=()=>{zoom=Math.min(4,zoom*1.2);draw()};
+      document.getElementById('minus').onclick=()=>{zoom=Math.max(.2,zoom/1.2);draw()};
+      canvas.onmousedown=e=>{drag=true;startX=e.clientX-offX;startY=e.clientY-offY;canvas.style.cursor='grabbing'};
+      window.onmousemove=e=>{if(!drag)return;offX=e.clientX-startX;offY=e.clientY-startY;draw()};
+      window.onmouseup=()=>{drag=false;canvas.style.cursor='grab'};
+      const saveBankBtn=document.getElementById('saveBank');
+      if(saveBankBtn){saveBankBtn.onclick=()=>{
+        const details={name:document.getElementById('bn').value.trim(),number:document.getElementById('bnum').value.replace(/\D/g,''),branch:document.getElementById('bbr').value.replace(/\D/g,''),account:document.getElementById('bac').value.replace(/\D/g,'')};
+        if(window.opener&&!window.opener.closed&&typeof window.opener.saveBankDetailsFromPopup==='function'){
+          window.opener.saveBankDetailsFromPopup(details);
+          document.getElementById('saveMsg').textContent='נשמר';
+          saveBankBtn.textContent='נשמר';
+        }else{alert('לא ניתן לשמור את הנתונים בחלון הראשי.');}
+      }}
+      window.addEventListener('resize',fit);
+      <\/script></body></html>`;
+    w.document.open();w.document.write(html);w.document.close();
+  };
+  reader.readAsDataURL(f);
+}
+function openFileWithTools(index,forceBank=false){
+  const f=files[index];if(!f)return;
+  prepareBankDocument(index,forceBank);
+  if(f.type.startsWith("image/")){
+    openRotatableImage(index);
+  }else{
+    openSelectedFile(index,forceBank);
+  }
+}
+window.saveBankDetailsFromPopup=(d)=>{
+  const details={name:String(d?.name||"").trim(),number:cleanDigits(d?.number||""),branch:cleanDigits(d?.branch||""),account:cleanDigits(d?.account||"")};
+  detectedBankDetails={...detectedBankDetails,...details};
+  bankName.value=details.name;bankNumber.value=details.number;bankBranch.value=details.branch;bankAccount.value=details.account;
+  updateBankMissingWarning();
+  if(bankDocumentIndex>=0)renderDocumentDetailCell(bankDocumentIndex,"אישור חשבון בנק / צילום צ׳ק");
+};
+closeViewer.onclick=closeDocumentViewer;viewerModal.addEventListener("click",e=>{if(e.target===viewerModal)closeDocumentViewer()});
+rotateLeft.onclick=()=>{viewerRotation-=90;requestAnimationFrame(applyViewerRotation)};rotateRight.onclick=()=>{viewerRotation+=90;requestAnimationFrame(applyViewerRotation)};fitViewer.onclick=()=>{requestAnimationFrame(applyViewerRotation)};
+window.addEventListener("resize",()=>{if(!viewerModal.classList.contains("hidden"))requestAnimationFrame(applyViewerRotation)});
+openViewerNewTab.onclick=()=>{if(viewerObjectUrl)window.open(viewerObjectUrl,"_blank")};
+saveViewerBank.onclick=()=>{
+  const d={name:viewerBankName.value.trim(),number:cleanDigits(viewerBankNumber.value),branch:cleanDigits(viewerBankBranch.value),account:cleanDigits(viewerBankAccount.value)};
+  detectedBankDetails={...detectedBankDetails,...d};bankName.value=d.name;bankNumber.value=d.number;bankBranch.value=d.branch;bankAccount.value=d.account;
+  updateBankMissingWarning();viewerBankMessage.className="analysis-note ok";viewerBankMessage.textContent="הפרטים נשמרו ויועברו למסך Excel.";
+};
+
+
+function renderDocumentDetailCell(index,type){
+  const tr=docsBody.querySelector(`tr[data-i="${index}"]`);if(!tr)return;
+  const cell=tr.children[3];
+  const result=analysisResults[index]||{};
+  if(type==="אישור חשבון בנק / צילום צ׳ק"){
+    bankDocumentIndex=index;
+    const details=result.extractedText?extractBankDetails(result.extractedText):(result.bankDetails||{});
+    applyDetectedBankDetails(details);syncBankInputsFromDetected();
+    cell.innerHTML=`<div class="analysis-note bank-inline"><b>${esc(bankSummary({...detectedBankDetails,...details}))}</b><button class="btn ghost compact-action bank-open" type="button">פתח ומלא פרטים</button></div>`;
+    cell.querySelector(".bank-open").onclick=()=>openFileWithTools(index,true);
+  }else{
+    const value=formatDateInput(result.registrationDate||result.documentDate);
+    cell.innerHTML=`<input class="docDate" type="date" style="min-width:145px" value="${esc(value)}">`;
+  }
 }
 
 async function docs(){
@@ -531,7 +839,7 @@ async function docs(){
     const tr=document.createElement("tr");
     tr.dataset.i=i;tr.dataset.ready="0";tr.dataset.approved="0";
     tr.innerHTML=`
-      <td><button class="btn ghost pv" data-i="${i}" style="padding:7px 9px">${esc(f.name)}</button></td>
+      <td><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button class="btn ghost pv" data-i="${i}" style="padding:7px 9px" title="פתח מסמך; בתמונה ניתן לסובב, להגדיל ולהזיז">${esc(f.name)}</button></div></td>
       <td class="suggestion"><span class="analyzing">מנתח תוכן...</span><div class="analysis-note">הבדיקה מתבצעת ברקע.</div></td>
       <td><select class="type">${Object.keys(map).map(t=>`<option>${t}</option>`).join("")}</select></td>
       <td><input class="docDate" type="date" style="min-width:145px"></td>
@@ -540,11 +848,12 @@ async function docs(){
       <td class="warn">ממתין לניתוח</td>`;
     docsBody.appendChild(tr);
 
-    tr.querySelector(".pv").onclick=()=>openSelectedFile(i);
+    tr.querySelector(".pv").onclick=()=>openFileWithTools(i);
     const sel=tr.querySelector(".type");
     const agree=tr.querySelector(".acceptSuggestion");
     sel.onchange=()=>{
       tr.querySelector(".target").textContent=map[sel.value];
+      renderDocumentDetailCell(i,sel.value);
       agree.disabled=sel.value==="לא מזוהה";
       agree.textContent="אשר בחירה";
       tr.dataset.approved="0";
@@ -569,6 +878,7 @@ async function docs(){
     const tr=docsBody.querySelector(`tr[data-i="${i}"]`);
     try{
       const result=await analyzeFile(files[i]);
+      analysisResults[i]=result;
       tr.dataset.suggestion=result.type;tr.dataset.ready="1";
       tr.dataset.originalDate=result.documentDate ? result.documentDate.toISOString() : "";
       applyIdentityCandidate(result.identity, files[i].name);
@@ -582,7 +892,7 @@ async function docs(){
       tr.querySelector(".suggestion").innerHTML=`<span class="suggestion-text">${esc(result.type)}</span>`+
         `<div class="analysis-note">${result.score ? "נמצאו סימנים בתוכן: "+esc(result.matches.join(", ")) : "לא נמצאו מספיק סימנים ברורים בתוכן. יש לבדוק ידנית."}</div>`+
         `<div class="analysis-note">${dateText}</div>`;
-      tr.querySelector(".docDate").value=formatDateInput(result.registrationDate);
+      renderDocumentDetailCell(i,result.type);
       const sel=tr.querySelector(".type");sel.value=result.type;
       tr.querySelector(".target").textContent=map[result.type];
       const agree=tr.querySelector(".acceptSuggestion");agree.disabled=result.type==="לא מזוהה";
@@ -602,7 +912,19 @@ async function docs(){
   updateCreationAvailability();
 }
 
-function step(n){document.querySelectorAll(".step").forEach((s,i)=>{s.className="step";if(i<n-1)s.classList.add("done");if(i===n-1)s.classList.add("active")})}
+function step(n){
+  maxVisitedStep=Math.max(maxVisitedStep,n);
+  document.querySelectorAll(".step").forEach((el,i)=>{const sn=i+1;el.className="step";if(sn<n)el.classList.add("done");if(sn===n)el.classList.add("active");if(sn<=maxVisitedStep&&sn<6)el.classList.add("reachable")});
+}
+function showOnlyScreen(target){[screen1,screen2,screen3,screen4,screen5].forEach(x=>x.classList.add("hidden"));target.classList.remove("hidden");scrollTo(0,0)}
+function goToStep(n){
+  if(n>maxVisitedStep||n===6)return;
+  if(n===1){showOnlyScreen(screen1);step(1)}
+  else if(n===2||n===3){showOnlyScreen(screen2);step(n)}
+  else if(n===4){showOnlyScreen(screen3);step(4);refreshFolderPlan();updateCreationAvailability()}
+  else if(n===5){showOnlyScreen(screen5);step(5);prepareExcelStage()}
+}
+document.querySelectorAll(".step").forEach(el=>el.onclick=()=>goToStep(Number(el.dataset.step)));
 next.onclick=()=>{if(!files.length)return alert("יש לבחור קבצים או תיקייה.");screen1.classList.add("hidden");screen2.classList.remove("hidden");step(2);scrollTo(0,0);docs()}
 back.onclick=()=>{screen2.classList.add("hidden");screen1.classList.remove("hidden");step(1);scrollTo(0,0)}
 function clearIdentityErrors(){[first,last,id].forEach(x=>x.classList.remove("input-error"))}
@@ -614,7 +936,9 @@ function selectedDocumentRows(){
   return [...docsBody.querySelectorAll("tr")].map(tr=>({
     index:Number(tr.dataset.i),
     type:tr.querySelector(".type").value,
-    target:tr.querySelector(".target").textContent.trim()
+    target:tr.querySelector(".target").textContent.trim(),
+    date:tr.querySelector(".docDate")?.value || "",
+    originalDate:tr.dataset.originalDate || ""
   }));
 }
 function requiredFolders(){
@@ -679,13 +1003,26 @@ function updateCreationAvailability(){
     if(tempBaseHandle)createTempFolder.disabled=!ready;
   }
 }
+
+approveAll.onclick=()=>{
+  const approved=autoApproveReadyDocuments();
+  const unresolved=[...docsBody.querySelectorAll("tr")].filter(tr=>tr.dataset.ready==="1" && tr.querySelector(".type").value==="לא מזוהה").length;
+  updateAnalysisProgress();
+  updateCreationAvailability();
+  if(unresolved){
+    alert(`אושרו ${approved} מסמכים. נשארו ${unresolved} מסמכים שלא זוהו; יש לבחור להם סוג ידנית.`);
+  }else{
+    approveAll.textContent="הכל אושר";
+    setTimeout(()=>approveAll.textContent="מאשר הכל",1500);
+  }
+};
+
 create.onclick=()=>{
   clearIdentityErrors();
-  const fn=first.value.trim(),ln=last.value.trim(),pid=id.value.replace(/\D/g,"");
+  const fn=first.value.trim(),ln=last.value.trim();
   if(!fn){first.classList.add("input-error");first.focus();return alert("חובה למלא שם פרטי.")}
   if(!ln){last.classList.add("input-error");last.focus();return alert("חובה למלא שם משפחה.")}
-  if(pid.length!==9 || !isValidIsraeliId(pid)){id.classList.add("input-error");id.focus();return alert("חובה למלא תעודת זהות ישראלית תקינה בת 9 ספרות.")}
-  id.value=pid;
+  const pid=readAndValidateId(true);if(!pid){id.focus();return;}
   autoApproveReadyDocuments();
   refreshFolderPlan();
   screen2.classList.add("hidden");screen3.classList.remove("hidden");step(4);scrollTo(0,0);
@@ -713,8 +1050,9 @@ async function buildTemporaryZip(){
 
 saveTempZip.onclick=async()=>{
   clearIdentityErrors();
-  const fn=first.value.trim(),ln=last.value.trim(),pid=id.value.replace(/\D/g,"");
-  if(!fn||!ln||pid.length!==9||!isValidIsraeliId(pid))return alert("יש למלא ולאשר שם פרטי, שם משפחה ותעודת זהות תקינה לפני השמירה.");
+  const fn=first.value.trim(),ln=last.value.trim();
+  const pid=readAndValidateId(false);
+  if(!fn||!ln||!pid)return alert("יש למלא שם פרטי, שם משפחה ותעודת זהות תקינה בת 8 או 9 ספרות לפני השמירה.");
   const unresolved=[...document.querySelectorAll(".type")].filter(x=>x.value==="לא מזוהה");
   if(unresolved.length)return alert(`נשארו ${unresolved.length} מסמכים שלא זוהו. יש לבחור להם סוג לפני יצירת ZIP.`);
   const unapproved=[...docsBody.querySelectorAll("tr")].filter(tr=>tr.dataset.approved!=="1");
@@ -792,6 +1130,10 @@ createTempFolder.onclick=async()=>{
     tempSuccess.innerHTML=`התיקייה הזמנית <b>${esc(folderName)}</b> נוצרה בהצלחה. נוצרו ${requiredFolders().length} תיקיות משנה והועתקו ${copied} מסמכים. הקבצים המקוריים נשארו במקומם.<br><b>לחץ על המשך כדי לבחור את המיקום הקבוע ואת קובץ Excel.</b>`;
     tempSuccess.classList.remove("hidden");
     tempLocationStatus.innerHTML+=`<br><span class="ok">היצירה הושלמה ללא מחיקה או העברה של המקור.</span>`;
+    permanentPersonHandle=personDir;
+    tempSuccess.innerHTML+=`<br><b>התיק נוצר. עובר כעת למסך עדכון Excel...</b>`;
+    await new Promise(resolve=>setTimeout(resolve,500));
+    openExcelStage();
   }catch(e){
     alert(e.message||"אירעה שגיאה ביצירת התיקייה.");
     createTempFolder.disabled=false;chooseTempLocation.disabled=false;
@@ -868,6 +1210,28 @@ async function copyDirectoryRecursive(source,target){
     }
   }
 }
+function addYearsInput(dateStr,years=1){if(!dateStr)return"";const d=new Date(dateStr+"T12:00:00");d.setFullYear(d.getFullYear()+years);return formatDateInput(d)}
+function todayPlusOneYear(){const d=new Date();d.setFullYear(d.getFullYear()+1);return formatDateInput(d)}
+function prepareExcelStage(){
+  const rows=selectedDocumentRows();
+  const byType=t=>rows.find(x=>x.type===t);
+  const medical=byType("דוח רפואי"),committee=rows.find(x=>x.type==="הועדה"||x.type==="מסמך ועדה / סל שיקום");
+  const rowDate=x=>x?.date || (x?.originalDate ? formatDateInput(new Date(x.originalDate)) : "");
+  const committeeDate=rowDate(committee);
+  const medicalDate=rowDate(medical);
+  if(committeeDate&&!dateCommittee.value)dateCommittee.value=committeeDate;
+  if(!dateConfidentiality.value)dateConfidentiality.value=todayPlusOneYear();
+  if(medicalDate&&!dateMedical.value)dateMedical.value=addYearsInput(medicalDate,1);
+  dateGuide.value="אין";dateProgram.value="אין";
+  applyDetectedBankDetails(detectedBankDetails);syncBankInputsFromDetected();updateBankMissingWarning();
+  systemsSummary.textContent=`שם: ${first.value.trim()} ${last.value.trim()}
+תעודת זהות: ${id.value}
+תיק קבוע: ${currentFolderName()}
+תוקף ויתור סודיות חושב כיום + שנה. תוקף דוח רפואי חושב מתאריך המסמך + שנה. תאריך הוועדה הועבר מהמסמך שזוהה. בדוק ותקן לפי הצורך.`;
+}
+function openExcelStage(){
+  showOnlyScreen(screen5);step(5);prepareExcelStage();
+}
 continueAfterCreation.onclick=async()=>{
   screen3.classList.add("hidden");screen4.classList.remove("hidden");step(5);scrollTo(0,0);
   if(lastCreatedPersonDir){transferSourceHandle=lastCreatedPersonDir;sourceFolderStatus.className="status-line good";sourceFolderStatus.innerHTML=`מקור נבחר אוטומטית: <b>${esc(lastCreatedFolderName)}</b>`}
@@ -923,11 +1287,159 @@ transferToPermanent.onclick=async()=>{
   }catch(e){permanentActionStatus.className="status-line bad";permanentActionStatus.textContent=e.message||e}
   finally{updateTransferAvailability()}
 };
-continueToSystems.onclick=()=>{
-  screen4.classList.add("hidden");screen5.classList.remove("hidden");step(5);scrollTo(0,0);
-  systemsSummary.textContent=`שם: ${first.value.trim()} ${last.value.trim()}\nתעודת זהות: ${id.value}\nתיק קבוע: ${currentFolderName()}\nהשלב הבא: תיק דיגיטלי.xlsx, תאריכים וקישורים יחסיים.`;
-};
+continueToSystems.onclick=openExcelStage;
 backToPermanent.onclick=()=>{screen5.classList.add("hidden");screen4.classList.remove("hidden");step(5);scrollTo(0,0)};
+
+let digitalExcelFile=null, bankExcelFile=null;
+guideSelect.onchange=()=>guideOtherWrap.classList.toggle("hidden",guideSelect.value!=="__other");
+digitalExcelInput.onchange=()=>{digitalExcelFile=digitalExcelInput.files[0]||null;digitalExcelStatus.className="status-line";digitalExcelStatus.textContent=digitalExcelFile?`נבחר: ${digitalExcelFile.name}`:"לא נבחר קובץ.";buildDigitalCopy.disabled=!digitalExcelFile};
+bankExcelInput.onchange=()=>{bankExcelFile=bankExcelInput.files[0]||null;bankExcelStatus.className="status-line";bankExcelStatus.textContent=bankExcelFile?`נבחר: ${bankExcelFile.name}`:"לא נבחר קובץ.";buildBankCopy.disabled=!bankExcelFile};
+[bankName,bankNumber,bankBranch,bankAccount].forEach(x=>x.addEventListener("input",updateBankMissingWarning));
+openBankDocumentFromExcel.onclick=()=>{if(bankDocumentIndex<0)return alert("לא נמצא מסמך שסווג כמסמך בנק. חזור לשלב בדיקת המסמכים ובחר את סוג המסמך.");openSelectedFile(bankDocumentIndex,true)};
+
+function xmlDoc(s){return new DOMParser().parseFromString(s,"application/xml")}
+function xmlText(doc){return new XMLSerializer().serializeToString(doc)}
+function excelCol(ref){return (String(ref||"").match(/[A-Z]+/)||[""])[0]}
+function localChildren(el,name){return [...el.children].filter(x=>x.localName===name)}
+function child(el,name){return el?localChildren(el,name)[0]||null:null}
+function cellInRow(row,col){return localChildren(row,"c").find(c=>excelCol(c.getAttribute("r"))===col)||null}
+function cellValue(c,shared){if(!c)return"";const t=c.getAttribute("t");if(t==="inlineStr")return [...c.getElementsByTagNameNS("*","t")].map(x=>x.textContent||"").join("");const v=child(c,"v");if(!v)return"";return t==="s"?(shared[Number(v.textContent)]||""):v.textContent||""}
+function excelSerial(dateStr){if(!dateStr)return null;const d=new Date(dateStr+"T00:00:00Z");return Math.floor((d-Date.UTC(1899,11,30))/86400000)}
+async function sharedStrings(zip){if(!zip.file("xl/sharedStrings.xml"))return[];const d=xmlDoc(await zip.file("xl/sharedStrings.xml").async("text"));return [...d.getElementsByTagNameNS("*","si")].map(si=>[...si.getElementsByTagNameNS("*","t")].map(t=>t.textContent||"").join(""))}
+async function workbookMap(zip){const wb=xmlDoc(await zip.file("xl/workbook.xml").async("text"));const rel=xmlDoc(await zip.file("xl/_rels/workbook.xml.rels").async("text"));const m={};for(const r of [...rel.documentElement.children])m[r.getAttribute("Id")]=r.getAttribute("Target");const out={};for(const sh of wb.getElementsByTagNameNS("*","sheet")){const rid=sh.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id")||sh.getAttribute("r:id");out[sh.getAttribute("name")]="xl/"+m[rid].replace(/^\/?xl\//,"")}return out}
+async function duplicateId(zip,idValue,sheetNames,col="D"){const map=await workbookMap(zip),ss=await sharedStrings(zip);for(const n of sheetNames){if(!map[n]||!zip.file(map[n]))continue;const d=xmlDoc(await zip.file(map[n]).async("text"));for(const c of d.getElementsByTagNameNS("*","c")){if(excelCol(c.getAttribute("r"))===col&&String(cellValue(c,ss)).replace(/\D/g,"")===String(idValue).replace(/\D/g,""))return `${n}!${c.getAttribute("r")}`}}return null}
+function downloadBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+function xesc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;")}
+function styleFromRowXml(rowXml,col,rowNum){const m=rowXml.match(new RegExp(`<c\\b[^>]*\\br="${col}${rowNum}"[^>]*>`));return m?((m[0].match(/\bs="([^"]+)"/)||[])[1]||""):""}
+function cellInlineXml(col,rowNum,value,style=""){return `<c r="${col}${rowNum}"${style?` s="${style}"`:""} t="inlineStr"><is><t xml:space="preserve">${xesc(value)}</t></is></c>`}
+function cellNumberXml(col,rowNum,value,style=""){return `<c r="${col}${rowNum}"${style?` s="${style}"`:""}><v>${xesc(value)}</v></c>`}
+function cellFormulaXml(col,rowNum,formula,style="",cached=""){return `<c r="${col}${rowNum}"${style?` s="${style}"`:""}><f>${xesc(formula)}</f>${cached!==""?`<v>${xesc(cached)}</v>`:""}</c>`}
+function excelColumnNumber(col){let n=0;for(const ch of String(col||"")){n=n*26+(ch.charCodeAt(0)-64)}return n}
+function replaceCellXml(rowXml,col,rowNum,newCell){
+  const exact=`${col}${rowNum}`;
+  const escaped=exact.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+  const selfClosing=new RegExp(`<c\\b(?=[^>]*\\br="${escaped}"(?:\\s|"))[^>]*\\/>`);
+  const paired=new RegExp(`<c\\b(?=[^>]*\\br="${escaped}"(?:\\s|"))[^>]*>[\\s\\S]*?<\\/c>`);
+  if(selfClosing.test(rowXml))return rowXml.replace(selfClosing,newCell);
+  if(paired.test(rowXml))return rowXml.replace(paired,newCell);
+  const wanted=excelColumnNumber(col);
+  const cellRe=/<c\b[^>]*\br="([A-Z]+)\d+"[^>]*(?:\/>|>[\s\S]*?<\/c>)/g;
+  let m;
+  while((m=cellRe.exec(rowXml))){
+    if(excelColumnNumber(m[1])>wanted)return rowXml.slice(0,m.index)+newCell+rowXml.slice(m.index);
+  }
+  return rowXml.replace(/<\/row>$/,newCell+"</row>");
+}
+function assertXmlValid(xml,label){
+  const parsed=new DOMParser().parseFromString(xml,"application/xml");
+  const error=parsed.getElementsByTagName("parsererror")[0];
+  if(error)throw new Error(`נוצר XML לא תקין ב-${label}. הקובץ לא נשמר כדי למנוע נזק.`);
+}
+function getRowXml(sheetXml,rowNum){const m=sheetXml.match(new RegExp(`<row\\b[^>]*\\br="${rowNum}"[^>]*>[\\s\\S]*?<\\/row>`));return m?m[0]:null}
+function replaceRowXml(sheetXml,rowNum,newRow){return sheetXml.replace(new RegExp(`<row\\b[^>]*\\br="${rowNum}"[^>]*>[\\s\\S]*?<\\/row>`),newRow)}
+async function addHyperlinkRaw(zip,sheetPath,sheetXml,ref,target){
+  const relPath=sheetPath.replace("xl/worksheets/","xl/worksheets/_rels/")+".rels";
+  let relXml=zip.file(relPath)?await zip.file(relPath).async("text"):'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>';
+  const ids=[...relXml.matchAll(/Id="rId(\d+)"/g)].map(m=>Number(m[1]));const rid=`rId${Math.max(0,...ids)+1}`;
+  relXml=relXml.replace(/<\/Relationships>/,`<Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="${xesc(String(target).replace(/\\/g,"/"))}" TargetMode="External"/></Relationships>`);
+  zip.file(relPath,relXml);
+  sheetXml=sheetXml.replace(new RegExp(`<hyperlink\\b[^>]*\\bref="${ref}"[^>]*/>`),"");
+  const h=`<hyperlink ref="${ref}" r:id="${rid}"/>`;
+  if(/<hyperlinks\b/.test(sheetXml))sheetXml=sheetXml.replace(/<\/hyperlinks>/,h+"</hyperlinks>");
+  else if(/<pageMargins\b/.test(sheetXml))sheetXml=sheetXml.replace(/<pageMargins\b/,`<hyperlinks>${h}</hyperlinks><pageMargins`);
+  else sheetXml=sheetXml.replace(/<\/worksheet>/,`<hyperlinks>${h}</hyperlinks></worksheet>`);
+  return sheetXml;
+}
+function readRowsForFree(sheetXml,shared,col){const d=xmlDoc(sheetXml),out=[];for(const row of d.getElementsByTagNameNS("*","row")){const r=Number(row.getAttribute("r"));out.push({r,value:String(cellValue(cellInRow(row,col),shared)).trim()})}return out}
+
+async function removeCalcChain(zip){
+  zip.remove("xl/calcChain.xml");
+  const relPath="xl/_rels/workbook.xml.rels";
+  if(zip.file(relPath)){
+    let relXml=await zip.file(relPath).async("text");
+    relXml=relXml.replace(/<Relationship\b[^>]*Type="[^"]*\/calcChain"[^>]*\/>/g,"");
+    zip.file(relPath,relXml);
+  }
+  const ctPath="[Content_Types].xml";
+  if(zip.file(ctPath)){
+    let ct=await zip.file(ctPath).async("text");
+    ct=ct.replace(/<Override\b[^>]*PartName="\/xl\/calcChain\.xml"[^>]*\/>/g,"");
+    zip.file(ctPath,ct);
+  }
+  const wbPath="xl/workbook.xml";
+  if(zip.file(wbPath)){
+    let wb=await zip.file(wbPath).async("text");
+    if(/<calcPr\b/.test(wb)) wb=wb.replace(/<calcPr\b([^>]*)\/>/, (m,a)=>`<calcPr${a.replace(/\sfullCalcOnLoad="[^"]*"/g,"").replace(/\sforceFullCalc="[^"]*"/g,"")} fullCalcOnLoad="1" forceFullCalc="1"/>`);
+    else wb=wb.replace(/<\/workbook>/,'<calcPr fullCalcOnLoad="1" forceFullCalc="1"/></workbook>');
+    zip.file(wbPath,wb);
+  }
+}
+function warningConfirm(missing,context){return !missing.length||confirm(`${context}\nהשדות הבאים ריקים: ${missing.join(", ")}\nהנתונים יירשמו גם כך. להמשיך?`)}
+
+buildDigitalCopy.onclick=async()=>{
+ const guide=guideSelect.value==="__other"?guideOther.value.trim():guideSelect.value;
+ const missing=[];
+ if(!dateCommittee.value)missing.push("תאריך הועדה");
+ if(!dateConfidentiality.value)missing.push("תאריך ויתור סודיות");
+ if(!dateMedical.value)missing.push("תוקף דוח רפואי");
+ if(!warningConfirm(missing,"חלק מהשדות בתיק הדיגיטלי לא מולאו."))return;
+ if(!digitalExcelFile)return;
+ buildDigitalCopy.disabled=true;digitalExcelStatus.className="status-line";digitalExcelStatus.textContent="מכין עותק לבדיקה...";
+ try{
+  const zip=await JSZip.loadAsync(await digitalExcelFile.arrayBuffer());
+  const dup=await duplicateId(zip,id.value,["נתיב","עזבו מפעל","עדיין לא התקבל"]);if(dup)throw new Error(`תעודת הזהות כבר קיימת ב-${dup}. לא נוצר עותק.`);
+  const map=await workbookMap(zip),sheetPath=map["נתיב"];if(!sheetPath)throw new Error("לא נמצא גיליון נתיב.");
+  const ss=await sharedStrings(zip);let sheetXml=await zip.file(sheetPath).async("text");const d=xmlDoc(sheetXml);let targetRow=null;
+  for(const row of d.getElementsByTagNameNS("*","row")){const r=Number(row.getAttribute("r"));if(r>=2&&!String(cellValue(cellInRow(row,"D"),ss)).trim()){targetRow=r;break}}
+  if(!targetRow)throw new Error("לא נמצאה שורה פנויה בגיליון נתיב.");
+  let rowXml=getRowXml(sheetXml,targetRow);if(!rowXml)throw new Error("השורה הפנויה לא נמצאה בקובץ XML.");const st=c=>styleFromRowXml(rowXml,c,targetRow);const folder=currentFolderName();
+  rowXml=replaceCellXml(rowXml,"C",targetRow,cellInlineXml("C",targetRow,`${last.value.trim()} ${first.value.trim()}`,st("C")));
+  rowXml=replaceCellXml(rowXml,"D",targetRow,cellNumberXml("D",targetRow,id.value.trim(),st("D")));
+  rowXml=replaceCellXml(rowXml,"E",targetRow,cellInlineXml("E",targetRow,guide||"",st("E")));
+  rowXml=replaceCellXml(rowXml,"F",targetRow,cellInlineXml("F",targetRow,"כללי",st("F")));
+  rowXml=replaceCellXml(rowXml,"G",targetRow,cellInlineXml("G",targetRow,"ת.ז.",st("G")));
+  for(const [c,val] of Object.entries({H:dateCommittee.value,I:dateConfidentiality.value,J:dateMedical.value})){
+    const serial=excelSerial(val);rowXml=replaceCellXml(rowXml,c,targetRow,serial==null?cellInlineXml(c,targetRow,"",st(c)):cellNumberXml(c,targetRow,serial,st(c)));
+  }
+  rowXml=replaceCellXml(rowXml,"K",targetRow,cellInlineXml("K",targetRow,"אין",st("K")));
+  rowXml=replaceCellXml(rowXml,"L",targetRow,cellInlineXml("L",targetRow,"אין",st("L")));
+  sheetXml=replaceRowXml(sheetXml,targetRow,rowXml);
+  const links={F:`${folder}/כללי`,G:`${folder}`,H:`${folder}/הועדה`,I:`${folder}/ויתור סודיות`,J:`${folder}/דוח רפואי`,K:`${folder}/מדריך`,L:`${folder}/עו_ס`};
+  for(const [c,t] of Object.entries(links))sheetXml=await addHyperlinkRaw(zip,sheetPath,sheetXml,c+targetRow,t);
+  assertXmlValid(sheetXml,"תיק דיגיטלי");
+  zip.file(sheetPath,sheetXml);
+  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});downloadBlob(blob,"תיק דיגיטלי_לבדיקה.xlsx");
+  digitalExcelStatus.className="status-line good";digitalExcelStatus.innerHTML=`נוצר עותק לבדיקה. הנתונים נוספו לשורה <b>${targetRow}</b>. דוח מדריך ותוכנית אישית נרשמו כ-"אין" עם קישורים לתיקיות.`;
+ }catch(e){digitalExcelStatus.className="status-line bad";digitalExcelStatus.textContent=e.message||e}finally{buildDigitalCopy.disabled=false}
+};
+
+buildBankCopy.onclick=async()=>{
+ if(!bankExcelFile)return;
+ const missing=[["שם בנק",bankName.value.trim()],["מספר בנק",bankNumber.value.trim()],["מספר סניף",bankBranch.value.trim()],["מספר חשבון",bankAccount.value.trim()]].filter(x=>!x[1]).map(x=>x[0]);
+ if(!warningConfirm(missing,"פרטי הבנק אינם מלאים."))return;
+ buildBankCopy.disabled=true;bankExcelStatus.className="status-line";bankExcelStatus.textContent="מכין עותק לבדיקה...";
+ try{
+  const zip=await JSZip.loadAsync(await bankExcelFile.arrayBuffer());const map=await workbookMap(zip),sheetPath=map["גיליון1"];if(!sheetPath)throw new Error("לא נמצא גיליון1.");
+  const dup=await duplicateId(zip,id.value,["גיליון1"],"B");if(dup)throw new Error(`תעודת הזהות כבר קיימת ב-${dup}. לא נוצר עותק.`);
+  const ss=await sharedStrings(zip);let sheetXml=await zip.file(sheetPath).async("text");const rows=readRowsForFree(sheetXml,ss,"B");
+  const candidates=rows.filter(x=>x.r>=2&&x.r<132&&!x.value).map(x=>x.r);const r=candidates.length?Math.min(...candidates):Math.max(...rows.filter(x=>x.r<140).map(x=>x.r))+1;
+  let rowXml=getRowXml(sheetXml,r);if(!rowXml)throw new Error(`לא נמצאה שורת תבנית פנויה (${r}).`);const st=c=>styleFromRowXml(rowXml,c,r);
+  rowXml=replaceCellXml(rowXml,"A",r,cellFormulaXml("A",r,`IF(ISBLANK(B${r}),"",COUNTA($B$2:B${r}))`,st("A")));
+  rowXml=replaceCellXml(rowXml,"B",r,cellNumberXml("B",r,id.value.trim(),st("B")));
+  rowXml=replaceCellXml(rowXml,"C",r,cellInlineXml("C",r,last.value.trim(),st("C")));
+  rowXml=replaceCellXml(rowXml,"D",r,cellInlineXml("D",r,first.value.trim(),st("D")));
+  rowXml=replaceCellXml(rowXml,"E",r,cellInlineXml("E",r,bankName.value.trim(),st("E")));
+  if(bankNumber.value.trim())rowXml=replaceCellXml(rowXml,"F",r,cellNumberXml("F",r,cleanDigits(bankNumber.value),st("F")));
+  rowXml=replaceCellXml(rowXml,"G",r,cellInlineXml("G",r,bankBranch.value.trim(),st("G")));
+  rowXml=replaceCellXml(rowXml,"H",r,cellInlineXml("H",r,bankAccount.value.trim(),st("H")));
+  rowXml=replaceCellXml(rowXml,"I",r,cellInlineXml("I",r,"",st("I")));
+  sheetXml=replaceRowXml(sheetXml,r,rowXml);assertXmlValid(sheetXml,"מספרי חשבון");zip.file(sheetPath,sheetXml);
+  await removeCalcChain(zip);
+  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});downloadBlob(blob,"מספרי חשבון מקבלי שירות גבע_לבדיקה.xlsx");
+  bankExcelStatus.className="status-line good";bankExcelStatus.innerHTML=`נוצר עותק לבדיקה. פרטי החשבון נוספו לשורה <b>${r}</b>${missing.length?`. נותרו שדות ריקים: ${esc(missing.join(", "))}`:""}.`;
+ }catch(e){bankExcelStatus.className="status-line bad";bankExcelStatus.textContent=e.message||e}finally{buildBankCopy.disabled=false}
+};
+finishTrial.onclick=()=>{alert("מצב הניסיון הסתיים. פתח את שני קובצי הבדיקה ב-Excel ובדוק את השורה החדשה ואת הקישורים.")};
 window.addEventListener("DOMContentLoaded",()=>restoreSavedRoot(false));
 
 const MAIL_SEARCH_KEY="yachdav_mail_search_v2";
