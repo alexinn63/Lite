@@ -86,6 +86,10 @@ body {
 .manual-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .manual-grid label { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 4px; display: block; }
 .manual-grid input { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 7px; font-family: inherit; font-size: 14px; }
+.guardian-toggle-row { margin-top: 12px; }
+.guardian-toggle-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer; }
+.guardian-toggle-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+.guardian-fields { margin-top: 12px; }
 
 /* DOC */
 .doc-header {
@@ -436,6 +440,22 @@ body {
           <input id="manualDate" type="date" onchange="applyManualLive()">
         </div>
       </div>
+      <div class="guardian-toggle-row">
+        <label class="guardian-toggle-label">
+          <input type="checkbox" id="isGuardianCheck" onchange="toggleGuardianFields()">
+          מקבל השירות אינו חותם בעצמו — החוזה נחתם ע"י אפוטרופוס
+        </label>
+      </div>
+      <div class="manual-grid guardian-fields" id="guardianFields" style="display:none;">
+        <div>
+          <label for="guardianName">שם האפוטרופוס</label>
+          <input id="guardianName" type="text" autocomplete="off" placeholder="שם מלא של האפוטרופוס" oninput="applyManualLive()">
+        </div>
+        <div>
+          <label for="guardianTZ">ת.ז. האפוטרופוס (לא חובה)</label>
+          <input id="guardianTZ" type="text" inputmode="numeric" placeholder="מספר ת.ז." oninput="applyManualLive()">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -458,7 +478,7 @@ body {
     <div style="height:16px"></div>
 
     <div class="doc-intro">
-      אני החתום מטה, מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.<br>
+      <span id="introText">אני החתום מטה, מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.</span><br>
       להלן יפורטו כללי ההתנהלות במפעל:
     </div>
 
@@ -493,7 +513,7 @@ body {
     <div id="statusBar" class="status-bar"></div>
 
     <div class="confirm-text">
-      אני, החתום מטה, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל:
+      <span id="confirmText">אני, החתום מטה, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל:</span>
     </div>
 
     <div class="date-row">
@@ -538,7 +558,7 @@ body {
     </table>
 
     <div class="validity-note">
-      הסכם זה נחתם בין מקבל השירות לבין עמותת יחדיו ומהווה אישור לכללי ההתנהלות במפעל המוגן.
+      <span id="validityText">הסכם זה נחתם בין מקבל השירות לבין עמותת יחדיו ומהווה אישור לכללי ההתנהלות במפעל המוגן.</span>
     </div>
 
   </div>
@@ -803,19 +823,71 @@ function formatDateInput(d = new Date()) {
   return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
 }
 
+function isGuardianMode() {
+  const cb = document.getElementById('isGuardianCheck');
+  return !!(cb && cb.checked);
+}
+
+function toggleGuardianFields() {
+  const on = isGuardianMode();
+  document.getElementById('guardianFields').style.display = on ? 'grid' : 'none';
+  if (!on) {
+    document.getElementById('guardianName').value = '';
+    document.getElementById('guardianTZ').value = '';
+  }
+  applyManualLive();
+}
+
+// בונה את תוכן "שם החותם" + טקסטים דינמיים בהתאם לשאלה מי חותם בפועל:
+// מקבל השירות עצמו, או אפוטרופוס מטעמו (ראה נוהל 81.003 סעיף 7.6.4).
 function applyManualLive() {
   const name = document.getElementById('manualName').value.trim();
   const tz = document.getElementById('manualTZ').value.trim();
+  const guardian = isGuardianMode();
+  const gName = guardian ? document.getElementById('guardianName').value.trim() : '';
+  const gTZ = guardian ? document.getElementById('guardianTZ').value.trim() : '';
+
   const fName = document.getElementById('fName');
-  if (fName) fName.textContent = name;
+  if (fName) {
+    if (guardian) {
+      fName.innerHTML =
+        'מקבל השירות: ' + (name || '—') + (tz ? ' (ת.ז. ' + tz + ')' : '') +
+        '<br><span style="font-weight:700;">חתימת אפוטרופוס: ' + (gName || '—') + (gTZ ? ' (ת.ז. ' + gTZ + ')' : '') + '</span>';
+    } else {
+      fName.textContent = name;
+    }
+  }
+
+  const introText = document.getElementById('introText');
+  if (introText) {
+    introText.textContent = guardian
+      ? 'אני החתום מטה, ' + (gName || 'שם האפוטרופוס') + ', בתור אפוטרופוס של ' + (name || 'שם מקבל השירות') + ', מאשר כי הנ"ל מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.'
+      : 'אני החתום מטה, מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.';
+  }
+  const confirmText = document.getElementById('confirmText');
+  if (confirmText) {
+    confirmText.textContent = guardian
+      ? 'אני, החתום מטה בתור אפוטרופוס, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל בשם מקבל השירות:'
+      : 'אני, החתום מטה, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל:';
+  }
+  const validityText = document.getElementById('validityText');
+  if (validityText) {
+    validityText.textContent = guardian
+      ? 'הסכם זה נחתם בין מקבל השירות (באמצעות אפוטרופוסו) לבין עמותת יחדיו ומהווה אישור לכללי ההתנהלות במפעל המוגן.'
+      : 'הסכם זה נחתם בין מקבל השירות לבין עמותת יחדיו ומהווה אישור לכללי ההתנהלות במפעל המוגן.';
+  }
+
   document.getElementById('fDate').value = document.getElementById('manualDate').value || formatDateInput();
 }
 
 function clearAll() {
-  ['manualName','manualTZ'].forEach(id => document.getElementById(id).value = '');
+  ['manualName','manualTZ','guardianName','guardianTZ'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('isGuardianCheck').checked = false;
+  document.getElementById('guardianFields').style.display = 'none';
   document.getElementById('manualDate').value = formatDateInput();
   document.getElementById('fDate').value = formatDateInput();
   document.getElementById('fName').textContent = '';
+  applyManualLive();
   // מקבל שירות — תמיד ריק עבור אדם חדש. עו"ס/מנהל — חוזרים לחותמת הקבועה, לא נמחקים.
   clearSig(0);
   sigState[1].imageData = SIG_PREFILL[1]; sigState[1].prefilled = true; renderPreview(1);
@@ -844,6 +916,9 @@ function getDateText() {
 function savePDF() {
   const name = document.getElementById('manualName').value.trim();
   if (!name) { showStatus('יש להזין שם מקבל שירות', 'error'); return; }
+  if (isGuardianMode() && !document.getElementById('guardianName').value.trim()) {
+    showStatus('יש להזין שם אפוטרופוס', 'error'); return;
+  }
   applyManualLive();
   const prevTitle = document.title;
   document.title = safeFileName(name) + '_חוזה_אישי_' + formatDateInput().slice(0,7);
@@ -851,10 +926,25 @@ function savePDF() {
   setTimeout(() => { document.title = prevTitle; }, 1000);
 }
 
-function buildSaveHTML(name, tz, dateText, sig0, sig1, sig2) {
+function buildSaveHTML(name, tz, dateText, sig0, sig1, sig2, guardianInfo) {
   function sigImg(data) {
     return data ? '<img src="'+data+'" style="max-width:100%;height:22mm;object-fit:contain;">' : '';
   }
+  const isGuardian = !!(guardianInfo && guardianInfo.name);
+  const gName = isGuardian ? guardianInfo.name : '';
+  const gTZ = isGuardian ? guardianInfo.tz : '';
+  const introLine = isGuardian
+    ? 'אני החתום מטה, ' + gName + ', בתור אפוטרופוס של ' + name + ', מאשר כי הנ"ל מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.'
+    : 'אני החתום מטה, מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.';
+  const confirmLine = isGuardian
+    ? 'אני, החתום מטה בתור אפוטרופוס, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל בשם מקבל השירות:'
+    : 'אני, החתום מטה, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל:';
+  const validityLine = isGuardian
+    ? 'הסכם זה נחתם בין מקבל השירות (באמצעות אפוטרופוסו) לבין עמותת יחדיו ומהווה אישור לכללי ההתנהלות במפעל המוגן.'
+    : 'הסכם זה נחתם בין מקבל השירות לבין עמותת יחדיו ומהווה אישור לכללי ההתנהלות במפעל המוגן.';
+  const signerCell = isGuardian
+    ? 'מקבל השירות: ' + name + (tz ? ' (ת.ז. ' + tz + ')' : '') + '<br><strong>חתימת אפוטרופוס: ' + gName + (gTZ ? ' (ת.ז. ' + gTZ + ')' : '') + '</strong>'
+    : name + (tz ? ' (' + tz + ')' : '');
   return '<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>חוזה אישי</title><style>'+
   '@page{size:A4 portrait;margin:6mm;}body{font-family:Arial Hebrew,Arial,sans-serif;color:#1e2535;margin:0;padding:0;}'+
   'h1{text-align:center;color:#1a3a5c;font-size:16pt;margin:0 0 1mm;}'+
@@ -871,7 +961,7 @@ function buildSaveHTML(name, tz, dateText, sig0, sig1, sig2) {
   '</style></head><body>'+
   '<h1>טופס כללי התנהלות</h1>'+
   '<div class="sub">'+ORG_CONFIG.orgName+'</div>'+
-  '<div class="intro">אני החתום מטה, מעוניין להתקבל כמקבל שירות במפעל מוגן באר שבע עמותת יחדיו.<br>להלן יפורטו כללי ההתנהלות במפעל:</div>'+
+  '<div class="intro">'+introLine+'<br>להלן יפורטו כללי ההתנהלות במפעל:</div>'+
   '<ul>'+
   '<li>מקבל השירות יקבל תמיכה, הכוונה, ליווי והקניית מיומנויות והרגלי עבודה התואמים את יכולותיו.</li>'+
   '<li><strong>שלושת החודשים</strong> הראשונים יהיו תקופת ניסיון.</li>'+
@@ -887,18 +977,18 @@ function buildSaveHTML(name, tz, dateText, sig0, sig1, sig2) {
   '<li><strong>מקבל השירות מודע שאין יחסי עובד-מעביד.</strong> יקבל גמול ביצוע עבודה (גב"ע) בהתאם לנוכחות ותפוקה.</li>'+
   '<li>תשלום נסיעות – לפי זכאות. תשלום חגים – 75% (לא בשישי/שבת). חול המועד – ללא תשלום.</li>'+
   '</ul>'+
-  '<div class="confirm">אני, החתום מטה, מאשר בזאת כי קראתי והבנתי את כללי ההתנהלות המפורטים לעיל:</div>'+
+  '<div class="confirm">'+confirmLine+'</div>'+
   '<div class="date-row">תאריך: '+dateText+'</div>'+
   '<div class="sig-title">חתימות</div>'+
   '<table><thead><tr><th></th><th>מקבל שירות / אפוטרופוס</th><th>עו"ס / מדריך</th><th>מנהל מפעל</th></tr></thead>'+
   '<tbody><tr><td style="background:#e8f1fb;font-weight:700;color:#1a3a5c;">שם החותם</td>'+
-  '<td>'+name+(tz?' ('+tz+')':'')+'</td><td>'+ORG_CONFIG.socialWorker.name+'</td><td>'+ORG_CONFIG.director.name+'</td></tr>'+
+  '<td>'+signerCell+'</td><td>'+ORG_CONFIG.socialWorker.name+'</td><td>'+ORG_CONFIG.director.name+'</td></tr>'+
   '<tr><td style="background:#e8f1fb;font-weight:700;color:#1a3a5c;">חתימה</td>'+
   '<td class="sig-img-cell">'+sigImg(sig0)+'</td>'+
   '<td class="sig-img-cell">'+sigImg(sig1)+'</td>'+
   '<td class="sig-img-cell">'+sigImg(sig2)+'</td>'+
   '</tr></tbody></table>'+
-  '<div class="validity">הסכם זה נחתם בין מקבל השירות לבין '+ORG_CONFIG.orgShort+' ומהווה אישור לכללי ההתנהלות במפעל המוגן.</div>'+
+  '<div class="validity">'+validityLine+'</div>'+
   '</body></html>';
 }
 
@@ -906,12 +996,19 @@ function buildSaveHTML(name, tz, dateText, sig0, sig1, sig2) {
 async function emailDoc() {
   const name = document.getElementById('manualName').value.trim();
   if (!name) { showStatus('יש להזין שם מקבל שירות', 'error'); return; }
+  if (isGuardianMode() && !document.getElementById('guardianName').value.trim()) {
+    showStatus('יש להזין שם אפוטרופוס', 'error'); return;
+  }
   const sig0 = sigState[0].imageData ? document.getElementById('sigCanvas0').toDataURL('image/png') : '';
   const sig1 = sigState[1].imageData ? document.getElementById('sigCanvas1').toDataURL('image/png') : '';
   const sig2 = sigState[2].imageData ? document.getElementById('sigCanvas2').toDataURL('image/png') : '';
   const tz = document.getElementById('manualTZ').value.trim();
   const dateText = getDateText();
-  const html = buildSaveHTML(name, tz, dateText, sig0, sig1, sig2);
+  const guardianInfo = isGuardianMode() ? {
+    name: document.getElementById('guardianName').value.trim(),
+    tz: document.getElementById('guardianTZ').value.trim()
+  } : null;
+  const html = buildSaveHTML(name, tz, dateText, sig0, sig1, sig2, guardianInfo);
   const filename = safeFileName(name) + '_חוזה_אישי_' + formatDateInput().slice(0,7) + '.html';
 
   if (navigator.canShare && navigator.share) {
