@@ -283,9 +283,15 @@ function classifyDocument(text, fileName=""){
   const idOther=findIncluded(s,["מספר זהות","ת.ז","ספח","id number"]);
   add("תעודת זהות / ספח",idStrong.length*6+idOther.length,idStrong.concat(idOther));
 
-  const bankStrong=findIncluded(s,["אישור ניהול חשבון","אישור בעלות","חשבון בנק","bank account","צילום צק","צילום צ׳ק"]);
-  const bankOther=findIncluded(s,["פרטי חשבון","מספר חשבון","שם הבנק","מספר בנק","מספר סניף"]);
-  add("אישור חשבון בנק / צילום צ׳ק",bankStrong.length*7+bankOther.length*2,bankStrong.concat(bankOther));
+  const bankStrong=findIncluded(s,["אישור ניהול חשבון","אישור קיום חשבון","אישור בעלות חשבון","אישור בעלות","חשבון בנק","bank account","צילום צק","צילום צ׳ק"]);
+  const bankOther=findIncluded(s,["פרטי חשבון","מספר חשבון","שם הבנק","מספר בנק","מספר סניף","בנק"]);
+  // Filenames are often written in a different word order, for example:
+  // "אישור בנק ניהול חשבון.pdf".  Treat any filename containing both
+  // בנק and חשבון as a strong bank-document signal even when PDF text is image-only.
+  const normalizedFileName=(fileName||"").toLowerCase();
+  const bankByFileName=normalizedFileName.includes("בנק") && normalizedFileName.includes("חשבון");
+  const bankFileMatches=bankByFileName?["בנק+חשבון בשם הקובץ"]:[];
+  add("אישור חשבון בנק / צילום צ׳ק",(bankByFileName?20:0)+bankStrong.length*7+bankOther.length*2,bankStrong.concat(bankOther,bankFileMatches));
 
   const medicalStrong=findIncluded(s,["תעודת שחרור","מכתב שחרור","סיכום רפואי","אישור רפואי","discharge","depressive episode"]);
   const medicalOther=findIncluded(s,["אבחנה","תרופות","רופא מטפל","בית חולים","קופת חולים","מטופל","אשפוז","מגבית חולים","clonex","vie pax","vipeax"]);
@@ -329,6 +335,37 @@ async function extractPdfText(file){
       text+=" "+content.items.map(x=>x.str).join(" ");
     }
     return text;
+  }catch(e){return ""}
+}
+
+
+async function extractPdfImageText(file,maxPages=2){
+  try{
+    if(!window.Tesseract)return "";
+    const pdfjsLib=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+    const data=new Uint8Array(await file.arrayBuffer());
+    const pdf=await pdfjsLib.getDocument({data}).promise;
+    let bestText="",bestScore=-1;
+    const pages=Math.min(pdf.numPages,maxPages);
+    for(let i=1;i<=pages;i++){
+      const page=await pdf.getPage(i);
+      const viewport=page.getViewport({scale:2.25});
+      const canvas=document.createElement("canvas");
+      canvas.width=Math.ceil(viewport.width);canvas.height=Math.ceil(viewport.height);
+      const ctx=canvas.getContext("2d",{willReadFrequently:true});
+      ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
+      await page.render({canvasContext:ctx,viewport}).promise;
+      for(const angle of [0,90,270,180]){
+        const prepared=preparedImageCanvas(canvas,angle);
+        const result=await Tesseract.recognize(prepared,"heb+eng",{logger:()=>{}});
+        const text=result?.data?.text||"",score=ocrTextQuality(text);
+        if(score>bestScore){bestText=text;bestScore=score}
+        const d=extractBankDetails(text);
+        if(d.name&&d.branch&&d.account)return text;
+      }
+    }
+    return bestText;
   }catch(e){return ""}
 }
 
@@ -615,8 +652,12 @@ function extractBankDetails(text){
     return "";
   };
   let number=pick([/מס(?:פר|['׳]?)?\s*בנק\s*[:\-]?\s*(\d{1,3})/i,/קוד\s*בנק\s*[:\-]?\s*(\d{1,3})/i],3);
-  let branch=pick([/מס(?:פר|['׳]?)?\s*סניף\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(\d{1,5})/i],5);
-  let account=pick([/מס(?:פר|['׳]?)?\s*חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i],20);
+  if(!number){
+    const bankNumbers={"לאומי":"10","הפועלים":"12","דיסקונט":"11","מזרחי טפחות":"20","הבינלאומי":"31","מרכנתיל":"17","יהב":"4","ירושלים":"54","מסד":"46","אוצר החייל":"14","One Zero":"18"};
+    number=bankNumbers[name]||"";
+  }
+  let branch=pick([/מס(?:פר|['׳]?)?\s*סניף\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(?:[^0-9]{0,60})?שמספרו\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(\d{1,5})/i],5);
+  let account=pick([/חשבון\s*מס(?:פר|['׳]?)?\s*[:\-]?\s*([0-9\- ]{4,20})/i,/מס(?:פר|['׳]?)?\s*חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i],20);
   return {name,number,branch,account};
 }
 function applyDetectedBankDetails(details){
@@ -633,13 +674,25 @@ function bankSummary(details){
   if(details.number)parts.push(`מספר בנק: ${details.number}`);
   if(details.branch)parts.push(`סניף: ${details.branch}`);
   if(details.account)parts.push(`חשבון: ${details.account}`);
-  return parts.join(" | ")||"פרטי הבנק לא זוהו במלואם — יש להשלים במסך Excel";
+  return parts.join(" | ")||"המסמך זוהה כמסמך בנק. פרטי החשבון לא זוהו אוטומטית — יש לפתוח את המסמך ולמלא אותם בסרגל העליון.";
 }
 
 async function analyzeFile(file){
   const name=file.name.toLowerCase();
   let text="";
-  if(file.type==="application/pdf" || name.endsWith(".pdf")) text=await extractPdfText(file);
+  const isPdf=file.type==="application/pdf" || name.endsWith(".pdf");
+  if(isPdf){
+    text=await extractPdfText(file);
+    const preliminary=classifyDocument(text,file.name);
+    const preliminaryBank=preliminary.type==="אישור חשבון בנק / צילום צ׳ק";
+    const preliminaryDetails=preliminaryBank?extractBankDetails(text):null;
+    const incompleteBank=preliminaryBank&&(!preliminaryDetails?.name||!preliminaryDetails?.branch||!preliminaryDetails?.account);
+    const weakText=ocrTextQuality(text)<120;
+    if(incompleteBank||weakText){
+      const imageText=await extractPdfImageText(file,2);
+      if(imageText)text=(text+" "+imageText).trim();
+    }
+  }
   else if(file.type.startsWith("image/")) text=await extractImageText(file);
   else if(file.type.startsWith("text/") || /\.(txt|csv|md)$/i.test(name)) {
     try{text=await file.text()}catch(e){}
@@ -781,11 +834,48 @@ function openRotatableImage(index){
   };
   reader.readAsDataURL(f);
 }
+function openBankPdfWithToolbar(index){
+  const f=files[index];if(!f)return;
+  prepareBankDocument(index,true);
+  const w=window.open("","_blank");
+  if(!w){alert("הדפדפן חסם את פתיחת החלון. יש לאפשר חלונות קופצים לאתר זה.");return;}
+  const pdfUrl=URL.createObjectURL(f);
+  const safeName=String(f.name).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
+  const values={name:bankName.value.trim(),number:bankNumber.value.trim(),branch:bankBranch.value.trim(),account:bankAccount.value.trim()};
+  const html=`<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><title>${safeName}</title><style>
+    *{box-sizing:border-box}html,body{margin:0;height:100%;font-family:Arial,sans-serif;background:#202632;overflow:hidden}
+    .bar{min-height:64px;background:#fff;color:#1c2b43;display:flex;align-items:center;gap:7px;padding:8px 12px;box-shadow:0 2px 12px #0005;position:relative;z-index:2;flex-wrap:wrap}
+    input{width:122px;border:1px solid #cbd5e1;border-radius:8px;padding:8px 9px;font-size:13px;direction:rtl}#bac{width:145px}
+    button{border:1px solid #2367d1;background:#2367d1;color:#fff;border-radius:9px;padding:9px 14px;cursor:pointer;font-size:14px}
+    .msg{font-size:12px;color:#16803c;min-width:42px}.title{margin-right:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:26vw;font-weight:600}
+    iframe{display:block;width:100%;height:calc(100% - 80px);border:0;background:#fff}
+  </style></head><body>
+    <div class="bar">
+      <input id="bn" placeholder="שם הבנק" value="${esc(values.name)}">
+      <input id="bnum" inputmode="numeric" placeholder="מספר בנק" value="${esc(values.number)}">
+      <input id="bbr" inputmode="numeric" placeholder="מספר סניף" value="${esc(values.branch)}">
+      <input id="bac" inputmode="numeric" placeholder="מספר חשבון" value="${esc(values.account)}">
+      <button id="saveBank">שמור</button><span id="saveMsg" class="msg"></span><span class="title">${safeName}</span>
+    </div>
+    <iframe src="${pdfUrl}#view=FitH"></iframe>
+    <script>
+      document.getElementById('saveBank').onclick=()=>{
+        const details={name:document.getElementById('bn').value.trim(),number:document.getElementById('bnum').value.replace(/\\D/g,''),branch:document.getElementById('bbr').value.replace(/\\D/g,''),account:document.getElementById('bac').value.replace(/\\D/g,'')};
+        if(window.opener&&!window.opener.closed&&typeof window.opener.saveBankDetailsFromPopup==='function'){
+          window.opener.saveBankDetailsFromPopup(details);document.getElementById('saveMsg').textContent='נשמר';document.getElementById('saveBank').textContent='נשמר';
+        }else alert('לא ניתן לשמור את הנתונים בחלון הראשי.');
+      };
+    <\/script></body></html>`;
+  w.document.open();w.document.write(html);w.document.close();
+  w.addEventListener('beforeunload',()=>URL.revokeObjectURL(pdfUrl));
+}
 function openFileWithTools(index,forceBank=false){
   const f=files[index];if(!f)return;
-  prepareBankDocument(index,forceBank);
+  const isBank=prepareBankDocument(index,forceBank);
   if(f.type.startsWith("image/")){
     openRotatableImage(index);
+  }else if(isBank && (f.type==="application/pdf" || f.name.toLowerCase().endsWith(".pdf"))){
+    openBankPdfWithToolbar(index);
   }else{
     openSelectedFile(index,forceBank);
   }
