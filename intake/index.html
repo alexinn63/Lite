@@ -39,7 +39,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.51 — מעבר ישיר לעדכון Excel לאחר יצירת התיק</div></div>
+<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.57 — פתיחת Outlook והעתקת תוכן המייל</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -153,8 +153,8 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 
 <main class="panel hidden" id="screen5">
 <section class="card">
-<h2>עדכון קובצי Excel — מצב ניסיון בטוח</h2>
-<div class="notice">בשלב הניסיון הקבצים המקוריים אינם משתנים. המערכת יוצרת עותקים חדשים להורדה ולבדיקה. לאחר שנבדוק שהכול נכתב נכון, נעבור לעדכון ישיר עם גיבוי אוטומטי.</div>
+<h2>עדכון קובצי Excel — עבודה בקבצים המקוריים</h2>
+<div class="notice">המערכת כותבת את הנתונים ישירות בקובץ המקורי שנבחר. יש לסגור את הקובץ ב-Excel לפני העדכון.</div>
 <div id="systemsSummary" class="folder-tree" style="margin-top:14px"></div>
 
 <div class="continuation-grid" style="margin-top:16px">
@@ -171,7 +171,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
       <div class="field"><label>דוח מדריך</label><input id="dateGuide" value="אין" readonly><div class="date-help">נרשם "אין", אך נשמר קישור לתיקיית מדריך.</div></div>
       <div class="field"><label>תוכנית אישית</label><input id="dateProgram" value="אין" readonly><div class="date-help">נרשם "אין", אך נשמר קישור לתיקיית עו״ס.</div></div>
     </div>
-    <div class="actions" style="margin-top:12px"><label class="btn soft" for="digitalExcelInput">בחר קובץ תיק דיגיטלי.xlsx</label><input id="digitalExcelInput" type="file" accept=".xlsx" hidden><button class="btn primary" id="buildDigitalCopy" disabled>צור עותק מעודכן לבדיקה</button></div>
+    <div class="actions" style="margin-top:12px"><button class="btn soft" id="chooseDigitalExcel" type="button">בחר קובץ תיק דיגיטלי.xlsx</button><input id="digitalExcelInput" type="file" accept=".xlsx" hidden><button class="btn primary" id="buildDigitalCopy" disabled>עדכן את הקובץ הנבחר</button></div>
     <div id="digitalExcelStatus" class="status-line">לא נבחר קובץ.</div>
   </div>
 
@@ -183,15 +183,23 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
       <div class="field"><label>מספר סניף</label><input id="bankBranch" inputmode="numeric"></div>
       <div class="field"><label>מספר חשבון</label><input id="bankAccount"></div>
     </div>
-    <div class="actions" style="margin-top:12px"><button class="btn ghost" id="openBankDocumentFromExcel" type="button">פתח מסמך בנק</button><label class="btn soft" for="bankExcelInput">בחר קובץ מספרי חשבון מקבלי שירות גבע.xlsx</label><input id="bankExcelInput" type="file" accept=".xlsx" hidden><button class="btn primary" id="buildBankCopy" disabled>צור עותק מעודכן לבדיקה</button></div>
+    <div class="actions" style="margin-top:12px"><button class="btn ghost" id="openBankDocumentFromExcel" type="button">פתח מסמך בנק</button><button class="btn soft" id="chooseBankExcel" type="button">בחר קובץ מספרי חשבון מקבלי שירות גבע.xlsx</button><input id="bankExcelInput" type="file" accept=".xlsx" hidden><button class="btn primary" id="buildBankCopy" disabled>עדכן את הקובץ הנבחר</button></div>
     <div id="bankMissingWarning" class="warning-box hidden"></div><div id="bankExcelStatus" class="status-line">לא נבחר קובץ.</div>
   </div>
 </div>
 </section>
-<div class="footer"><button class="btn ghost" id="backToPermanent">חזור להעברה</button><button class="btn ghost" id="finishTrial">סיום ניסיון</button></div>
+<div class="footer"><button class="btn ghost" id="backToPermanent">חזור להעברה</button><button class="btn primary" id="finishTrial">סיום ופתיחת מקבל שירות חדש</button></div>
 </main>
 </div>
 
+<main class="panel hidden" id="screen6">
+  <section class="card" style="text-align:center;padding:42px 28px">
+    <h2 style="margin-top:0">סיום</h2>
+    <div class="status-line good" style="font-size:18px;padding:18px">תהליך הקליטה הושלם. המייל לסיון נפתח ומוכן להשלמה ושליחה.</div>
+    <p style="margin:18px 0 6px">בחלון Outlook יש להדביק את תוכן המייל באמצעות Ctrl+V, לבדוק את הנמען ולשלוח.</p>
+    <div class="actions" style="justify-content:center;margin-top:22px"><button class="btn primary" id="startNewIntake" type="button">התחלת קליטה חדשה</button></div>
+  </section>
+</main>
 
 <div id="viewerModal" class="viewer-modal hidden" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
   <div class="viewer-shell">
@@ -1082,7 +1090,7 @@ function step(n){
   maxVisitedStep=Math.max(maxVisitedStep,n);
   document.querySelectorAll(".step").forEach((el,i)=>{const sn=i+1;el.className="step";if(sn<n)el.classList.add("done");if(sn===n)el.classList.add("active");if(sn<=maxVisitedStep&&sn<6)el.classList.add("reachable")});
 }
-function showOnlyScreen(target){[screen1,screen2,screen3,screen4,screen5].forEach(x=>x.classList.add("hidden"));target.classList.remove("hidden");scrollTo(0,0)}
+function showOnlyScreen(target){[screen1,screen2,screen3,screen4,screen5,screen6].forEach(x=>x.classList.add("hidden"));target.classList.remove("hidden");scrollTo(0,0)}
 function goToStep(n){
   if(n>maxVisitedStep||n===6)return;
   if(n===1){showOnlyScreen(screen1);step(1)}
@@ -1134,7 +1142,7 @@ async function uniqueFileName(dir,name){
   }
 }
 async function copyFileToDirectory(file,dir){
-  const targetName=await uniqueFileName(dir,file.name);
+  const targetName=file.name;
   const handle=await dir.getFileHandle(targetName,{create:true});
   const writable=await handle.createWritable();
   await writable.write(file);
@@ -1270,9 +1278,7 @@ createTempFolder.onclick=async()=>{
   if(!folderName)return alert("שם התיקייה חסר.");
   createTempFolder.disabled=true;chooseTempLocation.disabled=true;copyResults.innerHTML="";tempSuccess.classList.add("hidden");
   try{
-    if(await directoryExists(tempBaseHandle,folderName)){
-      throw new Error(`כבר קיימת תיקייה בשם ${folderName} במקום שנבחר. לא בוצעה החלפה ולא נכתב דבר.`);
-    }
+    const folderAlreadyExists=await directoryExists(tempBaseHandle,folderName);
     const personDir=await tempBaseHandle.getDirectoryHandle(folderName,{create:true});
     const dirs={"תיק ראשי":personDir};
     for(const name of requiredFolders())dirs[name]=await personDir.getDirectoryHandle(name,{create:true});
@@ -1299,7 +1305,9 @@ createTempFolder.onclick=async()=>{
     lastCreatedFolderName=folderName;
     
     continueAfterCreation.disabled=false;
-    tempSuccess.innerHTML=`התיקייה הזמנית <b>${esc(folderName)}</b> נוצרה בהצלחה. נוצרו ${requiredFolders().length+SOCIAL_WORKER_SUBFOLDERS.length} תיקיות משנה והועתקו ${copied} מסמכים. הקבצים המקוריים נשארו במקומם.<br><b>לחץ על המשך כדי לבחור את המיקום הקבוע ואת קובץ Excel.</b>`;
+    tempSuccess.innerHTML=folderAlreadyExists
+      ? `נמצאה תיקייה קיימת בשם <b>${esc(folderName)}</b>. התהליך המשיך בתוכה, הועתקו ${copied} מסמכים וקבצים בעלי אותו שם עודכנו. קבצים אחרים בתיקייה נשארו ללא שינוי.<br><b>עובר כעת למסך עדכון Excel.</b>`
+      : `התיקייה <b>${esc(folderName)}</b> נוצרה בהצלחה. נוצרו ${requiredFolders().length+SOCIAL_WORKER_SUBFOLDERS.length} תיקיות משנה והועתקו ${copied} מסמכים. הקבצים המקוריים נשארו במקומם.<br><b>עובר כעת למסך עדכון Excel.</b>`;
     tempSuccess.classList.remove("hidden");
     tempLocationStatus.innerHTML+=`<br><span class="ok">היצירה הושלמה ללא מחיקה או העברה של המקור.</span>`;
     permanentPersonHandle=personDir;
@@ -1470,6 +1478,7 @@ backToPermanent.onclick=()=>{screen5.classList.add("hidden");screen4.classList.r
 
 let digitalExcelFile=null, bankExcelFile=null;
 let digitalExcelBytes=null, bankExcelBytes=null;
+let digitalExcelHandle=null, bankExcelHandle=null;
 guideSelect.onchange=()=>guideOtherWrap.classList.toggle("hidden",guideSelect.value!=="__other");
 async function cacheSelectedExcel(input,kind){
   const file=input.files[0]||null;
@@ -1491,6 +1500,20 @@ async function cacheSelectedExcel(input,kind){
     status.textContent="לא ניתן לקרוא את הקובץ. סגור אותו ב-Excel, המתן לסיום הסנכרון ובחר אותו מחדש. "+(e.message||e);
   }
 }
+async function chooseExcelOriginal(kind){
+  const isDigital=kind==="digital";
+  const fallback=isDigital?digitalExcelInput:bankExcelInput;
+  if(!window.showOpenFilePicker){fallback.click();return;}
+  try{
+    const [handle]=await window.showOpenFilePicker({multiple:false,types:[{description:"Excel",accept:{"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":[".xlsx"]}}]});
+    const file=await handle.getFile();
+    const bytes=await file.arrayBuffer();
+    if(isDigital){digitalExcelHandle=handle;digitalExcelFile=file;digitalExcelBytes=bytes;digitalExcelStatus.className="status-line good";digitalExcelStatus.innerHTML=`נבחר הקובץ המקורי: <b>${esc(file.name)}</b>.`;buildDigitalCopy.disabled=false;}
+    else{bankExcelHandle=handle;bankExcelFile=file;bankExcelBytes=bytes;bankExcelStatus.className="status-line good";bankExcelStatus.innerHTML=`נבחר הקובץ המקורי: <b>${esc(file.name)}</b>.`;buildBankCopy.disabled=false;}
+  }catch(e){if(e.name!=="AbortError")alert("לא ניתן לבחור את קובץ Excel: "+(e.message||e));}
+}
+chooseDigitalExcel.onclick=()=>chooseExcelOriginal("digital");
+chooseBankExcel.onclick=()=>chooseExcelOriginal("bank");
 digitalExcelInput.onchange=()=>cacheSelectedExcel(digitalExcelInput,"digital");
 bankExcelInput.onchange=()=>cacheSelectedExcel(bankExcelInput,"bank");
 [bankName,bankNumber,bankBranch,bankAccount].forEach(x=>x.addEventListener("input",updateBankMissingWarning));
@@ -1508,6 +1531,12 @@ async function sharedStrings(zip){if(!zip.file("xl/sharedStrings.xml"))return[];
 async function workbookMap(zip){const wb=xmlDoc(await zip.file("xl/workbook.xml").async("text"));const rel=xmlDoc(await zip.file("xl/_rels/workbook.xml.rels").async("text"));const m={};for(const r of [...rel.documentElement.children])m[r.getAttribute("Id")]=r.getAttribute("Target");const out={};for(const sh of wb.getElementsByTagNameNS("*","sheet")){const rid=sh.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships","id")||sh.getAttribute("r:id");out[sh.getAttribute("name")]="xl/"+m[rid].replace(/^\/?xl\//,"")}return out}
 async function duplicateId(zip,idValue,sheetNames,col="D"){const map=await workbookMap(zip),ss=await sharedStrings(zip);for(const n of sheetNames){if(!map[n]||!zip.file(map[n]))continue;const d=xmlDoc(await zip.file(map[n]).async("text"));for(const c of d.getElementsByTagNameNS("*","c")){if(excelCol(c.getAttribute("r"))===col&&String(cellValue(c,ss)).replace(/\D/g,"")===String(idValue).replace(/\D/g,""))return `${n}!${c.getAttribute("r")}`}}return null}
 function downloadBlob(blob,name){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+async function backupAndOverwrite(handle,originalBytes,newBlob,originalName){
+  if(!handle)throw new Error("יש לבחור את הקובץ באמצעות כפתור הבחירה כדי לאפשר עדכון ישיר.");
+  const writable=await handle.createWritable();
+  await writable.write(newBlob);
+  await writable.close();
+}
 function xesc(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;")}
 function styleFromRowXml(rowXml,col,rowNum){const m=rowXml.match(new RegExp(`<c\\b[^>]*\\br="${col}${rowNum}"[^>]*>`));return m?((m[0].match(/\bs="([^"]+)"/)||[])[1]||""):""}
 function cellInlineXml(col,rowNum,value,style=""){return `<c r="${col}${rowNum}"${style?` s="${style}"`:""} t="inlineStr"><is><t xml:space="preserve">${xesc(value)}</t></is></c>`}
@@ -1582,8 +1611,9 @@ buildDigitalCopy.onclick=async()=>{
  if(!dateConfidentiality.value)missing.push("תאריך ויתור סודיות");
  if(!dateMedical.value)missing.push("תוקף דוח רפואי");
  if(!warningConfirm(missing,"חלק מהשדות בתיק הדיגיטלי לא מולאו."))return;
- if(!digitalExcelFile||!digitalExcelBytes)return alert("יש לבחור מחדש את קובץ תיק דיגיטלי.xlsx ולהמתין עד שהקריאה הושלמה.");
- buildDigitalCopy.disabled=true;digitalExcelStatus.className="status-line";digitalExcelStatus.textContent="מכין עותק לבדיקה...";
+ if(!digitalExcelFile||!digitalExcelBytes||!digitalExcelHandle)return alert("יש לבחור את קובץ תיק דיגיטלי.xlsx באמצעות הכפתור כדי לאפשר עדכון ישיר.");
+ if(!confirm("המערכת תעדכן את קובץ תיק דיגיטלי.xlsx שנבחר. להמשיך?"))return;
+ buildDigitalCopy.disabled=true;digitalExcelStatus.className="status-line";digitalExcelStatus.textContent="מעדכן את הקובץ שנבחר...";
  try{
   const zip=await JSZip.loadAsync(digitalExcelBytes);
   const dup=await duplicateId(zip,id.value,["נתיב","עזבו מפעל","עדיין לא התקבל"]);if(dup)throw new Error(`תעודת הזהות כבר קיימת ב-${dup}. לא נוצר עותק.`);
@@ -1607,16 +1637,19 @@ buildDigitalCopy.onclick=async()=>{
   for(const [c,t] of Object.entries(links))sheetXml=await addHyperlinkRaw(zip,sheetPath,sheetXml,c+targetRow,t);
   assertXmlValid(sheetXml,"תיק דיגיטלי");
   zip.file(sheetPath,sheetXml);
-  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});downloadBlob(blob,"תיק דיגיטלי_לבדיקה.xlsx");
-  digitalExcelStatus.className="status-line good";digitalExcelStatus.innerHTML=`נוצר עותק לבדיקה. הנתונים נוספו לשורה <b>${targetRow}</b>. דוח מדריך ותוכנית אישית נרשמו כ-"אין" עם קישורים לתיקיות.`;
+  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  await backupAndOverwrite(digitalExcelHandle,digitalExcelBytes,blob,digitalExcelFile.name);
+  digitalExcelBytes=await blob.arrayBuffer();
+  digitalExcelStatus.className="status-line good";digitalExcelStatus.innerHTML=`הנתונים הועתקו לקובץ שנבחר ונוספו לשורה <b>${targetRow}</b>.`;
  }catch(e){digitalExcelStatus.className="status-line bad";digitalExcelStatus.textContent=e.message||e}finally{buildDigitalCopy.disabled=false}
 };
 
 buildBankCopy.onclick=async()=>{
- if(!bankExcelFile||!bankExcelBytes)return alert("יש לבחור מחדש את קובץ הבנק ולהמתין עד שהקריאה הושלמה.");
+ if(!bankExcelFile||!bankExcelBytes||!bankExcelHandle)return alert("יש לבחור את קובץ הבנק באמצעות הכפתור כדי לאפשר עדכון ישיר.");
  const missing=[["שם בנק",bankName.value.trim()],["מספר בנק",bankNumber.value.trim()],["מספר סניף",bankBranch.value.trim()],["מספר חשבון",bankAccount.value.trim()]].filter(x=>!x[1]).map(x=>x[0]);
  if(!warningConfirm(missing,"פרטי הבנק אינם מלאים."))return;
- buildBankCopy.disabled=true;bankExcelStatus.className="status-line";bankExcelStatus.textContent="מכין עותק לבדיקה...";
+ if(!confirm("המערכת תעדכן את קובץ חשבונות הבנק שנבחר. להמשיך?"))return;
+ buildBankCopy.disabled=true;bankExcelStatus.className="status-line";bankExcelStatus.textContent="מעדכן את הקובץ שנבחר...";
  try{
   const zip=await JSZip.loadAsync(bankExcelBytes);const map=await workbookMap(zip),sheetPath=map["גיליון1"];if(!sheetPath)throw new Error("לא נמצא גיליון1.");
   const dup=await duplicateId(zip,id.value,["גיליון1"],"B");if(dup)throw new Error(`תעודת הזהות כבר קיימת ב-${dup}. לא נוצר עותק.`);
@@ -1634,11 +1667,89 @@ buildBankCopy.onclick=async()=>{
   rowXml=replaceCellXml(rowXml,"I",r,cellInlineXml("I",r,"",st("I")));
   sheetXml=replaceRowXml(sheetXml,r,rowXml);assertXmlValid(sheetXml,"מספרי חשבון");zip.file(sheetPath,sheetXml);
   await removeCalcChain(zip);
-  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});downloadBlob(blob,"מספרי חשבון מקבלי שירות גבע_לבדיקה.xlsx");
-  bankExcelStatus.className="status-line good";bankExcelStatus.innerHTML=`נוצר עותק לבדיקה. פרטי החשבון נוספו לשורה <b>${r}</b>${missing.length?`. נותרו שדות ריקים: ${esc(missing.join(", "))}`:""}.`;
+  const blob=await zip.generateAsync({type:"blob",mimeType:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+  await backupAndOverwrite(bankExcelHandle,bankExcelBytes,blob,bankExcelFile.name);
+  bankExcelBytes=await blob.arrayBuffer();
+  bankExcelStatus.className="status-line good";bankExcelStatus.innerHTML=`הנתונים הועתקו לקובץ שנבחר. פרטי החשבון נוספו לשורה <b>${r}</b>${missing.length?`. נותרו שדות ריקים: ${esc(missing.join(", "))}`:""}.`;
  }catch(e){bankExcelStatus.className="status-line bad";bankExcelStatus.textContent=e.message||e}finally{buildBankCopy.disabled=false}
 };
-finishTrial.onclick=()=>{alert("מצב הניסיון הסתיים. פתח את שני קובצי הבדיקה ב-Excel ובדוק את השורה החדשה ואת הקישורים.")};
+function newRecipientMailText(){
+  const fullName=`${first.value.trim()} ${last.value.trim()}`.trim();
+  const subject=`פתיחת מקבל שירות חדש – ${fullName}`;
+  const body=[
+    "שלום סיון,",
+    "",
+    "אבקש לפתוח מקבל שירות חדש:",
+    "",
+    `שם פרטי: ${first.value.trim()}`,
+    `שם משפחה: ${last.value.trim()}`,
+    `ת.ז.: ${id.value.trim()}`,
+    `בנק: ${bankName.value.trim()}`,
+    `מספר בנק: ${bankNumber.value.trim()}`,
+    `מספר סניף: ${bankBranch.value.trim()}`,
+    `מספר חשבון: ${bankAccount.value.trim()}`,
+    "",
+    "מצורף אישור חשבון הבנק.",
+    "",
+    "בברכה,",
+    "אלכס"
+  ].join("\n");
+  return {fullName,subject,body};
+}
+async function copyMailBody(text){
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(e){}
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=text;
+    ta.setAttribute("readonly","");
+    ta.style.position="fixed";
+    ta.style.opacity="0";
+    ta.style.pointerEvents="none";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0,ta.value.length);
+    const ok=document.execCommand("copy");
+    document.body.removeChild(ta);
+    return ok;
+  }catch(e){return false}
+}
+function markIntakeCompleted(){
+  maxVisitedStep=Math.max(maxVisitedStep,6);
+  showOnlyScreen(screen6);
+  step(6);
+}
+startNewIntake.onclick=()=>window.location.reload();
+
+finishTrial.onclick=async()=>{
+  const mail=newRecipientMailText();
+  if(!mail.fullName||!id.value.trim())return alert("יש למלא שם ותעודת זהות לפני פתיחת המייל.");
+  const copied=await copyMailBody(mail.body);
+  const bankFile=bankDocumentIndex>=0?files[bankDocumentIndex]:null;
+  if(bankFile && navigator.share && navigator.canShare && navigator.canShare({files:[bankFile]})){
+    try{
+      markIntakeCompleted();
+      alert(copied
+        ? "תוכן המייל הועתק. בחלון Outlook בחר או הקלד sivans@yachdav.org.il, לחץ בשדה ההודעה והדבק באמצעות Ctrl+V."
+        : "לא ניתן היה להעתיק אוטומטית. חלון Outlook ייפתח עם מסמך הבנק; יש להזין את הנמען והטקסט ידנית.");
+      await navigator.share({files:[bankFile],title:mail.subject});
+      return;
+    }catch(e){
+      if(e && e.name==="AbortError")return;
+    }
+  }
+  const url=`mailto:sivans@yachdav.org.il?subject=${encodeURIComponent(mail.subject)}&body=${encodeURIComponent(mail.body)}`;
+  markIntakeCompleted();
+  window.location.href=url;
+  setTimeout(()=>alert(bankFile
+    ? `Outlook נפתח. תוכן המייל ${copied?"הועתק וניתן להדביק באמצעות Ctrl+V":"לא הועתק"}. יש לצרף את הקובץ: ${bankFile.name}`
+    : `Outlook נפתח. תוכן המייל ${copied?"הועתק וניתן להדביק באמצעות Ctrl+V":"לא הועתק"}. לא נמצא מסמך בנק שסווג במערכת.`),700);
+};
 window.addEventListener("DOMContentLoaded",()=>restoreSavedRoot(false));
 
 const MAIL_SEARCH_KEY="yachdav_mail_search_v2";
