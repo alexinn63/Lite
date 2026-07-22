@@ -39,7 +39,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.37 — תיקון הודעת פתיחה וסיבוב מסמכים</div></div>
+<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.51 — מעבר ישיר לעדכון Excel לאחר יצירת התיק</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -116,7 +116,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <div id="copyResults" class="result-list"></div>
 <div id="tempSuccess" class="success-box hidden" style="margin-top:14px"></div>
 </section>
-<div class="footer"><button class="btn ghost" id="backToReview">חזור לבדיקה</button><button class="btn primary" id="continueAfterCreation" disabled>המשך למיקום הקבוע ולעדכון Excel</button></div>
+<div class="footer"><button class="btn ghost" id="backToReview">חזור לבדיקה</button><button class="btn primary" id="continueAfterCreation" disabled>השלמת קליטה והעברה לתיק הדיגיטלי</button></div>
 </main>
 
 <main class="panel hidden" id="screen4">
@@ -235,6 +235,8 @@ let permanentPersonHandle=null;
 let detectedBankDetails={name:"",number:"",branch:"",account:""};
 let bankDocumentIndex=-1;
 const analysisResults=[];
+const identityAutoScore={first:0,last:0,id:0};
+const identityManual={first:false,last:false,id:false};
 let viewerObjectUrl="";
 let viewerRotation=0;
 let viewerCurrentIndex=-1;
@@ -260,18 +262,21 @@ const OCR_ANCHORS=[
   "תעודת זהות","אישור ניהול חשבון","מספר חשבון","המוסד לביטוח לאומי","ביטוח לאומי",
   "נכות כללית","דרגת אי כושר","תעודת שחרור","סיכום רפואי","בית חולים","משרד הבריאות",
   "החלטת ועדת השיקום","ועדת השיקום","מפעל מוגן","תכנית שיקום עתידית","תוכנית שיקום עתידית",
-  "סל שיקום","אפוטרופוס"
+  "סל שיקום","אפוטרופוס","אישור על נכות רפואית","דרגת נכות","צילום תז","תעודת זהות ישראלית"
 ];
 
 function findIncluded(s,keys){return keys.filter(k=>s.includes(k))}
 
-function bituachLeumiEvidence(text){
+function bituachLeumiEvidence(text,fileName=""){
   const s=String(text||"").toLowerCase();
+  const fn=String(fileName||"").toLowerCase().replace(/[\s._\-–—]+/g,"");
   const institution=findIncluded(s,["המוסד לביטוח לאומי","המוסד לבטוח לאומי","www.btl.gov.il","btl.gov.il"]);
   const weakInstitution=findIncluded(s,["ביטוח לאומי"]);
-  const benefits=findIncluded(s,["נכות כללית","דרגת אי כושר","קצבת נכות","קצבה חודשית","אישור זכאות לקצבאות","סניף המוסד"]);
-  const allInstitution=institution.concat(weakInstitution);
-  return {institution:allInstitution,benefits,isMatch:institution.length>0 || weakInstitution.length+benefits.length>=2 || benefits.length>=2};
+  const benefits=findIncluded(s,["נכות כללית","דרגת אי כושר","קצבת נכות","קצבה חודשית","אישור זכאות לקצבאות","סניף המוסד","אישור על נכות רפואית","נכות רפואית משוקללת","דרגת נכות","אחוזי נכות"]);
+  const fileMatches=[];
+  if(fn.includes("ביטוחלאומי")||fn.includes("בטוחלאומי")||fn.includes("btl"))fileMatches.push("ביטוח לאומי בשם הקובץ");
+  const allInstitution=institution.concat(weakInstitution,fileMatches);
+  return {institution:allInstitution,benefits,isMatch:fileMatches.length>0 || institution.length>0 || weakInstitution.length+benefits.length>=2 || benefits.length>=2};
 }
 
 function classifyDocument(text, fileName=""){
@@ -279,9 +284,12 @@ function classifyDocument(text, fileName=""){
   const candidates=[];
   const add=(type,score,matches)=>{if(score>0)candidates.push({type,score,matches})};
 
-  const idStrong=findIncluded(s,["תעודת זהות","identity card"]);
-  const idOther=findIncluded(s,["מספר זהות","ת.ז","ספח","id number"]);
-  add("תעודת זהות / ספח",idStrong.length*6+idOther.length,idStrong.concat(idOther));
+  const idStrong=findIncluded(s,["תעודת זהות","תעודה זהות","identity card","מדינת ישראל","רשות האוכלוסין וההגירה"]);
+  const idOther=findIncluded(s,["מספר זהות","ת.ז","תז","ספח","id number"]);
+  const normalizedIdFile=(fileName||"").toLowerCase().replace(/[\s._\-–—]+/g,"");
+  const idByFileName=normalizedIdFile.includes("צילוםתז")||normalizedIdFile.includes("תעודתזהות")||normalizedIdFile.includes("ספחתז")||normalizedIdFile.startsWith("תז");
+  const idFileMatches=idByFileName?["תז/תעודת זהות בשם הקובץ"]:[];
+  add("תעודת זהות / ספח",(idByFileName?30:0)+idStrong.length*8+idOther.length*3,idStrong.concat(idOther,idFileMatches));
 
   const bankStrong=findIncluded(s,["אישור ניהול חשבון","אישור קיום חשבון","אישור בעלות חשבון","אישור בעלות","חשבון בנק","bank account","צילום צק","צילום צ׳ק"]);
   const bankOther=findIncluded(s,["פרטי חשבון","מספר חשבון","שם הבנק","מספר בנק","מספר סניף","בנק"]);
@@ -313,7 +321,7 @@ function classifyDocument(text, fileName=""){
   const guardian=findIncluded(s,["צו מינוי אפוטרופוס","מינוי אפוטרופוס","אפוטרופוס"]);
   add("אפוטרופוס",guardian.length*5,guardian);
 
-  const btl=bituachLeumiEvidence(text);
+  const btl=bituachLeumiEvidence(text,fileName);
   if(btl.isMatch) add("ביטוח לאומי",btl.institution.length*8+btl.benefits.length*3,btl.institution.concat(btl.benefits));
 
   if(!candidates.length)return {type:"לא מזוהה",score:0,matches:[]};
@@ -346,7 +354,7 @@ async function extractPdfImageText(file,maxPages=2){
     pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
     const data=new Uint8Array(await file.arrayBuffer());
     const pdf=await pdfjsLib.getDocument({data}).promise;
-    let bestText="",bestScore=-1;
+    const ocrCandidates=[];
     const pages=Math.min(pdf.numPages,maxPages);
     for(let i=1;i<=pages;i++){
       const page=await pdf.getPage(i);
@@ -356,16 +364,41 @@ async function extractPdfImageText(file,maxPages=2){
       const ctx=canvas.getContext("2d",{willReadFrequently:true});
       ctx.fillStyle="#fff";ctx.fillRect(0,0,canvas.width,canvas.height);
       await page.render({canvasContext:ctx,viewport}).promise;
-      for(const angle of [0,90,270,180]){
+      for(const angle of [0,90,270]){
         const prepared=preparedImageCanvas(canvas,angle);
-        const result=await Tesseract.recognize(prepared,"heb+eng",{logger:()=>{}});
-        const text=result?.data?.text||"",score=ocrTextQuality(text);
-        if(score>bestScore){bestText=text;bestScore=score}
-        const d=extractBankDetails(text);
-        if(d.name&&d.branch&&d.account)return text;
+        const variants=[prepared];
+        // Scanned IDs often occupy only the upper part of a mostly blank A4 page.
+        if(angle===0||angle===180){
+          const crop=document.createElement("canvas");
+          crop.width=prepared.width;crop.height=Math.max(1,Math.round(prepared.height*.62));
+          crop.getContext("2d").drawImage(prepared,0,0,crop.width,crop.height,0,0,crop.width,crop.height);
+          variants.push(crop);
+        }
+        for(const variant of variants){
+          const result=await Tesseract.recognize(variant,"heb+eng",{logger:()=>{}});
+          const text=(result?.data?.text||"").trim();
+          if(!text)continue;
+          const score=ocrTextQuality(text);
+          ocrCandidates.push({text,score});
+          // Stop early only when the bank data is actually complete. A person's ID
+          // also appears on bank documents and must not terminate bank OCR.
+          const d=extractBankDetails(text);
+          if(d.name&&d.branch&&d.account)return text;
+          const docType=classifyDocument(text,file.name);
+          const person=extractPersonIdentity(text,file.name);
+          if(angle===0 && docType.type!=="לא מזוהה" && person.id && (person.first||person.last))return text;
+        }
       }
     }
-    return bestText;
+    // Different rotations/crops may reveal different fields. Merge the three best
+    // OCR results so partial bank details and identity fields are not lost.
+    ocrCandidates.sort((a,b)=>b.score-a.score);
+    const unique=[];
+    for(const item of ocrCandidates){
+      if(!unique.some(x=>x.text===item.text))unique.push(item);
+      if(unique.length===3)break;
+    }
+    return unique.map(x=>x.text).join("\n");
   }catch(e){return ""}
 }
 
@@ -558,71 +591,105 @@ id.addEventListener("blur",()=>{
   if(raw.length===8){id.value="0"+raw;}
 });
 
-function extractPersonIdentity(text){
+function extractPersonIdentity(text,fileName=""){
   const s=String(text||"").replace(/[\u200e\u200f]/g," ");
-  const out={first:"",last:"",id:"",confidence:0};
+  const flat=s.replace(/\s+/g," ").trim();
+  const lines=s.split(/\r?\n/).map(x=>x.replace(/\s+/g," ").trim()).filter(Boolean);
+  const out={first:"",last:"",id:"",confidence:0,firstConfidence:0,lastConfidence:0,idConfidence:0};
+
+  const normalizeOcrDigits=v=>String(v||"").replace(/[Oo]/g,"0").replace(/[Il|]/g,"1").replace(/\D/g,"");
+  const candidates=[];
+  const addIdCandidate=v=>{
+    let digits=normalizeOcrDigits(v);
+    if(digits.length===8)digits="0"+digits;
+    if(digits.length===9&&!candidates.includes(digits))candidates.push(digits);
+  };
 
   const idPatterns=[
-    /(?:תעודת\s*זהות|מספר\s*זהות|ת\.?\s*ז\.?)\s*[:\-]?\s*(\d[\d\s\-]{7,12}\d)/i,
-    /\b(\d{9})\b/
+    /(?:תעודת\s*זהות|מספר\s*זהות|ת\.?\s*ז\.?|מס['׳]?\s*זהות)\s*[:\-]?\s*([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})/ig,
+    /([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})\s*[:\-]?\s*(?:תעודת\s*זהות|מספר\s*זהות|ת\.?\s*ז\.?|מס['׳]?\s*זהות)/ig,
+    /(?:^|\D)([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})(?:\D|$)/g
   ];
   for(const p of idPatterns){
-    const m=s.match(p);
-    if(m){
-      const digits=m[1].replace(/\D/g,"");
-      if(digits.length===9 && isValidIsraeliId(digits)){
-        out.id=digits;
-        out.confidence+=3;
-        break;
-      }
+    p.lastIndex=0;let m;
+    while((m=p.exec(s))){addIdCandidate(m[1]);if(!p.global)break}
+  }
+  for(const digits of candidates){
+    if(isValidIsraeliId(digits)){out.id=digits;out.idConfidence=3;out.confidence+=3;break}
+  }
+  // If OCR found a clearly labelled 9-digit value but the check digit was damaged,
+  // keep it as a lower-confidence candidate so the user can verify it manually.
+  if(!out.id&&candidates.length){out.id=candidates[0];out.idConfidence=1;out.confidence+=1}
+
+  const hebWord="[\\u0590-\\u05FF][\\u0590-\\u05FF\\-׳״']{1,30}";
+  const cleanLabelValue=value=>{
+    const stop=new Set(["שם","פרטי","משפחה","מספר","זהות","תעודת","המשתקם"]);
+    return cleanHebrewName(value).split(" ").filter(w=>w&&!stop.has(w)).slice(0,3).join(" ");
+  };
+  const findLabelValue=(label,nextLabels)=>{
+    const after=new RegExp(label+"\\s*[:\\-]?\\s*("+hebWord+"(?:\\s+"+hebWord+"){0,2}?)(?=\\s+(?:"+nextLabels+")|$)","i");
+    const before=new RegExp("("+hebWord+"(?:\\s+"+hebWord+"){0,2})\\s*[:\\-]?\\s*"+label,"i");
+    for(const line of lines){
+      let m=line.match(after);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
+      m=line.match(before);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
+    }
+    let m=flat.match(after);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
+    m=flat.match(before);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
+    return "";
+  };
+
+  out.first=findLabelValue("שם\\s*פרטי","שם\\s*משפחה|מספר\\s*זהות|תעודת\\s*זהות");
+  out.last=findLabelValue("שם\\s*משפחה","שם\\s*פרטי|מספר\\s*זהות|תעודת\\s*זהות");
+  if(out.first){out.firstConfidence=3;out.confidence+=3}
+  if(out.last){out.lastConfidence=3;out.confidence+=3}
+
+  if(!out.first || !out.last){
+    const full=flat.match(/(?:שם\s*המבוטח|שם\s*המטופל|שם\s*הפונה|שם\s*המשתקם)\s*[:\-]\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
+    if(full){if(!out.first){out.first=cleanHebrewName(full[1]);out.firstConfidence=2}if(!out.last){out.last=cleanHebrewName(full[2]);out.lastConfidence=2}out.confidence+=2}
+  }
+
+  // Conservative filename fallback for names such as
+  // "רן סויסה בקשה של שקדייה.pdf". Use only the first two words and reject
+  // document-description words, so names such as "מכתב מפסיכיאטר" are never used.
+  if((!out.first||!out.last)&&fileName){
+    const base=String(fileName).replace(/\.[^.]+$/," ").replace(/[0-9_()\-]+/g," ").replace(/\s+/g," ").trim();
+    const rawWords=base.split(" ").map(cleanHebrewName).filter(Boolean);
+    const stop=new Set([
+      "בקשה","של","שקדייה","שקדיה","צילום","תז","תעודת","זהות","מסמך","סריקה","חדש","ישן",
+      "מכתב","מפסיכיאטר","פסיכיאטר","פסיכיאטרי","רפואי","רפואית","אישור","דוח","דו״ח","סיכום",
+      "בנק","חשבון","ביטוח","לאומי","ועדה","שיקום","סל","טופס","הפניה","מרופא","רופא"
+    ]);
+    const firstWord=rawWords[0]||"", secondWord=rawWords[1]||"";
+    const plausible=w=>w.length>=2&&w.length<=20&&!stop.has(w);
+    if(plausible(firstWord)&&plausible(secondWord)){
+      if(!out.first){out.first=firstWord;out.firstConfidence=1}
+      if(!out.last){out.last=secondWord;out.lastConfidence=1}
+      out.confidence+=1;
     }
   }
 
-  const firstMatch=s.match(/שם\s*פרטי\s*[:\-]?\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})/);
-  const lastMatch=s.match(/שם\s*משפחה\s*[:\-]?\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
-  if(firstMatch){out.first=cleanHebrewName(firstMatch[1]);out.confidence+=2}
-  if(lastMatch){out.last=cleanHebrewName(lastMatch[1]);out.confidence+=2}
-
-  if(!out.first || !out.last){
-    const full=s.match(/(?:שם\s*המבוטח|שם\s*המטופל|שם\s*הפונה|שם)\s*[:\-]\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
-    if(full){
-      if(!out.first) out.first=cleanHebrewName(full[1]);
-      if(!out.last) out.last=cleanHebrewName(full[2]);
-      out.confidence+=2;
-    }
-  }
-  if(!out.first || !out.last){
-    const subject=s.match(/(?:^|[^\u0590-\u05FF])(?:מר\s*\/\s*גברת|מר|גב(?:רת)?)[\s,;.:\-]+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})/);
-    if(subject){
-      if(!out.last)out.last=cleanHebrewName(subject[1]);
-      if(!out.first)out.first=cleanHebrewName(subject[2]);
-      out.confidence+=2;
-    }
-  }
-  if(!out.first || !out.last){
-    const participant=s.match(/(?:משתקם|מטופל|פונה)\s*[:\-–]\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
-    if(participant){
-      if(!out.first)out.first=cleanHebrewName(participant[1]);
-      if(!out.last)out.last=cleanHebrewName(participant[2]);
-      out.confidence+=2;
-    }
-  }
   return out;
 }
 
 function applyIdentityCandidate(candidate, fileName){
   let changed=false;
-  if(candidate.first && !first.value.trim()){first.value=candidate.first;changed=true}
-  if(candidate.last && !last.value.trim()){last.value=candidate.last;changed=true}
-  if(candidate.id && !id.value.trim()){id.value=candidate.id;changed=true}
+  const apply=(key,inputEl,value,score)=>{
+    if(!value||identityManual[key])return;
+    const safeScore=Number(score||0);
+    if(!inputEl.value.trim() || safeScore>identityAutoScore[key]){
+      inputEl.value=value;identityAutoScore[key]=safeScore;changed=true;
+    }
+  };
+  apply("first",first,candidate.first,candidate.firstConfidence||candidate.confidence);
+  apply("last",last,candidate.last,candidate.lastConfidence||candidate.confidence);
+  apply("id",id,candidate.id,candidate.idConfidence||candidate.confidence);
 
   const found=[];
   if(first.value.trim()) found.push(`שם פרטי: ${first.value.trim()}`);
   if(last.value.trim()) found.push(`שם משפחה: ${last.value.trim()}`);
   if(id.value.trim()) found.push(`תעודת זהות: ${id.value.trim()}`);
-
   if(found.length){
-    identityStatus.textContent=(changed ? `זוהו פרטים מתוך ${fileName}: ` : "פרטים שנמצאו: ")+found.join(" | ");
+    identityStatus.textContent=(changed ? `זוהו/עודכנו פרטים מתוך ${fileName}: ` : "פרטים שנמצאו: ")+found.join(" | ");
     identityStatus.className="analysis-note ok";
   }
 }
@@ -668,6 +735,11 @@ function applyDetectedBankDetails(details){
   if(detectedBankDetails.branch&&!bankBranch.value)bankBranch.value=detectedBankDetails.branch;
   if(detectedBankDetails.account&&!bankAccount.value)bankAccount.value=detectedBankDetails.account;
 }
+function mergeBankDetails(base,extra){
+  const out={...base};
+  for(const k of ["name","number","branch","account"])if(extra&&extra[k])out[k]=extra[k];
+  return out;
+}
 function bankSummary(details){
   const parts=[];
   if(details.name)parts.push(`בנק: ${details.name}`);
@@ -704,7 +776,7 @@ async function analyzeFile(file){
   result.registrationDate=result.type==="הועדה" && result.committeeInfo.validUntil
     ? result.committeeInfo.validUntil
     : result.documentDate;
-  result.identity=extractPersonIdentity(text);
+  result.identity=extractPersonIdentity(text,file.name);
   result.bankDetails=result.type==="אישור חשבון בנק / צילום צ׳ק"?extractBankDetails(text):null;
   return result;
 }
@@ -885,7 +957,11 @@ window.saveBankDetailsFromPopup=(d)=>{
   detectedBankDetails={...detectedBankDetails,...details};
   bankName.value=details.name;bankNumber.value=details.number;bankBranch.value=details.branch;bankAccount.value=details.account;
   updateBankMissingWarning();
-  if(bankDocumentIndex>=0)renderDocumentDetailCell(bankDocumentIndex,"אישור חשבון בנק / צילום צ׳ק");
+  if(bankDocumentIndex>=0){
+    const r=analysisResults[bankDocumentIndex]||(analysisResults[bankDocumentIndex]={});
+    r.bankDetails={...details};
+    renderDocumentDetailCell(bankDocumentIndex,"אישור חשבון בנק / צילום צ׳ק");
+  }
 };
 closeViewer.onclick=closeDocumentViewer;viewerModal.addEventListener("click",e=>{if(e.target===viewerModal)closeDocumentViewer()});
 rotateLeft.onclick=()=>{viewerRotation-=90;requestAnimationFrame(applyViewerRotation)};rotateRight.onclick=()=>{viewerRotation+=90;requestAnimationFrame(applyViewerRotation)};fitViewer.onclick=()=>{requestAnimationFrame(applyViewerRotation)};
@@ -906,7 +982,7 @@ function renderDocumentDetailCell(index,type){
     bankDocumentIndex=index;
     const details=result.extractedText?extractBankDetails(result.extractedText):(result.bankDetails||{});
     applyDetectedBankDetails(details);syncBankInputsFromDetected();
-    cell.innerHTML=`<div class="analysis-note bank-inline"><b>${esc(bankSummary({...detectedBankDetails,...details}))}</b><button class="btn ghost compact-action bank-open" type="button">פתח ומלא פרטים</button></div>`;
+    cell.innerHTML=`<div class="analysis-note bank-inline"><b>${esc(bankSummary(mergeBankDetails(detectedBankDetails,details)))}</b><button class="btn ghost compact-action bank-open" type="button">פתח ומלא פרטים</button></div>`;
     cell.querySelector(".bank-open").onclick=()=>openFileWithTools(index,true);
   }else{
     const value=formatDateInput(result.registrationDate||result.documentDate);
@@ -1020,6 +1096,7 @@ back.onclick=()=>{screen2.classList.add("hidden");screen1.classList.remove("hidd
 function clearIdentityErrors(){[first,last,id].forEach(x=>x.classList.remove("input-error"))}
 let tempBaseHandle=null;
 const STANDARD_FOLDERS=["דוח רפואי","הועדה","ויתור סודיות","כללי","מדריך","עו_ס"];
+const SOCIAL_WORKER_SUBFOLDERS=["תיעוד שיחה"];
 function safeFolderName(value){return String(value||"").replace(/[\/:*?"<>|]/g,"-").replace(/\s+/g," ").trim()}
 function currentFolderName(){return safeFolderName(`${first.value.trim()} ${last.value.trim()}`)}
 function selectedDocumentRows(){
@@ -1039,7 +1116,9 @@ function requiredFolders(){
 function refreshFolderPlan(){
   const name=currentFolderName();
   tempFolderName.value=name;
-  const lines=[name||"שם התיקייה",...requiredFolders().map(x=>`  ├── ${x}`),"  └── תעודת זהות / ספח נשמרים בתיקייה הראשית"];
+  const folderLines=requiredFolders().map(x=>`  ├── ${x}`);
+  folderLines.push(...SOCIAL_WORKER_SUBFOLDERS.map(x=>`  │   └── עו_ס/${x}`));
+  const lines=[name||"שם התיקייה",...folderLines,"  └── תעודת זהות / ספח נשמרים בתיקייה הראשית"];
   folderTree.textContent=lines.join("\n");
 }
 async function directoryExists(parent,name){
@@ -1126,6 +1205,8 @@ async function buildTemporaryZip(){
   const zip=new JSZip();
   const root=zip.folder(folderName);
   for(const name of requiredFolders())root.folder(name);
+  const socialRoot=root.folder("עו_ס");
+  for(const name of SOCIAL_WORKER_SUBFOLDERS)socialRoot.folder(name);
   const rows=selectedDocumentRows();
   let copied=0;
   for(const row of rows){
@@ -1195,6 +1276,7 @@ createTempFolder.onclick=async()=>{
     const personDir=await tempBaseHandle.getDirectoryHandle(folderName,{create:true});
     const dirs={"תיק ראשי":personDir};
     for(const name of requiredFolders())dirs[name]=await personDir.getDirectoryHandle(name,{create:true});
+    for(const name of SOCIAL_WORKER_SUBFOLDERS)await dirs["עו_ס"].getDirectoryHandle(name,{create:true});
     const rows=selectedDocumentRows();
     let copied=0;
     for(const row of rows){
@@ -1217,7 +1299,7 @@ createTempFolder.onclick=async()=>{
     lastCreatedFolderName=folderName;
     
     continueAfterCreation.disabled=false;
-    tempSuccess.innerHTML=`התיקייה הזמנית <b>${esc(folderName)}</b> נוצרה בהצלחה. נוצרו ${requiredFolders().length} תיקיות משנה והועתקו ${copied} מסמכים. הקבצים המקוריים נשארו במקומם.<br><b>לחץ על המשך כדי לבחור את המיקום הקבוע ואת קובץ Excel.</b>`;
+    tempSuccess.innerHTML=`התיקייה הזמנית <b>${esc(folderName)}</b> נוצרה בהצלחה. נוצרו ${requiredFolders().length+SOCIAL_WORKER_SUBFOLDERS.length} תיקיות משנה והועתקו ${copied} מסמכים. הקבצים המקוריים נשארו במקומם.<br><b>לחץ על המשך כדי לבחור את המיקום הקבוע ואת קובץ Excel.</b>`;
     tempSuccess.classList.remove("hidden");
     tempLocationStatus.innerHTML+=`<br><span class="ok">היצירה הושלמה ללא מחיקה או העברה של המקור.</span>`;
     permanentPersonHandle=personDir;
@@ -1235,6 +1317,9 @@ createTempFolder.onclick=async()=>{
 
 
 [first,last,id].forEach(x=>x.addEventListener("input",()=>x.classList.remove("input-error")));
+first.addEventListener("input",()=>{identityManual.first=true;identityAutoScore.first=99});
+last.addEventListener("input",()=>{identityManual.last=true;identityAutoScore.last=99});
+id.addEventListener("input",()=>{identityManual.id=true;identityAutoScore.id=99});
 
 
 function openHandleDb(){
@@ -1374,6 +1459,9 @@ transferToPermanent.onclick=async()=>{
     permanentActionStatus.className="status-line good";
     permanentActionStatus.innerHTML=`התיק <b>${esc(folderName)}</b> הועתק בהצלחה למיקום הקבוע. המקור לא נמחק. כעת לחץ על המשך לעדכון Excel וקישורים.`;
     continueToSystems.disabled=false;
+    continueToSystems.className="btn primary";
+    continueToSystems.textContent="המשך עכשיו לעדכון Excel וקישורים";
+    continueToSystems.focus();
   }catch(e){permanentActionStatus.className="status-line bad";permanentActionStatus.textContent=e.message||e}
   finally{updateTransferAvailability()}
 };
@@ -1381,9 +1469,30 @@ continueToSystems.onclick=openExcelStage;
 backToPermanent.onclick=()=>{screen5.classList.add("hidden");screen4.classList.remove("hidden");step(5);scrollTo(0,0)};
 
 let digitalExcelFile=null, bankExcelFile=null;
+let digitalExcelBytes=null, bankExcelBytes=null;
 guideSelect.onchange=()=>guideOtherWrap.classList.toggle("hidden",guideSelect.value!=="__other");
-digitalExcelInput.onchange=()=>{digitalExcelFile=digitalExcelInput.files[0]||null;digitalExcelStatus.className="status-line";digitalExcelStatus.textContent=digitalExcelFile?`נבחר: ${digitalExcelFile.name}`:"לא נבחר קובץ.";buildDigitalCopy.disabled=!digitalExcelFile};
-bankExcelInput.onchange=()=>{bankExcelFile=bankExcelInput.files[0]||null;bankExcelStatus.className="status-line";bankExcelStatus.textContent=bankExcelFile?`נבחר: ${bankExcelFile.name}`:"לא נבחר קובץ.";buildBankCopy.disabled=!bankExcelFile};
+async function cacheSelectedExcel(input,kind){
+  const file=input.files[0]||null;
+  const isDigital=kind==="digital";
+  const status=isDigital?digitalExcelStatus:bankExcelStatus;
+  const button=isDigital?buildDigitalCopy:buildBankCopy;
+  if(isDigital){digitalExcelFile=file;digitalExcelBytes=null}else{bankExcelFile=file;bankExcelBytes=null}
+  button.disabled=true;
+  if(!file){status.className="status-line";status.textContent="לא נבחר קובץ.";return}
+  status.className="status-line";status.textContent=`קורא ושומר בזיכרון: ${file.name}...`;
+  try{
+    const bytes=await file.arrayBuffer();
+    if(isDigital)digitalExcelBytes=bytes;else bankExcelBytes=bytes;
+    status.className="status-line good";
+    status.innerHTML=`נבחר ונקרא לזיכרון: <b>${esc(file.name)}</b>`;
+    button.disabled=false;
+  }catch(e){
+    status.className="status-line bad";
+    status.textContent="לא ניתן לקרוא את הקובץ. סגור אותו ב-Excel, המתן לסיום הסנכרון ובחר אותו מחדש. "+(e.message||e);
+  }
+}
+digitalExcelInput.onchange=()=>cacheSelectedExcel(digitalExcelInput,"digital");
+bankExcelInput.onchange=()=>cacheSelectedExcel(bankExcelInput,"bank");
 [bankName,bankNumber,bankBranch,bankAccount].forEach(x=>x.addEventListener("input",updateBankMissingWarning));
 openBankDocumentFromExcel.onclick=()=>{if(bankDocumentIndex<0)return alert("לא נמצא מסמך שסווג כמסמך בנק. חזור לשלב בדיקת המסמכים ובחר את סוג המסמך.");openSelectedFile(bankDocumentIndex,true)};
 
@@ -1473,10 +1582,10 @@ buildDigitalCopy.onclick=async()=>{
  if(!dateConfidentiality.value)missing.push("תאריך ויתור סודיות");
  if(!dateMedical.value)missing.push("תוקף דוח רפואי");
  if(!warningConfirm(missing,"חלק מהשדות בתיק הדיגיטלי לא מולאו."))return;
- if(!digitalExcelFile)return;
+ if(!digitalExcelFile||!digitalExcelBytes)return alert("יש לבחור מחדש את קובץ תיק דיגיטלי.xlsx ולהמתין עד שהקריאה הושלמה.");
  buildDigitalCopy.disabled=true;digitalExcelStatus.className="status-line";digitalExcelStatus.textContent="מכין עותק לבדיקה...";
  try{
-  const zip=await JSZip.loadAsync(await digitalExcelFile.arrayBuffer());
+  const zip=await JSZip.loadAsync(digitalExcelBytes);
   const dup=await duplicateId(zip,id.value,["נתיב","עזבו מפעל","עדיין לא התקבל"]);if(dup)throw new Error(`תעודת הזהות כבר קיימת ב-${dup}. לא נוצר עותק.`);
   const map=await workbookMap(zip),sheetPath=map["נתיב"];if(!sheetPath)throw new Error("לא נמצא גיליון נתיב.");
   const ss=await sharedStrings(zip);let sheetXml=await zip.file(sheetPath).async("text");const d=xmlDoc(sheetXml);let targetRow=null;
@@ -1504,12 +1613,12 @@ buildDigitalCopy.onclick=async()=>{
 };
 
 buildBankCopy.onclick=async()=>{
- if(!bankExcelFile)return;
+ if(!bankExcelFile||!bankExcelBytes)return alert("יש לבחור מחדש את קובץ הבנק ולהמתין עד שהקריאה הושלמה.");
  const missing=[["שם בנק",bankName.value.trim()],["מספר בנק",bankNumber.value.trim()],["מספר סניף",bankBranch.value.trim()],["מספר חשבון",bankAccount.value.trim()]].filter(x=>!x[1]).map(x=>x[0]);
  if(!warningConfirm(missing,"פרטי הבנק אינם מלאים."))return;
  buildBankCopy.disabled=true;bankExcelStatus.className="status-line";bankExcelStatus.textContent="מכין עותק לבדיקה...";
  try{
-  const zip=await JSZip.loadAsync(await bankExcelFile.arrayBuffer());const map=await workbookMap(zip),sheetPath=map["גיליון1"];if(!sheetPath)throw new Error("לא נמצא גיליון1.");
+  const zip=await JSZip.loadAsync(bankExcelBytes);const map=await workbookMap(zip),sheetPath=map["גיליון1"];if(!sheetPath)throw new Error("לא נמצא גיליון1.");
   const dup=await duplicateId(zip,id.value,["גיליון1"],"B");if(dup)throw new Error(`תעודת הזהות כבר קיימת ב-${dup}. לא נוצר עותק.`);
   const ss=await sharedStrings(zip);let sheetXml=await zip.file(sheetPath).async("text");const rows=readRowsForFree(sheetXml,ss,"B");
   const candidates=rows.filter(x=>x.r>=2&&x.r<132&&!x.value).map(x=>x.r);const r=candidates.length?Math.min(...candidates):Math.max(...rows.filter(x=>x.r<140).map(x=>x.r))+1;
