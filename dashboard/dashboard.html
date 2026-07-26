@@ -1,0 +1,1232 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>בקרה ותיק דיגיטלי</title>
+  <script src="xlsx.mini.min.js"></script>
+  <style>
+    :root {
+      --bg: #f4f6f3;
+      --surface: #ffffff;
+      --surface-soft: #f8faf8;
+      --ink: #172019;
+      --muted: #617067;
+      --line: #dbe3dc;
+      --line-strong: #c6d1c8;
+      --brand: #28623c;
+      --brand-dark: #19492b;
+      --brand-soft: #e8f2eb;
+      --blue: #2b6f8d;
+      --blue-soft: #e7f2f7;
+      --valid: #287a49;
+      --valid-soft: #e8f5ec;
+      --soon: #8a6100;
+      --soon-soft: #fff4cd;
+      --expired: #a53737;
+      --expired-soft: #fdebea;
+      --missing: #5e6862;
+      --missing-soft: #eef1ef;
+      --shadow: 0 12px 34px rgba(27, 54, 35, .08);
+      --radius: 16px;
+      --button-width: 124px;
+      --button-height: 32px;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--bg); }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 85% -10%, rgba(90, 170, 116, .12), transparent 30rem),
+        var(--bg);
+      font: 15px/1.5 "Segoe UI", Arial, sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 3px solid rgba(43, 111, 141, .35);
+      outline-offset: 2px;
+    }
+
+    .accent {
+      height: 6px;
+      background: linear-gradient(90deg, #f0bf28 0 20%, #65a43a 20% 40%, #42a6cf 40% 60%, #db4e43 60% 80%, #8062a8 80%);
+    }
+    .page { width: min(1800px, 100%); margin: 0 auto; padding: 22px clamp(14px, 2.5vw, 34px) 38px; }
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+    .title-wrap { min-width: 0; }
+    .eyebrow {
+      margin: 0 0 3px;
+      color: var(--brand);
+      font-size: 13px;
+      letter-spacing: .02em;
+    }
+    h1 { margin: 0; font-size: clamp(30px, 3.4vw, 44px); line-height: 1.2; font-weight: 400; }
+    .subtitle { margin: 7px 0 0; color: var(--muted); max-width: 780px; }
+    .nav-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+
+    .btn, .nav-link, .chip {
+      width: auto;
+      min-width: var(--button-width);
+      height: auto;
+      min-height: var(--button-height);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 6px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--ink);
+      background: var(--surface);
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 12.5px;
+      font-weight: 400;
+      line-height: 1.2;
+      white-space: nowrap;
+      transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease;
+    }
+    .doc-link, .folder-btn {
+      width: var(--button-width);
+      min-width: var(--button-width);
+      height: var(--button-height);
+      min-height: var(--button-height);
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 4px 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: var(--ink);
+      background: var(--surface);
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 11.5px;
+      font-weight: 400;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease, background .16s ease;
+    }
+    .btn:hover, .nav-link:hover, .chip:hover, .doc-link:hover, .folder-btn:hover {
+      border-color: #91aa98;
+      box-shadow: 0 4px 14px rgba(30, 60, 39, .08);
+    }
+    .btn:active, .nav-link:active, .chip:active, .doc-link:active, .folder-btn:active { transform: translateY(1px); }
+    .btn.primary { color: #fff; background: var(--brand); border-color: var(--brand); }
+    .btn.primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); }
+    .btn.ghost { background: transparent; }
+    .btn[disabled] { opacity: .55; cursor: wait; }
+    .nav-link.intake-link {
+      width: auto;
+      min-width: 196px;
+      padding-inline: 16px;
+    }
+
+    .source-card {
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, .88);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .source-meta { display: flex; align-items: center; gap: 13px; min-width: 0; }
+    .source-icon {
+      flex: 0 0 auto;
+      width: 40px; height: 40px;
+      border-radius: 11px;
+      display: grid; place-items: center;
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      font-size: 19px;
+    }
+    .source-title { margin: 0; font-size: 18px; font-weight: 400; }
+    .source-summary { display: flex; flex-wrap: nowrap; align-items: center; gap: 7px; }
+    .mini-stat {
+      width: var(--button-width);
+      min-width: var(--button-width);
+      height: var(--button-height);
+      min-height: var(--button-height);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 4px 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      color: var(--muted);
+      background: var(--surface-soft);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .mini-stat strong { color: var(--ink); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .mini-stat.expired strong { color: var(--expired); }
+    .source-status { margin: 2px 0 0; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; text-align: right; }
+    .source-actions { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; align-items: center; }
+    .file-input { display: none; }
+    .load-status {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      color: #1e6138;
+      white-space: nowrap;
+    }
+    .load-status.show { display: inline-flex; }
+
+    .notice {
+      display: none;
+      margin-top: 12px;
+      border: 1px solid #e6c55c;
+      background: #fff8de;
+      color: #604b00;
+      border-radius: 12px;
+      padding: 11px 14px;
+    }
+    .notice.show { display: block; }
+    .notice.error { border-color: #e0a2a2; background: var(--expired-soft); color: #702626; }
+
+    .content[hidden] { display: none !important; }
+    .controls {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: minmax(240px, 1.4fr) repeat(2, minmax(160px, .6fr)) auto;
+      gap: 10px;
+      align-items: end;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(244, 246, 243, .94);
+      backdrop-filter: blur(12px);
+    }
+    .field { display: grid; gap: 5px; min-width: 0; }
+    .field label { color: var(--muted); font-size: 12px; }
+    .input, .select {
+      width: 100%;
+      min-height: 38px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      padding: 6px 10px;
+      color: var(--ink);
+      background: var(--surface);
+    }
+    .search-wrap { position: relative; }
+    .search-wrap .input { padding-right: 40px; }
+    .search-mark { position: absolute; right: 13px; bottom: 10px; color: var(--muted); pointer-events: none; }
+    .clear-btn { width: auto; }
+
+    .quick-filters {
+      display: flex;
+      gap: 7px;
+      overflow-x: auto;
+      padding: 10px 1px 5px;
+      scrollbar-width: thin;
+    }
+    .chip {
+      flex: 0 0 auto;
+    }
+    .chip[aria-pressed="true"] { color: #fff; background: var(--brand); border-color: var(--brand); }
+
+    .legend-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 5px 2px 9px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--missing); }
+    .dot.valid { background: var(--valid); }
+    .dot.soon { background: #d39a17; }
+    .dot.expired { background: var(--expired); }
+    .result-count { font-variant-numeric: tabular-nums; }
+
+    .table-shell {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .table-scroll { max-height: calc(100vh - 250px); min-height: 360px; overflow-y: auto; overflow-x: hidden; }
+    table { width: 100%; min-width: 0; table-layout: fixed; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+    th, td { border-bottom: 1px solid var(--line); border-left: 1px solid #edf1ee; padding: 2px 5px; text-align: right; vertical-align: middle; overflow: hidden; }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 6;
+      height: 36px;
+      color: #34423a;
+      background: #f1f5f2;
+      font-size: 12px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+    th.sortable { cursor: pointer; user-select: none; }
+    th.sortable:hover { background: #e8eeea; }
+    th .sort-icon { margin-inline-start: 4px; color: #849087; }
+    tbody tr:hover td { background-color: #e7f1ec; }
+    tbody tr:last-child td { border-bottom: 0; }
+    td { height: 32px; background: var(--surface); }
+
+    td.sticky-name, td.sticky-id, td.sticky-guide { position: static; background: var(--surface); }
+    th.sticky-name, th.sticky-id, th.sticky-guide { background: #edf3ef; position: sticky; top: 0; z-index: 6; }
+
+    .name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .id-value { direction: ltr; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .cell-state { min-width: 0; padding-inline: 3px; text-align: center; }
+    .state-box {
+      display: grid;
+      gap: 1px;
+      min-height: 28px;
+      margin: -2px -3px;
+      padding: 2px 4px;
+      align-content: center;
+      justify-content: center;
+      text-align: center;
+      border-radius: 9px;
+    }
+    .state-box strong { font-size: 11.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
+    .state-box small { font-size: 10.5px; color: inherit; opacity: .82; }
+    .state-date { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .state-valid { color: #1e6138; background: var(--valid-soft); }
+    .state-soon { color: #765200; background: var(--soon-soft); }
+    .state-expired { color: #8e2929; background: var(--expired-soft); }
+    .state-closed { color: #4f5e55; background: #f0f3f1; }
+    .state-missing, .state-exempt, .state-unknown { color: #59635d; background: var(--missing-soft); }
+    .doc-link, .folder-btn {
+      width: auto;
+      min-width: 0;
+      max-width: 96px;
+      height: 28px;
+      min-height: 28px;
+      padding: 3px 10px;
+      color: var(--brand-dark);
+      background: var(--brand-soft);
+      border-color: #b9ccc0;
+    }
+    .doc-link:has(.state-box) {
+      background: transparent;
+      border-color: transparent;
+      padding: 0;
+      width: 100%;
+      max-width: none;
+    }
+    .doc-link .state-box {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      border-radius: 9px;
+    }
+    .folder-cell, .action-cell { width: auto; min-width: 0; padding-inline: 3px; text-align: center; }
+    .notes { max-width: 240px; white-space: normal; overflow-wrap: anywhere; color: #4c5951; }
+    .empty-state { padding: 55px 20px; text-align: center; color: var(--muted); }
+    .empty-state strong { display: block; margin-bottom: 5px; color: var(--ink); font-size: 17px; }
+
+    .toast {
+      position: fixed;
+      left: 22px;
+      bottom: 22px;
+      z-index: 100;
+      max-width: min(430px, calc(100vw - 32px));
+      padding: 12px 16px;
+      border-radius: 12px;
+      color: #fff;
+      background: #26382d;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+      transform: translateY(25px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important; height: 1px !important;
+      padding: 0 !important; margin: -1px !important;
+      overflow: hidden !important; clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important; border: 0 !important;
+    }
+
+    @media (max-width: 1000px) {
+      .topbar { flex-direction: column; }
+      .nav-actions { justify-content: flex-start; }
+      .controls { grid-template-columns: 1fr 1fr; }
+      .clear-btn { width: 100%; }
+    }
+    @media (max-width: 680px) {
+      .page { padding-inline: 10px; }
+      .source-card { grid-template-columns: 1fr; }
+      .source-actions { justify-content: stretch; }
+      .source-actions .btn { flex: 1; }
+      .controls { position: static; grid-template-columns: 1fr; }
+      .table-scroll { max-height: 68vh; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="accent" aria-hidden="true"></div>
+  <main class="page">
+    <header class="topbar">
+      <div class="title-wrap">
+        <p class="eyebrow">מפעל מוגן · משרד הבריאות</p>
+        <h1>בקרה ותיק דיגיטלי</h1>
+        <p class="subtitle">תצוגת בקרה לקריאה בלבד מתוך קובץ Excel העדכני. הנתונים אינם נשמרים בתוך המסך ואינם משנים את הקובץ.</p>
+      </div>
+      <nav class="nav-actions" aria-label="ניווט ראשי">
+        <a class="nav-link" href="../index.html">⌂ מסך ראשי</a>
+        <a class="nav-link intake-link" href="../intake/intake.html">＋ קליטת מקבל שירות חדש</a>
+      </nav>
+    </header>
+
+    <section class="source-card" aria-labelledby="sourceHeading">
+      <div class="source-meta">
+        <div class="source-icon" aria-hidden="true">▦</div>
+        <div style="min-width:0">
+          <h2 class="source-title" id="sourceHeading">מקור הנתונים: תיק דיגיטלי.xlsx</h2>
+          <p class="source-status" id="sourceStatus">לא נבחר קובץ. יש לבחור את קובץ ה-Excel העדכני.</p>
+        </div>
+      </div>
+      <div class="source-actions">
+        <button class="btn primary" type="button" id="chooseFileBtn">בחירת Excel</button>
+        <button class="btn" type="button" id="refreshBtn" disabled>↻ רענון נתונים</button>
+        <span class="load-status" id="loadStatus" aria-live="polite"></span>
+        <div class="source-summary" aria-label="סיכום נתונים">
+          <span class="mini-stat"><span>פעילים</span><strong id="kpiActive">0</strong></span>
+          <span class="mini-stat expired"><span>מסמך שפג</span><strong id="kpiExpired">0</strong></span>
+        </div>
+        <input class="file-input" id="fileInput" type="file" accept=".xlsx,.xls">
+      </div>
+    </section>
+
+    <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+    <section class="content" id="content" hidden>
+      <div class="controls">
+        <div class="field search-wrap">
+          <label for="searchInput">חיפוש לפי שם או ת.ז.</label>
+          <span class="search-mark" aria-hidden="true">⌕</span>
+          <input class="input" id="searchInput" type="search" autocomplete="off" placeholder="לדוגמה: לריסה או 058700519">
+        </div>
+        <div class="field">
+          <label for="guideSelect">מדריך</label>
+          <select class="select" id="guideSelect"><option value="all">כל המדריכים</option></select>
+        </div>
+        <div class="field">
+          <label for="statusSelect">סטטוס</label>
+          <select class="select" id="statusSelect">
+            <option value="active">פעילים</option>
+            <option value="closed">עזבו</option>
+          </select>
+        </div>
+        <button class="btn ghost clear-btn" id="clearFiltersBtn" type="button">ניקוי סינון</button>
+      </div>
+
+      <div class="quick-filters" role="group" aria-label="סינון מהיר">
+        <button class="chip" type="button" data-filter="all" aria-pressed="true">הצגת הכול</button>
+        <button class="chip" type="button" data-filter="problem" aria-pressed="false">רק רשומות בעייתיות</button>
+        <button class="chip" type="button" data-filter="expired" aria-pressed="false">מסמך שפג</button>
+        <button class="chip" type="button" data-filter="soon" aria-pressed="false">עדכון תוך 30 יום</button>
+        <button class="chip" type="button" data-filter="missing" aria-pressed="false">מסמך חסר</button>
+      </div>
+
+      <div class="legend-row">
+        <div class="legend" aria-label="מקרא צבעים">
+          <span class="legend-item"><i class="dot soon"></i> עדכון תוך 30 יום</span>
+          <span class="legend-item"><i class="dot expired"></i> פג תוקף</span>
+          <span class="legend-item"><i class="dot"></i> חסר או לא נדרש</span>
+        </div>
+        <div class="result-count" id="resultCount" aria-live="polite"></div>
+      </div>
+
+      <div class="table-shell">
+        <div class="table-scroll" id="tableScroll" tabindex="0" aria-label="טבלת בקרה">
+          <table>
+            <colgroup>
+              <col id="colName" style="width:18%">
+              <col id="colId" style="width:7%">
+              <col id="colGuide" style="width:7%">
+              <col id="colFolder" style="width:7%">
+              <col id="colIdCopy" style="width:7%">
+              <col id="colCommittee" style="width:9%">
+              <col id="colWaiver" style="width:9%">
+              <col id="colMedical" style="width:9%">
+              <col id="colGuideReport" style="width:9%">
+              <col id="colPersonalPlan" style="width:9%">
+              <col id="colEntryClose" style="width:6%">
+              <col id="colGuardian" style="width:7%">
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="sticky-name sortable" data-sort="name" tabindex="0">שם משפחה ושם פרטי <span class="sort-icon">⇅</span></th>
+                <th class="sticky-id sortable" data-sort="id" tabindex="0">ת.ז. <span class="sort-icon">⇅</span></th>
+                <th class="sticky-guide sortable" data-sort="guide" tabindex="0">מדריך <span class="sort-icon">⇅</span></th>
+                <th>תיק</th>
+                <th>צילום ת.ז.</th>
+                <th class="sortable" data-sort="committee" tabindex="0">הועדה <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="waiver" tabindex="0">ויתור סודיות <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="medical" tabindex="0">דוח רפואי <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="guideReport" tabindex="0">דוח מדריך <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="personalPlan" tabindex="0">תוכנית אישית <span class="sort-icon">⇅</span></th>
+                <th class="sortable" data-sort="entryClose" tabindex="0">קליטה / סגירה <span class="sort-icon">⇅</span></th>
+                <th>אפוטרופוס</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const ACTIVE_SHEET = "נתיב";
+      const CLOSED_SHEET = "עזבו מפעל";
+      const DATA_ROOT = "F:\\מפעל\\משרד הבריאות תיק דיגיטלי";
+      const DATE_KEYS = ["committee", "waiver", "medical", "guideReport", "personalPlan"];
+      const CACHE_KEY = "digitalFileDashboard.dataCache.v1";
+      const SCROLL_KEY = "digitalFileDashboard.scrollTop.v1";
+      const state = {
+        rows: [],
+        fileHandle: null,
+        file: null,
+        viewStatus: "active",
+        quickFilter: "all",
+        sortKey: "guide",
+        sortDirection: "asc"
+      };
+
+      const $ = (id) => document.getElementById(id);
+      const el = {
+        choose: $("chooseFileBtn"),
+        refresh: $("refreshBtn"),
+        fileInput: $("fileInput"),
+        sourceStatus: $("sourceStatus"),
+        notice: $("notice"),
+        loadStatus: $("loadStatus"),
+        content: $("content"),
+        search: $("searchInput"),
+        status: $("statusSelect"),
+        guide: $("guideSelect"),
+        clear: $("clearFiltersBtn"),
+        tbody: $("tableBody"),
+        resultCount: $("resultCount"),
+        toast: $("toast"),
+        tableScroll: $("tableScroll")
+      };
+
+      function saveCache() {
+        try {
+          const payload = {
+            savedAt: Date.now(),
+            fileName: state.file ? state.file.name : "",
+            viewStatus: state.viewStatus,
+            quickFilter: state.quickFilter,
+            sortKey: state.sortKey,
+            sortDirection: state.sortDirection,
+            searchValue: el.search.value,
+            guideValue: el.guide.value,
+            rows: state.rows
+          };
+          localStorage.setItem(CACHE_KEY, JSON.stringify(payload));
+        } catch (error) { console.warn("Could not cache data", error); }
+      }
+      function loadCache() {
+        try {
+          const raw = localStorage.getItem(CACHE_KEY);
+          if (!raw) return false;
+          const payload = JSON.parse(raw);
+          if (!payload || !Array.isArray(payload.rows) || !payload.rows.length) return false;
+          state.rows = payload.rows;
+          state.viewStatus = payload.viewStatus || "active";
+          state.quickFilter = payload.quickFilter || "all";
+          state.sortKey = payload.sortKey || "guide";
+          state.sortDirection = payload.sortDirection || "asc";
+          el.status.value = state.viewStatus;
+          if (payload.searchValue) el.search.value = payload.searchValue;
+          document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === state.quickFilter)));
+          el.content.hidden = false;
+          el.refresh.disabled = false;
+          const stamp = new Intl.DateTimeFormat("he-IL", { dateStyle: "short", timeStyle: "short" }).format(new Date(payload.savedAt));
+          el.sourceStatus.textContent = `${payload.fileName || "תיק דיגיטלי.xlsx"} · נתונים שמורים ממסך ${stamp}`;
+          render();
+          if (payload.guideValue && [...el.guide.options].some((option) => option.value === payload.guideValue)) {
+            el.guide.value = payload.guideValue;
+            renderRows();
+          }
+          restoreScroll();
+          return true;
+        } catch (error) {
+          console.warn("Could not load cached data", error);
+          return false;
+        }
+      }
+      function saveScroll() {
+        if (!el.tableScroll) return;
+        try { sessionStorage.setItem(SCROLL_KEY, String(el.tableScroll.scrollTop)); } catch (error) { /* ignore */ }
+      }
+      function restoreScroll() {
+        if (!el.tableScroll) return;
+        try {
+          const saved = sessionStorage.getItem(SCROLL_KEY);
+          if (saved != null) el.tableScroll.scrollTop = parseInt(saved, 10) || 0;
+        } catch (error) { /* ignore */ }
+      }
+      function showNotice(message, type = "info") {
+        el.notice.textContent = message;
+        el.notice.className = "notice show" + (type === "error" ? " error" : "");
+      }
+      function hideNotice() {
+        el.notice.className = "notice";
+        el.notice.textContent = "";
+      }
+      function showLoadStatus(message) {
+        el.loadStatus.textContent = message;
+        el.loadStatus.className = "load-status show";
+      }
+      function hideLoadStatus() {
+        el.loadStatus.className = "load-status";
+        el.loadStatus.textContent = "";
+      }
+      let toastTimer;
+      function toast(message) {
+        clearTimeout(toastTimer);
+        el.toast.textContent = message;
+        el.toast.classList.add("show");
+        toastTimer = setTimeout(() => el.toast.classList.remove("show"), 3000);
+      }
+      function escapeHtml(value) {
+        return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+        })[char]);
+      }
+      function normalizeText(value) {
+        return String(value ?? "").replace(/\s+/g, " ").trim();
+      }
+      function normalizeId(value) {
+        if (value === null || value === undefined || value === "") return "";
+        const digits = String(value).replace(/\D/g, "");
+        return digits ? digits.slice(-9).padStart(9, "0") : "";
+      }
+      function isPersonRow(row) {
+        return Boolean(normalizeText(row?.[2]) && normalizeId(row?.[3]));
+      }
+      function cell(sheet, rowIndex, colIndex) {
+        return sheet[XLSX.utils.encode_cell({ r: rowIndex, c: colIndex })] || null;
+      }
+      function cellValue(sheet, rowIndex, colIndex) {
+        return cell(sheet, rowIndex, colIndex)?.v ?? "";
+      }
+      function cellDisplay(sheet, rowIndex, colIndex) {
+        const item = cell(sheet, rowIndex, colIndex);
+        return normalizeText(item?.w ?? item?.v ?? "");
+      }
+      function cellLink(sheet, rowIndex, colIndex) {
+        return cell(sheet, rowIndex, colIndex)?.l?.Target || "";
+      }
+
+      function startOfToday() {
+        const now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      }
+      function parseControlDate(value) {
+        if (value instanceof Date && !Number.isNaN(value.getTime())) {
+          return new Date(value.getFullYear(), value.getMonth(), 1);
+        }
+        if (typeof value === "number" && Number.isFinite(value)) {
+          const parsed = XLSX.SSF.parse_date_code(value);
+          if (parsed) return new Date(parsed.y, parsed.m - 1, 1);
+        }
+        const text = normalizeText(value);
+        const match = text.match(/^(\d{1,2})[./-](\d{2}|\d{4})$/);
+        if (match) {
+          const month = Number(match[1]);
+          let year = Number(match[2]);
+          if (year < 100) year += 2000;
+          if (month >= 1 && month <= 12) return new Date(year, month - 1, 1);
+        }
+        return null;
+      }
+      function formatMonth(date) {
+        if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+        return `${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+      }
+      function formatLooseDate(value) {
+        const date = parseControlDate(value);
+        if (date) return formatMonth(date);
+        return normalizeText(value);
+      }
+      function docState(value, hasLink = false) {
+        const raw = normalizeText(value);
+        if (raw === "אין") return { code: "exempt", label: "אין", detail: "" };
+        if (!raw) return { code: "missing", label: "חסר", detail: "אין תאריך" };
+        const date = parseControlDate(value);
+        if (!date) {
+          return hasLink
+            ? { code: "unknown", label: "לבדיקה", detail: raw }
+            : { code: "missing", label: "חסר", detail: raw };
+        }
+        const today = startOfToday();
+        const days = Math.ceil((date - today) / 86400000);
+        if (days <= 0) return { code: "expired", label: "פג תוקף", detail: formatMonth(date), sort: date.getTime() };
+        if (days <= 30) return { code: "soon", label: "לעדכון", detail: formatMonth(date), sort: date.getTime() };
+        return { code: "valid", label: "", detail: formatMonth(date), sort: date.getTime() };
+      }
+      function filePresence(value, link) {
+        const raw = normalizeText(value);
+        if (link || raw) return { code: "valid", label: "קיים", detail: raw || "קישור קיים" };
+        return { code: "missing", label: "חסר", detail: "אין קישור" };
+      }
+      function repairUtf8Mojibake(value) {
+        if (!value || !/[ÃÂ×Ø]/.test(value) || typeof TextDecoder === "undefined") return value;
+        try {
+          const bytes = Uint8Array.from(Array.from(value), (char) => char.charCodeAt(0) & 255);
+          const decoded = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+          return /[\u0590-\u05ff]/.test(decoded) ? decoded : value;
+        } catch (_) {
+          return value;
+        }
+      }
+      function decodeFileTarget(target) {
+        if (!target) return "";
+        const repaired = repairUtf8Mojibake(String(target));
+        try { return decodeURI(repaired); } catch (_) { return repaired; }
+      }
+      function targetToWindowsPath(target) {
+        let value = decodeFileTarget(target).trim();
+        if (/^file:/i.test(value)) {
+          value = value.replace(/^file:/i, "").replace(/\//g, "\\");
+          if (/^\\+[A-Za-z]:\\/.test(value)) {
+            value = value.replace(/^\\+/, "");
+          } else {
+            value = `\\\\${value.replace(/^\\+/, "")}`;
+          }
+        } else {
+          value = value.replace(/\//g, "\\");
+          if (/^\\{3,}/.test(value)) value = `\\\\${value.replace(/^\\+/, "")}`;
+        }
+        if (!/^(?:[A-Za-z]:\\|\\\\)/.test(value)) {
+          value = `${DATA_ROOT}\\${value.replace(/^\\+/, "")}`;
+        }
+        return value;
+      }
+      function toLocalDataPath(target) {
+        return targetToWindowsPath(target)
+          .replace(/^\\\\[^\\]+\\Disk F(?=\\|$)/i, "F:");
+      }
+      function personFolderTarget(generalTarget, name) {
+        if (generalTarget) {
+          return toLocalDataPath(generalTarget).replace(/[\\/]כללי[\\/]?$/i, "");
+        }
+        return `${DATA_ROOT}\\${name}`;
+      }
+      function appendFolderTarget(baseTarget, folderName) {
+        const base = toLocalDataPath(baseTarget).replace(/[\\/]+$/, "");
+        return base ? `${base}\\${folderName}` : "";
+      }
+      function windowsPathToFileUrl(path) {
+        if (!path) return "";
+        if (/^file:/i.test(path)) return path;
+        const normalized = path.replace(/\\/g, "/");
+        if (normalized.startsWith("//")) return encodeURI(`file:${normalized}`);
+        return encodeURI(`file:///${normalized}`);
+      }
+      function safeFileHref(target) {
+        if (!target) return "";
+        const value = windowsPathToFileUrl(toLocalDataPath(target));
+        return /^file:/i.test(value) ? value : "";
+      }
+      function toBase64Url(str) {
+        const b64 = btoa(unescape(encodeURIComponent(str)));
+        return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      }
+      function explorerFolderHref(target) {
+        if (!target) return "";
+        const path = toLocalDataPath(target).replace(/[\\/]+$/, "");
+        if (!/^[A-Za-z]:\\/.test(path)) return "";
+        return `openfolder://${toBase64Url(path)}`;
+      }
+      function getDoc(sheet, rowIndex, colIndex) {
+        const value = cellValue(sheet, rowIndex, colIndex);
+        const link = cellLink(sheet, rowIndex, colIndex);
+        return { value, link, state: docState(value, Boolean(link)) };
+      }
+      function archiveDoc(item) {
+        const detail = formatLooseDate(item.value) || normalizeText(item.value) || "אין תאריך";
+        return { ...item, state: { code: "closed", label: "", detail } };
+      }
+      function getPresence(sheet, rowIndex, colIndex) {
+        const value = cellValue(sheet, rowIndex, colIndex);
+        const link = cellLink(sheet, rowIndex, colIndex);
+        return { value, link, state: filePresence(value, link) };
+      }
+      function rowIssues(row) {
+        const codes = [
+          row.idCopy.state.code,
+          ...DATE_KEYS.map((key) => row[key].state.code)
+        ];
+        return {
+          expired: codes.includes("expired"),
+          soon: codes.includes("soon"),
+          missing: codes.includes("missing"),
+          problem: codes.some((code) => ["expired", "soon", "missing", "unknown"].includes(code))
+        };
+      }
+
+      function parseSheet(sheet, status) {
+        if (!sheet || !sheet["!ref"]) return [];
+        const range = XLSX.utils.decode_range(sheet["!ref"]);
+        const rows = [];
+        for (let r = 1; r <= range.e.r; r++) {
+          const raw = Array.from({ length: Math.max(range.e.c + 1, 14) }, (_, c) => cellValue(sheet, r, c));
+          if (!isPersonRow(raw)) continue;
+          const name = normalizeText(raw[2]);
+          const id = normalizeId(raw[3]);
+          const generalLink = cellLink(sheet, r, 5);
+          const committee = getDoc(sheet, r, 7);
+          const waiver = getDoc(sheet, r, 8);
+          const medical = getDoc(sheet, r, 9);
+          const guideReport = getDoc(sheet, r, 10);
+          const personalPlan = getDoc(sheet, r, 11);
+          const noteColumn = status === "active" ? 13 : 12;
+          const notes = normalizeText(raw[noteColumn]);
+          const noteLink = cellLink(sheet, r, noteColumn);
+          const folderTarget = personFolderTarget(generalLink, name);
+          const generalFolderTarget = generalLink
+            ? toLocalDataPath(generalLink)
+            : (folderTarget ? `${folderTarget}\\כללי` : "");
+          const hasGuardian = /אפוטרופוס/.test(notes) || /אפוטרופוס/.test(decodeFileTarget(noteLink));
+          const row = {
+            status,
+            sourceRow: r + 1,
+            name,
+            id,
+            guide: normalizeText(raw[4]) || "ללא מדריך",
+            folderTarget,
+            generalFolderTarget,
+            idCopy: getPresence(sheet, r, 6),
+            guardian: {
+              link: noteLink || (hasGuardian ? appendFolderTarget(folderTarget, "אפוטרופוס") : ""),
+              state: hasGuardian || noteLink
+                ? { code: "valid", label: "קיים", detail: "קישור קיים" }
+                : { code: "exempt", label: "", detail: "" }
+            },
+            committee: status === "closed" ? archiveDoc(committee) : committee,
+            waiver: status === "closed" ? archiveDoc(waiver) : waiver,
+            medical: status === "closed" ? archiveDoc(medical) : medical,
+            guideReport: status === "closed" ? archiveDoc(guideReport) : guideReport,
+            personalPlan: status === "closed" ? archiveDoc(personalPlan) : personalPlan,
+            entryClose: status === "active" ? raw[12] : raw[13],
+            entryCloseDisplay: cellDisplay(sheet, r, status === "active" ? 12 : 13),
+            notes
+          };
+          row.issues = status === "active"
+            ? rowIssues(row)
+            : { expired: false, soon: false, missing: false, problem: false };
+          rows.push(row);
+        }
+        return rows;
+      }
+
+      function dedupeRows(activeRows, closedRows) {
+        const activeById = new Map();
+        for (const row of activeRows) activeById.set(row.id, row);
+        const closedById = new Map();
+        for (const row of closedRows) {
+          if (activeById.has(row.id)) continue;
+          closedById.set(row.id, row);
+        }
+        return [...activeById.values(), ...closedById.values()];
+      }
+
+      async function readWorkbook(file) {
+        if (!window.XLSX) throw new Error("ספריית קריאת Excel לא נטענה.");
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, {
+          type: "array",
+          cellDates: true,
+          cellNF: true,
+          cellStyles: true
+        });
+        const activeSheet = workbook.Sheets[ACTIVE_SHEET];
+        const closedSheet = workbook.Sheets[CLOSED_SHEET];
+        if (!activeSheet) throw new Error(`לא נמצא גיליון "${ACTIVE_SHEET}".`);
+        if (!closedSheet) throw new Error(`לא נמצא גיליון "${CLOSED_SHEET}".`);
+        const active = parseSheet(activeSheet, "active");
+        const closed = parseSheet(closedSheet, "closed");
+        if (!active.length) throw new Error(`הגיליון "${ACTIVE_SHEET}" אינו מכיל רשומות מזוהות.`);
+        state.rows = dedupeRows(active, closed);
+        return { activeCount: new Set(active.map((row) => row.id)).size, closedCount: new Set(closed.filter((row) => !active.some((a) => a.id === row.id)).map((row) => row.id)).size };
+      }
+
+      function updateKpis() {
+        const active = state.rows.filter((row) => row.status === "active");
+        $("kpiActive").textContent = active.length;
+        $("kpiExpired").textContent = active.filter((row) => row.issues.expired).length;
+      }
+      function updateGuides() {
+        const selected = el.guide.value;
+        const guides = [...new Set(state.rows.filter((row) => row.status === state.viewStatus).map((row) => row.guide).filter(Boolean))]
+          .sort((a, b) => a.localeCompare(b, "he"));
+        el.guide.innerHTML = '<option value="all">כל המדריכים</option>' +
+          guides.map((guide) => `<option value="${escapeHtml(guide)}">${escapeHtml(guide)}</option>`).join("");
+        if (guides.includes(selected)) el.guide.value = selected;
+      }
+      function filterRows() {
+        const query = normalizeText(el.search.value).toLocaleLowerCase("he").replace(/\D/g, "") === normalizeText(el.search.value)
+          ? normalizeText(el.search.value).replace(/\D/g, "")
+          : normalizeText(el.search.value).toLocaleLowerCase("he");
+        const guide = el.guide.value;
+        return state.rows.filter((row) => {
+          const searchText = `${row.name} ${row.id}`.toLocaleLowerCase("he");
+          if (query && !searchText.includes(query)) return false;
+          if (row.status !== state.viewStatus) return false;
+          if (guide !== "all" && row.guide !== guide) return false;
+          if (state.quickFilter !== "all" && !row.issues[state.quickFilter]) return false;
+          return true;
+        });
+      }
+      function sortValue(row, key) {
+        if (DATE_KEYS.includes(key)) {
+          const item = row[key];
+          const priority = { expired: 0, soon: 1, missing: 2, unknown: 3, valid: 4, exempt: 5 }[item.state.code] ?? 6;
+          return `${priority}-${String(item.state.sort ?? 0).padStart(16, "0")}`;
+        }
+        if (key === "entryClose") return parseControlDate(row.entryClose)?.getTime() ?? 0;
+        return row[key] ?? "";
+      }
+      function sortedRows(rows) {
+        const factor = state.sortDirection === "asc" ? 1 : -1;
+        return [...rows].sort((a, b) => {
+          const av = sortValue(a, state.sortKey);
+          const bv = sortValue(b, state.sortKey);
+          const result = typeof av === "number" && typeof bv === "number"
+            ? (av - bv) * factor
+            : String(av).localeCompare(String(bv), "he", { numeric: true, sensitivity: "base" }) * factor;
+          if (result) return result;
+          return String(a.name).localeCompare(String(b.name), "he", { numeric: true, sensitivity: "base" });
+        });
+      }
+      function stateCell(item, allowLink = true) {
+        const info = item.state;
+        const link = allowLink ? explorerFolderHref(item.link) : "";
+        const dateOnly = ["valid", "soon", "expired", "closed"].includes(info.code) && info.detail;
+        if (!dateOnly && !info.label && !info.detail) return `<td class="cell-state"></td>`;
+        const content = dateOnly
+          ? `<div class="state-box state-${escapeHtml(info.code)}"><span class="state-date">${escapeHtml(info.detail)}</span></div>`
+          : `<div class="state-box state-${escapeHtml(info.code)}"><strong>${escapeHtml(info.label)}</strong>${info.detail ? `<small>${escapeHtml(info.detail)}</small>` : ""}</div>`;
+        if (!link) return `<td class="cell-state">${content}</td>`;
+        return `<td class="cell-state"><a class="doc-link" href="${escapeHtml(link)}" target="_blank" rel="noopener" data-copy-target="${escapeHtml(item.link)}" title="פתיחת תיקיית מסמכים">${content}</a></td>`;
+      }
+      function presenceCell(item, title = "פתיחה", openMode = "file") {
+        const link = openMode === "folder" ? explorerFolderHref(item.link) : safeFileHref(item.link);
+        if (link) {
+          return `<td class="action-cell"><a class="doc-link" href="${escapeHtml(link)}" target="_blank" rel="noopener" data-copy-target="${escapeHtml(item.link)}" title="${escapeHtml(title)}">פתיחה</a></td>`;
+        }
+        if (!item.state.label) return `<td class="action-cell"></td>`;
+        return `<td class="action-cell"><span class="state-box state-${escapeHtml(item.state.code)}"><strong>${escapeHtml(item.state.label)}</strong></span></td>`;
+      }
+      function renderRows() {
+        const visible = sortedRows(filterRows());
+        const sectionTotal = state.rows.filter((row) => row.status === state.viewStatus).length;
+        el.resultCount.textContent = `מוצגות ${visible.length} מתוך ${sectionTotal} רשומות`;
+        if (!visible.length) {
+          el.tbody.innerHTML = '<tr><td colspan="12"><div class="empty-state"><strong>לא נמצאו רשומות</strong>נסו לשנות את החיפוש או לנקות את הסינון.</div></td></tr>';
+          return;
+        }
+        el.tbody.innerHTML = visible.map((row) => {
+          const folderHref = explorerFolderHref(row.generalFolderTarget);
+          return `<tr>
+            <td class="sticky-name name" title="${escapeHtml(row.name)}">${escapeHtml(row.name)}</td>
+            <td class="sticky-id id-value">${escapeHtml(row.id)}</td>
+            <td class="sticky-guide">${escapeHtml(row.guide)}</td>
+            <td class="folder-cell">${folderHref ? `<a class="folder-btn" href="${escapeHtml(folderHref)}" target="_blank" rel="noopener" data-copy-target="${escapeHtml(row.generalFolderTarget)}">פתיחת תיק</a>` : ""}</td>
+            ${presenceCell(row.idCopy, "פתיחת צילום ת.ז.")}
+            ${stateCell(row.committee)}
+            ${stateCell(row.waiver)}
+            ${stateCell(row.medical)}
+            ${stateCell(row.guideReport)}
+            ${stateCell(row.personalPlan)}
+            <td>${escapeHtml(row.entryCloseDisplay || formatLooseDate(row.entryClose) || "")}</td>
+            ${presenceCell(row.guardian, row.notes || "פתיחת תיק אפוטרופוס", "folder")}
+          </tr>`;
+        }).join("");
+      }
+      let measureCanvas = null;
+      function measureColumnPx(sampleSelector, values, extraPadding) {
+        const sampleCell = document.querySelector(sampleSelector);
+        if (!sampleCell || !values.length) return 0;
+        const style = getComputedStyle(sampleCell);
+        if (!measureCanvas) measureCanvas = document.createElement("canvas");
+        const ctx = measureCanvas.getContext("2d");
+        ctx.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+        let max = 0;
+        for (const value of values) {
+          const width = ctx.measureText(value || "").width;
+          if (width > max) max = width;
+        }
+        const padding = parseFloat(style.paddingLeft || 0) + parseFloat(style.paddingRight || 0) + extraPadding;
+        return Math.ceil(max + padding);
+      }
+      const OTHER_COLUMNS = [
+        { id: "colFolder", weight: 7 },
+        { id: "colIdCopy", weight: 7 },
+        { id: "colCommittee", weight: 9 },
+        { id: "colWaiver", weight: 9 },
+        { id: "colMedical", weight: 9 },
+        { id: "colGuideReport", weight: 9 },
+        { id: "colPersonalPlan", weight: 9 },
+        { id: "colEntryClose", weight: 6 },
+        { id: "colGuardian", weight: 7 }
+      ];
+      const OTHER_WEIGHT_SUM = OTHER_COLUMNS.reduce((sum, c) => sum + c.weight, 0);
+      function sizeColumns() {
+        if (!el.tableScroll || !state.rows.length) return;
+        const containerWidth = el.tableScroll.clientWidth;
+        if (!containerWidth) return;
+        const namePx = measureColumnPx("td.sticky-name", state.rows.map((row) => row.name), 14);
+        const guidePx = measureColumnPx("td.sticky-guide", state.rows.map((row) => row.guide), 22);
+        const idPx = measureColumnPx("td.sticky-id", ["000000000"], 14);
+        const identPx = namePx + guidePx + idPx;
+        if (!identPx) return;
+        const identPercent = Math.min(34, Math.max(20, (identPx / containerWidth) * 100));
+        const remainingPercent = 100 - identPercent;
+        const setWidth = (id, percent) => {
+          const col = document.getElementById(id);
+          if (col) col.style.width = `${percent}%`;
+        };
+        setWidth("colName", (namePx / identPx) * identPercent);
+        setWidth("colGuide", (guidePx / identPx) * identPercent);
+        setWidth("colId", (idPx / identPx) * identPercent);
+        OTHER_COLUMNS.forEach((c) => setWidth(c.id, (c.weight / OTHER_WEIGHT_SUM) * remainingPercent));
+      }
+      function render() {
+        updateKpis();
+        updateGuides();
+        renderRows();
+        sizeColumns();
+        document.querySelectorAll("th.sortable").forEach((th) => {
+          const icon = th.querySelector(".sort-icon");
+          icon.textContent = th.dataset.sort === state.sortKey ? (state.sortDirection === "asc" ? "↑" : "↓") : "⇅";
+        });
+      }
+
+      async function loadFile(file, handle = null) {
+        if (!file) return;
+        hideNotice();
+        hideLoadStatus();
+        el.choose.disabled = true;
+        el.refresh.disabled = true;
+        el.sourceStatus.textContent = `קורא את ${file.name}…`;
+        try {
+          await readWorkbook(file);
+          state.sortKey = "guide";
+          state.sortDirection = "asc";
+          state.file = file;
+          if (handle) state.fileHandle = handle;
+          const stamp = new Intl.DateTimeFormat("he-IL", { dateStyle: "short", timeStyle: "short" }).format(new Date());
+          el.sourceStatus.textContent = `${file.name} · עודכן במסך ${stamp}`;
+          el.content.hidden = false;
+          el.refresh.disabled = false;
+          render();
+          showLoadStatus("✓ נקרא בהצלחה (לקריאה בלבד)");
+          saveCache();
+          restoreScroll();
+        } catch (error) {
+          console.error(error);
+          showNotice(`לא ניתן לקרוא את הקובץ: ${error.message || error}`, "error");
+          el.sourceStatus.textContent = "הקריאה נכשלה. יש לבחור קובץ Excel תקין.";
+        } finally {
+          el.choose.disabled = false;
+        }
+      }
+
+      function openFallbackPicker() {
+        el.fileInput.value = "";
+        el.fileInput.click();
+      }
+      async function chooseFile() {
+        if (!window.showOpenFilePicker) {
+          openFallbackPicker();
+          return;
+        }
+        try {
+          const [handle] = await window.showOpenFilePicker({
+            multiple: false,
+            types: [{ description: "Excel", accept: { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"], "application/vnd.ms-excel": [".xls"] } }]
+          });
+          await saveHandle(handle);
+          await loadFile(await handle.getFile(), handle);
+        } catch (error) {
+          if (error?.name !== "AbortError") {
+            console.warn(error);
+            openFallbackPicker();
+          }
+        }
+      }
+      async function refreshFile() {
+        if (state.fileHandle) {
+          try {
+            const permission = await state.fileHandle.queryPermission({ mode: "read" });
+            if (permission === "granted" || await state.fileHandle.requestPermission({ mode: "read" }) === "granted") {
+              await loadFile(await state.fileHandle.getFile(), state.fileHandle);
+              return;
+            }
+          } catch (error) { console.warn(error); }
+        }
+        if (state.file) {
+          toast("כדי לקרוא שינויים חדשים יש לבחור שוב את קובץ ה-Excel.");
+        }
+        await chooseFile();
+      }
+
+      function dbRequest() {
+        return new Promise((resolve, reject) => {
+          const request = indexedDB.open("digital-file-dashboard", 1);
+          request.onupgradeneeded = () => request.result.createObjectStore("handles");
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      }
+      async function saveHandle(handle) {
+        try {
+          const db = await dbRequest();
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction("handles", "readwrite");
+            tx.objectStore("handles").put(handle, "excel");
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+          });
+          db.close();
+        } catch (error) { console.warn("Could not save file handle", error); }
+      }
+      async function restoreHandle() {
+        if (!window.showOpenFilePicker || !window.indexedDB) return;
+        try {
+          const db = await dbRequest();
+          const handle = await new Promise((resolve, reject) => {
+            const tx = db.transaction("handles", "readonly");
+            const request = tx.objectStore("handles").get("excel");
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+          });
+          db.close();
+          if (!handle) return;
+          state.fileHandle = handle;
+          const permission = await handle.queryPermission({ mode: "read" });
+          if (permission === "granted") await loadFile(await handle.getFile(), handle);
+          else {
+            el.refresh.disabled = false;
+            if (!state.rows.length) {
+              el.sourceStatus.textContent = "הקובץ האחרון זכור. לחצו על „רענון נתונים” כדי לאשר קריאה.";
+            }
+          }
+        } catch (error) { console.warn("Could not restore file handle", error); }
+      }
+
+      async function copyTarget(target) {
+        const path = toLocalDataPath(target);
+        if (!path) return;
+        try {
+          await navigator.clipboard.writeText(path);
+          toast("אם התיקייה לא נפתחה, הנתיב הועתק. הדביקו אותו בסייר הקבצים.");
+        } catch (_) {
+          toast("הדפדפן חסם פתיחה. אפשר לפתוח את התיק דרך הקישור המקורי ב-Excel.");
+        }
+      }
+
+      el.choose.addEventListener("click", chooseFile);
+      el.refresh.addEventListener("click", refreshFile);
+      el.fileInput.addEventListener("change", () => loadFile(el.fileInput.files?.[0] || null));
+      [el.search, el.guide].forEach((control) => control.addEventListener(control === el.search ? "input" : "change", renderRows));
+      el.status.addEventListener("change", () => {
+        state.viewStatus = el.status.value;
+        state.quickFilter = "all";
+        document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === "all")));
+        render();
+      });
+      el.clear.addEventListener("click", () => {
+        el.search.value = "";
+        el.guide.value = "all";
+        el.status.value = "active";
+        state.viewStatus = "active";
+        state.quickFilter = "all";
+        document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === "all")));
+        render();
+      });
+      document.querySelectorAll(".chip").forEach((chip) => chip.addEventListener("click", () => {
+        state.quickFilter = chip.dataset.filter;
+        document.querySelectorAll(".chip").forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
+        renderRows();
+      }));
+      document.querySelectorAll("th.sortable").forEach((th) => {
+        const applySort = () => {
+          const key = th.dataset.sort;
+          if (state.sortKey === key) state.sortDirection = state.sortDirection === "asc" ? "desc" : "asc";
+          else { state.sortKey = key; state.sortDirection = "asc"; }
+          render();
+        };
+        th.addEventListener("click", applySort);
+        th.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" || event.key === " ") { event.preventDefault(); applySort(); }
+        });
+      });
+      el.tbody.addEventListener("click", (event) => {
+        const link = event.target.closest("a[data-copy-target]");
+        if (!link) return;
+        if ((link.getAttribute("href") || "").startsWith("openfolder:")) return;
+        copyTarget(link.dataset.copyTarget);
+      });
+      let resizeTimer;
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(sizeColumns, 150);
+      });
+      let scrollSaveScheduled = false;
+      el.tableScroll.addEventListener("scroll", () => {
+        if (scrollSaveScheduled) return;
+        scrollSaveScheduled = true;
+        requestAnimationFrame(() => {
+          saveScroll();
+          scrollSaveScheduled = false;
+        });
+      });
+
+      loadCache();
+      restoreHandle();
+    })();
+  </script>
+</body>
+</html>
