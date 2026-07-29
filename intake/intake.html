@@ -614,8 +614,8 @@ function extractPersonIdentity(text,fileName=""){
   };
 
   const idPatterns=[
-    /(?:תעודת\s*זהות|מספר\s*זהות|ת\.?\s*ז\.?|מס['׳]?\s*זהות)\s*[:\-]?\s*([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})/ig,
-    /([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})\s*[:\-]?\s*(?:תעודת\s*זהות|מספר\s*זהות|ת\.?\s*ז\.?|מס['׳]?\s*זהות)/ig,
+    /(?:תעודת\s*זהות|(?:ה)?מספר\s*(?:ה)?זהות|ת\.?\s*ז\.?|מס['׳]?\s*זהות)\s*[:\-]?\s*([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})/ig,
+    /([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})\s*[:\-]?\s*(?:תעודת\s*זהות|(?:ה)?מספר\s*(?:ה)?זהות|ת\.?\s*ז\.?|מס['׳]?\s*זהות)/ig,
     /(?:^|\D)([0-9OIl|](?:[\s\-]*[0-9OIl|]){7,8})(?:\D|$)/g
   ];
   for(const p of idPatterns){
@@ -631,28 +631,43 @@ function extractPersonIdentity(text,fileName=""){
 
   const hebWord="[\\u0590-\\u05FF][\\u0590-\\u05FF\\-׳״']{1,30}";
   const cleanLabelValue=value=>{
-    const stop=new Set(["שם","פרטי","משפחה","מספר","זהות","תעודת","המשתקם"]);
+    const stop=new Set(["שם","פרטי","משפחה","מספר","זהות","תעודת","המשתקם","הפרטי","המשפחה","השם"]);
     return cleanHebrewName(value).split(" ").filter(w=>w&&!stop.has(w)).slice(0,3).join(" ");
   };
   const findLabelValue=(label,nextLabels)=>{
     const after=new RegExp(label+"\\s*[:\\-]?\\s*("+hebWord+"(?:\\s+"+hebWord+"){0,2}?)(?=\\s+(?:"+nextLabels+")|$)","i");
     const before=new RegExp("("+hebWord+"(?:\\s+"+hebWord+"){0,2})\\s*[:\\-]?\\s*"+label,"i");
+    // Some scans (e.g. תעודת זהות) print each label alone on its own line, with the
+    // value on the following line: "השם הפרטי" \n "ויקטור". Check this before any
+    // whole-line before/after match, since it is unambiguous.
+    const labelAloneOnLine=new RegExp("^\\s*(?:"+label+")\\s*[:\\-]?\\s*$","i");
+    for(let i=0;i<lines.length;i++){
+      let m=lines[i].match(after);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
+      if(labelAloneOnLine.test(lines[i]) && lines[i+1]){
+        const nm=lines[i+1].match(new RegExp("^("+hebWord+")"));
+        if(nm){const v=cleanLabelValue(nm[1]);if(v)return v}
+      }
+    }
     for(const line of lines){
-      let m=line.match(after);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
-      m=line.match(before);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
+      const m=line.match(before);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
     }
     let m=flat.match(after);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
+    // flat "before" is the least reliable check: on label-value-label-value scans
+    // with no separators (e.g. ת.ז.) it tends to grab the PREVIOUS field's value
+    // instead of the one belonging to this label, so it is tried last and only
+    // as a last resort.
     m=flat.match(before);if(m){const v=cleanLabelValue(m[1]);if(v)return v}
     return "";
   };
 
-  out.first=findLabelValue("שם\\s*פרטי","שם\\s*משפחה|מספר\\s*זהות|תעודת\\s*זהות");
-  out.last=findLabelValue("שם\\s*משפחה","שם\\s*פרטי|מספר\\s*זהות|תעודת\\s*זהות");
+  const idAbbrev="ת\\.?\\s*ז\\.?|מס['׳]?\\s*זהות";
+  out.first=findLabelValue("(?:ה)?שם\\s*(?:ה)?פרט(?:י|['׳])","(?:ה)?שם\\s*(?:ה)?משפחה|(?:ה)?מספר\\s*(?:ה)?זהות|תעודת\\s*זהות|"+idAbbrev);
+  out.last=findLabelValue("(?:ה)?שם\\s*(?:ה)?משפחה","(?:ה)?שם\\s*(?:ה)?פרט(?:י|['׳])|(?:ה)?מספר\\s*(?:ה)?זהות|תעודת\\s*זהות|"+idAbbrev);
   if(out.first){out.firstConfidence=3;out.confidence+=3}
   if(out.last){out.lastConfidence=3;out.confidence+=3}
 
   if(!out.first || !out.last){
-    const full=flat.match(/(?:שם\s*המבוטח|שם\s*המטופל|שם\s*הפונה|שם\s*המשתקם)\s*[:\-]\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
+    const full=flat.match(/(?:שם\s*)?(?:המבוטח|המטופל|הפונה|המשתקם)\s*[:\-]\s*([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,24})\s+([\u0590-\u05FF][\u0590-\u05FF\-׳״']{1,30})/);
     if(full){if(!out.first){out.first=cleanHebrewName(full[1]);out.firstConfidence=2}if(!out.last){out.last=cleanHebrewName(full[2]);out.lastConfidence=2}out.confidence+=2}
   }
 
@@ -661,17 +676,20 @@ function extractPersonIdentity(text,fileName=""){
   // document-description words, so names such as "מכתב מפסיכיאטר" are never used.
   if((!out.first||!out.last)&&fileName){
     const base=String(fileName).replace(/\.[^.]+$/," ").replace(/[0-9_()\-]+/g," ").replace(/\s+/g," ").trim();
-    const rawWords=base.split(" ").map(cleanHebrewName).filter(Boolean);
+    const rawWords=base.split(" ").flatMap(w=>cleanHebrewName(w).split(" ")).filter(Boolean);
     const stop=new Set([
       "בקשה","של","שקדייה","שקדיה","צילום","תז","תעודת","זהות","מסמך","סריקה","חדש","ישן",
       "מכתב","מפסיכיאטר","פסיכיאטר","פסיכיאטרי","רפואי","רפואית","אישור","דוח","דו״ח","סיכום",
       "בנק","חשבון","ביטוח","לאומי","ועדה","שיקום","סל","טופס","הפניה","מרופא","רופא"
     ]);
-    const firstWord=rawWords[0]||"", secondWord=rawWords[1]||"";
     const plausible=w=>w.length>=2&&w.length<=20&&!stop.has(w);
-    if(plausible(firstWord)&&plausible(secondWord)){
-      if(!out.first){out.first=firstWord;out.firstConfidence=1}
-      if(!out.last){out.last=secondWord;out.lastConfidence=1}
+    let pairFound=null;
+    for(let i=0;i<rawWords.length-1;i++){
+      if(plausible(rawWords[i])&&plausible(rawWords[i+1])){pairFound=[rawWords[i],rawWords[i+1]];break}
+    }
+    if(pairFound){
+      if(!out.first){out.first=pairFound[0];out.firstConfidence=1}
+      if(!out.last){out.last=pairFound[1];out.lastConfidence=1}
       out.confidence+=1;
     }
   }
@@ -707,18 +725,20 @@ function cleanDigits(v){return String(v||"").replace(/[^0-9]/g,"")}
 function extractBankDetails(text){
   const raw=String(text||"");
   const flat=raw.replace(/[\u200e\u200f]/g," ").replace(/\s+/g," ");
+  const bankNumbers={"לאומי":"10","הפועלים":"12","דיסקונט":"11","מזרחי טפחות":"20","הבינלאומי":"31","מרכנתיל":"17","יהב":"4","ירושלים":"54","מסד":"46","אוצר החייל":"14","One Zero":"18"};
+  const codeToName=Object.fromEntries(Object.entries(bankNumbers).map(([n,c])=>[String(Number(c)),n]));
   const banks=[
-    ["הפועלים",["בנק הפועלים","הפועלים"]],
-    ["לאומי",["בנק לאומי","לאומי"]],
-    ["דיסקונט",["בנק דיסקונט","דיסקונט"]],
-    ["מזרחי טפחות",["מזרחי טפחות","בנק מזרחי"]],
-    ["הבינלאומי",["הבנק הבינלאומי","הבינלאומי"]],
-    ["מרכנתיל",["מרכנתיל דיסקונט","מרכנתיל"]],
-    ["יהב",["בנק יהב","יהב"]],
-    ["ירושלים",["בנק ירושלים","ירושלים"]],
-    ["מסד",["בנק מסד","מסד"]],
-    ["אוצר החייל",["אוצר החייל"]],
-    ["One Zero",["ONE ZERO","וואן זירו"]]
+    ["הפועלים",["בנק הפועלים","הפועלים","bank hapoalim","hapoalim","poalim"]],
+    ["לאומי",["בנק לאומי","לאומי","bank leumi","leumi"]],
+    ["דיסקונט",["בנק דיסקונט","דיסקונט","discount bank","bank discount","discount"]],
+    ["מזרחי טפחות",["מזרחי טפחות","בנק מזרחי","mizrahi tefahot","mizrahi"]],
+    ["הבינלאומי",["הבנק הבינלאומי","הבינלאומי","first international","fibi"]],
+    ["מרכנתיל",["מרכנתיל דיסקונט","מרכנתיל","mercantile discount","mercantile"]],
+    ["יהב",["בנק יהב","יהב","bank yahav","yahav"]],
+    ["ירושלים",["בנק ירושלים","ירושלים","bank jerusalem"]],
+    ["מסד",["בנק מסד","מסד","bank massad","massad"]],
+    ["אוצר החייל",["אוצר החייל","otsar hahayal","bank of the soldier"]],
+    ["One Zero",["ONE ZERO","וואן זירו","one zero bank"]]
   ];
   let name="";
   for(const [canonical,aliases] of banks){if(aliases.some(a=>flat.toLowerCase().includes(a.toLowerCase()))){name=canonical;break}}
@@ -726,13 +746,27 @@ function extractBankDetails(text){
     for(const re of patterns){const m=flat.match(re);if(m){const d=cleanDigits(m[1]);if(d&&d.length<=max)return d}}
     return "";
   };
-  let number=pick([/מס(?:פר|['׳]?)?\s*בנק\s*[:\-]?\s*(\d{1,3})/i,/קוד\s*בנק\s*[:\-]?\s*(\d{1,3})/i],3);
-  if(!number){
-    const bankNumbers={"לאומי":"10","הפועלים":"12","דיסקונט":"11","מזרחי טפחות":"20","הבינלאומי":"31","מרכנתיל":"17","יהב":"4","ירושלים":"54","מסד":"46","אוצר החייל":"14","One Zero":"18"};
-    number=bankNumbers[name]||"";
+  let number=pick([/מס(?:פר|['׳]?)?\s*בנק\s*[:\-]?\s*(\d{1,3})/i,/קוד\s*בנק\s*[:\-]?\s*(\d{1,3})/i,/bank\s*(?:code|no\.?|number)\s*[:\-]?\s*(\d{1,3})/i],3);
+  let branch=pick([/מס(?:פר|['׳]?)?\s*סניף\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(?:[^0-9]{0,60})?שמספרו\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(\d{1,5})/i,/branch\s*(?:no\.?|number)?\s*[:\-]?\s*(\d{1,5})/i],5);
+  let account=pick([/חשבון\s*מס(?:פר|['׳]?)?\s*[:\-]?\s*([0-9\- ]{4,20})/i,/מס(?:פר|['׳]?)?\s*חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/account\s*(?:no\.?|number)?\s*[:\-]?\s*([0-9\/\- ]{4,20})/i],20);
+
+  // מקור אמין ביותר וללא תלות בשפת המסמך: פענוח מבנה ה-IBAN הישראלי עצמו.
+  // מבנה: IL + 2 ספרות ביקורת + 3 ספרות קוד בנק + 3 ספרות קוד סניף + 13 ספרות חשבון.
+  const ibanMatch=flat.match(/IL\s*(\d[\d\s]{18,24}\d)/i);
+  if(ibanMatch){
+    const digits=ibanMatch[1].replace(/\s+/g,"");
+    if(digits.length===21){
+      const ibanBankCode=String(Number(digits.slice(2,5)));
+      const ibanBranch=String(Number(digits.slice(5,8)));
+      const ibanAccount=String(Number(digits.slice(8)));
+      if(!number)number=ibanBankCode;
+      if(!branch)branch=ibanBranch;
+      if(!account)account=ibanAccount;
+      if(!name && codeToName[ibanBankCode])name=codeToName[ibanBankCode];
+    }
   }
-  let branch=pick([/מס(?:פר|['׳]?)?\s*סניף\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(?:[^0-9]{0,60})?שמספרו\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(\d{1,5})/i],5);
-  let account=pick([/חשבון\s*מס(?:פר|['׳]?)?\s*[:\-]?\s*([0-9\- ]{4,20})/i,/מס(?:פר|['׳]?)?\s*חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i],20);
+  if(!number&&name)number=bankNumbers[name]||"";
+
   return {name,number,branch,account};
 }
 function applyDetectedBankDetails(details){
@@ -1053,6 +1087,10 @@ async function docs(){
     try{
       const result=await analyzeFile(files[i]);
       analysisResults[i]=result;
+      console.log("=== DEBUG ANALYZE:",files[i].name,"===");
+      console.log("סוג מזוהה:",result.type);
+      console.log("identity:",JSON.stringify(result.identity));
+      console.log("extractedText (raw):",result.extractedText);
       tr.dataset.suggestion=result.type;tr.dataset.ready="1";
       tr.dataset.originalDate=result.documentDate ? result.documentDate.toISOString() : "";
       applyIdentityCandidate(result.identity, files[i].name);
@@ -1082,8 +1120,34 @@ async function docs(){
   let nextIndex=0;
   const worker=async()=>{while(nextIndex<total){const i=nextIndex++;await analyzeOne(i)}};
   await Promise.all(Array.from({length:Math.min(2,total)},worker));
+  crossValidateIdentity();
   recognitionFinished=true;
   updateCreationAvailability();
+}
+
+function crossValidateIdentity(){
+  // כל שדה בודד (שם פרטי/משפחה) עלול להיקבע ע"י מסמך אחד בלבד, כולל סריקות
+  // רועשות שבהן ה-OCR "התאים מבנית" לתווית (למשל "שם המשפחה") אך קרא את
+  // הערך עצמו לא נכון. הסכמה בין שני מסמכים בלתי-תלויים על אותו זוג
+  // שם+משפחה מהווה ראיה חזקה יותר מהתאמת-מבנה בודדת, גם אם הציון שלה
+  // (confidence) נמוך יותר טכנית. לכן, אם צמד כלשהו חוזר ב-2 מסמכים ומעלה,
+  // הוא גובר על ניחוש בודד — כולל ניחוש שכבר הוזן לשדות.
+  const pairCounts={};
+  for(const r of analysisResults){
+    if(!r||!r.identity)continue;
+    const f=(r.identity.first||"").trim(),l=(r.identity.last||"").trim();
+    if(!f||!l)continue;
+    const key=f+"|||"+l;
+    pairCounts[key]=(pairCounts[key]||0)+1;
+  }
+  const agreed=Object.entries(pairCounts).filter(([k,c])=>c>=2).sort((a,b)=>b[1]-a[1])[0];
+  if(agreed){
+    const [f,l]=agreed[0].split("|||");
+    if(!identityManual.first){first.value=f;identityAutoScore.first=99}
+    if(!identityManual.last){last.value=l;identityAutoScore.last=99}
+    identityStatus.textContent=`אומת לפי הסכמה בין ${agreed[1]} מסמכים שונים: שם פרטי: ${f} | שם משפחה: ${l}. יש לוודא מול המסמכים המקוריים לפני המשך.`;
+    identityStatus.className="analysis-note ok";
+  }
 }
 
 function step(n){
