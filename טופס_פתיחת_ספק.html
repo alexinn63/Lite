@@ -6,6 +6,7 @@
 <title>טופס פתיחת ספק חדש – יחדיו</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
 <style>
   :root{
     --navy:#0f1e3a;
@@ -249,11 +250,17 @@
     background:var(--success-bg);
   }
   .doc-card.invalid{border-color:var(--danger);background:#fdf1f0;}
+  .doc-card.drag-over{
+    border-color:var(--blue);
+    background:var(--blue-soft);
+    border-style:dashed;
+    box-shadow:0 0 0 2px rgba(37,99,168,.15) inset;
+  }
   .doc-top{
     display:grid;
-    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-columns:minmax(0,1fr) auto auto;
     align-items:center;
-    gap:12px;
+    gap:8px;
   }
   .doc-name{font-size:14px;font-weight:600;color:var(--navy);min-width:0;}
   .doc-name .req{color:var(--danger);margin-inline-start:2px;}
@@ -275,6 +282,22 @@
   }
   .file-btn:hover{background:var(--blue-soft-hover);}
   .doc-card.done .file-btn{background:#eafaf0;color:#167344;border-color:#8fd2ac;}
+  .remove-btn{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    width:28px;height:28px;
+    background:#fdf1f0;
+    color:var(--danger);
+    border:1px solid #f0c4bd;
+    border-radius:7px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .remove-btn:hover{background:#fbe0dd;}
+  .doc-card.done .remove-btn{display:inline-flex;}
   .doc-status{
     font-size:12.5px;
     color:var(--muted);
@@ -294,6 +317,36 @@
     margin-top:12px;
   }
   .warning-box b{color:#3d3110;}
+  .autofill-note{
+    background:var(--blue-soft);
+    border:1.5px solid var(--blue-light);
+    border-radius:10px;
+    padding:9px 13px;
+    font-size:12.5px;
+    line-height:1.6;
+    color:#1b3a5c;
+    margin:8px 0 12px;
+  }
+  .doc-analysis{
+    font-size:11.5px;
+    color:var(--blue);
+    margin-top:3px;
+    line-height:1.5;
+  }
+  .doc-analysis.pending{color:var(--muted);}
+  .diag-btn{
+    display:inline-block;
+    margin-top:4px;
+    padding:3px 8px;
+    font-size:10.5px;
+    background:transparent;
+    color:var(--muted);
+    border:1px dashed var(--border);
+    border-radius:6px;
+    cursor:pointer;
+    font-family:'Heebo',sans-serif;
+  }
+  .diag-btn:hover{background:var(--blue-soft);color:var(--blue);}
   .submit-row{
     margin-top:18px;
     display:flex;
@@ -398,7 +451,7 @@
     .family-note{padding:4px 7px;margin-top:3px;font-size:9px;}
     .documents-grid{gap:5px 8px;}
     .doc-card{padding:5px 7px;border-width:1px;}
-    .file-btn{display:none;}
+    .file-btn,.remove-btn,.diag-btn{display:none!important;}
     .doc-status{font-size:8.5px;margin-top:2px;}
     .warning-box{padding:5px 8px;margin-top:6px;font-size:9px;line-height:1.35;}
     .footer-note{margin-top:6px;font-size:9px;}
@@ -435,11 +488,58 @@
     <form id="vendorForm" novalidate>
 
       <div class="section-title with-print">
-        <span class="title-text"><span class="num">1</span> פרטי הספק</span>
+        <span class="title-text"><span class="num">1</span> מסמכים שיש לצרף (חובה)</span>
         <span class="print-actions">
           <button type="button" class="mini-btn ghost" id="printFormBtn">🖨 הדפס</button>
           <button type="button" class="mini-btn ghost" id="savePdfBtn">📄 שמור PDF</button>
         </span>
+      </div>
+      <div class="autofill-note" id="autofillNote">לאחר צירוף המסמכים המערכת תנסה לזהות אוטומטית פרטי ספק ובנק מתוכם ולמלא את השדות בהמשך הטופס. יש לבדוק כל שדה שמולא אוטומטית. שימו לב: הזיהוי עובד רק על קבצי PDF עם טקסט אמיתי — מסמך סרוק (תמונה) לא יזוהה אוטומטית ויש למלא עבורו את השדות ידנית.</div>
+
+      <div class="documents-grid">
+      <div class="doc-card" data-doc="1">
+        <div class="doc-top">
+          <div class="doc-name">אישור עוסק מורשה / עוסק פטור<span class="req">*</span></div>
+          <button type="button" class="file-btn" data-target="file1">בחירת קובץ</button>
+          <button type="button" class="remove-btn" data-target="file1" title="הסרת הקובץ">✕</button>
+          <input type="file" id="file1">
+        </div>
+        <div class="doc-status" id="status1">טרם צורף קובץ</div>
+      </div>
+
+      <div class="doc-card" data-doc="2">
+        <div class="doc-top">
+          <div class="doc-name">אישור ניהול ספרים בתוקף<span class="req">*</span></div>
+          <button type="button" class="file-btn" data-target="file2">בחירת קובץ</button>
+          <button type="button" class="remove-btn" data-target="file2" title="הסרת הקובץ">✕</button>
+          <input type="file" id="file2">
+        </div>
+        <div class="doc-status" id="status2">טרם צורף קובץ</div>
+      </div>
+
+      <div class="doc-card" data-doc="3">
+        <div class="doc-top">
+          <div class="doc-name">אישור ניכוי מס במקור בתוקף<span class="req">*</span></div>
+          <button type="button" class="file-btn" data-target="file3">בחירת קובץ</button>
+          <button type="button" class="remove-btn" data-target="file3" title="הסרת הקובץ">✕</button>
+          <input type="file" id="file3">
+        </div>
+        <div class="doc-status" id="status3">טרם צורף קובץ</div>
+      </div>
+
+      <div class="doc-card" data-doc="4">
+        <div class="doc-top">
+          <div class="doc-name">אישור ניהול חשבון בנק או צילום המחאה מבוטלת<span class="req">*</span></div>
+          <button type="button" class="file-btn" data-target="file4">בחירת קובץ</button>
+          <button type="button" class="remove-btn" data-target="file4" title="הסרת הקובץ">✕</button>
+          <input type="file" id="file4">
+        </div>
+        <div class="doc-status" id="status4">טרם צורף קובץ</div>
+      </div>
+      </div>
+
+      <div class="section-title">
+        <span class="title-text"><span class="num">2</span> פרטי הספק</span>
       </div>
       <div class="grid">
         <div class="field-wrap full">
@@ -488,7 +588,7 @@
         </div>
       </div>
 
-      <div class="section-title"><span class="num">2</span> פרטי חשבון בנק</div>
+      <div class="section-title"><span class="num">3</span> פרטי חשבון בנק</div>
       <div class="grid">
         <div class="field-wrap full">
           <label for="bankSelect">שם הבנק<span class="req">*</span></label>
@@ -524,7 +624,7 @@
         </div>
       </div>
 
-      <div class="section-title"><span class="num">3</span> פרטי איש קשר</div>
+      <div class="section-title"><span class="num">4</span> פרטי איש קשר</div>
       <div class="grid">
         <div class="field-wrap">
           <label for="contactName">שם איש הקשר<span class="req">*</span></label>
@@ -542,46 +642,6 @@
           <label for="contactAddress">כתובת</label>
           <input type="text" id="contactAddress">
         </div>
-      </div>
-
-      <div class="section-title"><span class="num">4</span> מסמכים שיש לצרף (חובה)</div>
-
-      <div class="documents-grid">
-      <div class="doc-card" data-doc="1">
-        <div class="doc-top">
-          <div class="doc-name">אישור עוסק מורשה / עוסק פטור<span class="req">*</span></div>
-          <button type="button" class="file-btn" data-target="file1">בחירת קובץ</button>
-          <input type="file" id="file1">
-        </div>
-        <div class="doc-status" id="status1">טרם צורף קובץ</div>
-      </div>
-
-      <div class="doc-card" data-doc="2">
-        <div class="doc-top">
-          <div class="doc-name">אישור ניהול ספרים בתוקף<span class="req">*</span></div>
-          <button type="button" class="file-btn" data-target="file2">בחירת קובץ</button>
-          <input type="file" id="file2">
-        </div>
-        <div class="doc-status" id="status2">טרם צורף קובץ</div>
-      </div>
-
-      <div class="doc-card" data-doc="3">
-        <div class="doc-top">
-          <div class="doc-name">אישור ניכוי מס במקור בתוקף<span class="req">*</span></div>
-          <button type="button" class="file-btn" data-target="file3">בחירת קובץ</button>
-          <input type="file" id="file3">
-        </div>
-        <div class="doc-status" id="status3">טרם צורף קובץ</div>
-      </div>
-
-      <div class="doc-card" data-doc="4">
-        <div class="doc-top">
-          <div class="doc-name">אישור ניהול חשבון בנק או צילום המחאה מבוטלת<span class="req">*</span></div>
-          <button type="button" class="file-btn" data-target="file4">בחירת קובץ</button>
-          <input type="file" id="file4">
-        </div>
-        <div class="doc-status" id="status4">טרם צורף קובץ</div>
-      </div>
       </div>
 
       <div class="section-title"><span class="num">5</span> פרטי הבקשה</div>
@@ -672,6 +732,469 @@ const docLabels = {
 };
 let attachedFiles = {}; // id -> File object (in-memory, decoupled from <input>)
 
+/* ===================== document recognition (text-layer PDF only) =====================
+   Israeli bank/government PDFs are frequently authored with Hebrew glyphs stored in
+   "visual" (right-to-left) order in the content stream, so pdf.js returns each line
+   reversed. fixBidiTextAdaptive restores logical reading order while leaving embedded
+   LTR runs (numbers, dates, IBANs) intact, and leaves already-correct text untouched
+   (checked via a known-word score, so PDFs that extract correctly are never corrupted). */
+function fixBidiLine(line){
+  const mirror = {'(':')',')':'(','[':']',']':'[','{':'}','}':'{'};
+  let rev = [...line].reverse().map(function(c){ return mirror[c] || c; }).join('');
+  rev = rev.replace(/[0-9A-Za-z][0-9A-Za-z./\-:%\s]*[0-9A-Za-z]|[0-9A-Za-z]/g,
+    function(m){ return [...m].reverse().join(''); });
+  return rev;
+}
+const BIDI_ANCHORS = ["בנק","סניף","חשבון","עמותה","אישור","ניהול","תקין","ניכוי","מס","עוסק","תאגיד",'בע"מ',"פנקסי","תאריך","לכבוד","IBAN","שם"];
+function anchorScore(text){
+  const s = String(text||"");
+  return BIDI_ANCHORS.filter(function(a){ return s.includes(a); }).length;
+}
+function hebrewFinalLetterViolations(text){
+  // In correct Hebrew, final letter forms (ך ם ן ף ץ) only ever appear as the
+  // LAST character of a word. Finding one mid-word is a strong, direction-
+  // independent signal that this specific text is reversed.
+  const finals = {"ך":1,"ם":1,"ן":1,"ף":1,"ץ":1};
+  const tokens = String(text||"").split(/\s+/);
+  let v = 0;
+  tokens.forEach(function(tok){
+    for(let i=0;i<tok.length-1;i++){ if(finals[tok[i]]) v++; }
+  });
+  return v;
+}
+function fixBidiTextAdaptive(rawText){
+  const lines = String(rawText||"").split(/\r?\n/);
+  const fixedLines = lines.map(fixBidiLine);
+  // Some real documents mix already-correctly-ordered static template text
+  // (e.g. bank letterhead labels) with dynamically-inserted content that IS
+  // reversed (e.g. a customer's own name) on the SAME page. A single whole-
+  // document decision can't win both at once, so decide per line — using
+  // known anchor words first, then the final-letter heuristic — and only
+  // fall back to the page-wide majority vote when a specific line (usually
+  // short) gives no clear signal of its own either way.
+  const pageDefaultToFixed = anchorScore(fixedLines.join("\n")) > anchorScore(lines.join("\n"));
+  return lines.map(function(line, i){
+    if(!line.trim()) return line;
+    const fixed = fixedLines[i];
+    const rawAnchors = anchorScore(line);
+    const fixedAnchors = anchorScore(fixed);
+    if(fixedAnchors !== rawAnchors) return fixedAnchors > rawAnchors ? fixed : line;
+    const rawViolations = hebrewFinalLetterViolations(line);
+    const fixedViolations = hebrewFinalLetterViolations(fixed);
+    if(fixedViolations !== rawViolations) return fixedViolations < rawViolations ? fixed : line;
+    return pageDefaultToFixed ? fixed : line;
+  }).join("\n");
+}
+
+function classifyVendorDoc(text){
+  const s = String(text||"");
+  const types = [];
+  if(/אישור\s*ניהול\s*חשבון|אישור\s*בעלות|IBAN/i.test(s)) types.push("bank");
+  if(/ניהול\s*תקין/.test(s)) types.push("goodStanding");
+  if(/(?:אישור\s*)?לצורך\s*ניכוי\s*מס|ניכוי\s*מס\s*במקור/.test(s)) types.push("taxWithholding");
+  if(/פנקסי\s*חשבונות|ניהול\s*ספרים|עיסקאות\s*גופים\s*ציבוריים/.test(s)) types.push("bookkeeping");
+  if(/עוסק\s*פטור/.test(s)) types.push("dealerExempt");
+  else if(/עוסק\s*מורשה|תעודת\s*עוסק/.test(s)) types.push("dealerAuthorized");
+  return types;
+}
+
+const VENDOR_TYPE_LABELS = {
+  bank:"אישור ניהול חשבון בנק", goodStanding:"אישור ניהול תקין",
+  taxWithholding:"אישור ניכוי מס במקור", bookkeeping:"אישור ניהול ספרים",
+  dealerExempt:"אישור עוסק פטור", dealerAuthorized:"אישור עוסק מורשה"
+};
+// Which mandatory upload slot each detected document type satisfies. A single
+// file can legitimately cover more than one slot (e.g. the Tax Authority often
+// issues "ניכוי מס" + "ניהול ספרים" as one combined PDF) — in that case the
+// other slot should be marked as covered instead of demanding a duplicate upload.
+const VENDOR_TYPE_TO_SLOT = {
+  bank:"file4", taxWithholding:"file3", bookkeeping:"file2", goodStanding:"file2",
+  dealerExempt:"file1", dealerAuthorized:"file1"
+};
+let coveredBy = {}; // targetSlotId -> sourceSlotId (file was derived from another slot's upload, not uploaded here directly)
+
+const BANK_NAMES = [
+  ["בנק הפועלים (12)",["בנק הפועלים","הפועלים"]],
+  ["בנק לאומי לישראל (10)",["בנק לאומי","לאומי"]],
+  ["בנק דיסקונט לישראל (11)",["בנק דיסקונט","דיסקונט"]],
+  ["בנק מזרחי טפחות (20)",["מזרחי טפחות","בנק מזרחי"]],
+  ["הבנק הבינלאומי הראשון לישראל (31)",["הבנק הבינלאומי","הבינלאומי"]],
+  ["בנק מרכנתיל דיסקונט (17)",["מרכנתיל"]],
+  ["בנק יהב לעובדי המדינה (04)",["בנק יהב","יהב"]],
+  ["בנק ירושלים (54)",["בנק ירושלים"]],
+  ["בנק מסד (46)",["בנק מסד"]],
+  ["בנק אוצר החייל (14)",["אוצר החייל"]],
+  ["בנק פועלי אגודת ישראל (52)",["פועלי אגודת ישראל"]],
+  ["One Zero הבנק הדיגיטלי (19)",["one zero","וואן זירו"]],
+  ["בנק הדואר (09)",["בנק הדואר"]]
+];
+const BANK_CODE_TO_NAME = {"12":"בנק הפועלים (12)","10":"בנק לאומי לישראל (10)","11":"בנק דיסקונט לישראל (11)","20":"בנק מזרחי טפחות (20)","31":"הבנק הבינלאומי הראשון לישראל (31)","17":"בנק מרכנתיל דיסקונט (17)","4":"בנק יהב לעובדי המדינה (04)","54":"בנק ירושלים (54)","46":"בנק מסד (46)","14":"בנק אוצר החייל (14)","52":"בנק פועלי אגודת ישראל (52)","19":"One Zero הבנק הדיגיטלי (19)","9":"בנק הדואר (09)"};
+
+function cleanDigitsVendor(v){ return String(v||"").replace(/[^0-9]/g,""); }
+
+function extractBankDetailsVendor(text){
+  const flat = String(text||"").replace(/[\u200e\u200f]/g," ").replace(/[ \t]+/g," ");
+  let name = "";
+  for(let i=0;i<BANK_NAMES.length;i++){
+    const canonical = BANK_NAMES[i][0], aliases = BANK_NAMES[i][1];
+    if(aliases.some(function(a){ return flat.toLowerCase().includes(a.toLowerCase()); })){ name = canonical; break; }
+  }
+  const pick = function(patterns, max){
+    for(const re of patterns){ const m = flat.match(re); if(m){ const d = cleanDigitsVendor(m[1]); if(d && d.length<=max) return d; } }
+    return "";
+  };
+  let branch = pick([/סניף\s*[:\-]?\s*(\d{1,5})/], 5);
+  let account = pick([/חשבון\s*[:\-]?\s*(\d{3,20})/], 20);
+
+  const ibanMatch = flat.match(/IL\s*(\d[\d\s]{18,24}\d)/i);
+  if(ibanMatch){
+    const digits = ibanMatch[1].replace(/\s+/g,"");
+    if(digits.length===21){
+      const bankCode = String(Number(digits.slice(2,5)));
+      const ibanBranch = String(Number(digits.slice(5,8)));
+      const ibanAccount = String(Number(digits.slice(8)));
+      if(!branch) branch = ibanBranch;
+      if(!account) account = ibanAccount;
+      if(!name && BANK_CODE_TO_NAME[bankCode]) name = BANK_CODE_TO_NAME[bankCode];
+    }
+  }
+  return { name:name, branch:branch, account:account };
+}
+
+function stripOrgTypeSuffix(name){
+  // Strip a trailing organization-type marker like "(ע"ר)", ")ע"ר(" (mirrored
+  // brackets — pdf.js sometimes extracts bracket direction inconsistently),
+  // or a bare "ע"ר" with no brackets at all. Matching every bracket variant
+  // precisely during capture is fragile; it's far more robust to capture the
+  // base name loosely and just cut this marker off afterwards. Search only
+  // near the END of the string (not the whole name) since this is meant to
+  // strip a trailing suffix, not any accidental mid-name occurrence.
+  let s = String(name||"").trim();
+  const windowSize = 18;
+  const tail = s.length > windowSize ? s.slice(-windowSize) : s;
+  const tailStart = s.length - tail.length;
+  const m = tail.match(/[()]?\s*ע["׳]?["]?ר\s*[()]?/);
+  if(m) s = s.slice(0, tailStart + m.index);
+  s = s.replace(/[,\s]+\d[\d\s]*$/, ""); // drop a trailing ", 580323889"-style id fragment too
+  return s.trim();
+}
+
+function extractOrgIdentityVendor(text){
+  const flat = String(text||"").replace(/[\u200e\u200f]/g," ").replace(/[ \t]+/g," ");
+  const lines = flat.split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
+  let name = "", idNumber = "", m;
+
+  // "שם העמותה: <name>" — matched per line (not across the whole flat text)
+  // so it can never accidentally swallow the following line's content.
+  for(let i=0;i<lines.length && !name;i++){
+    const m = lines[i].match(/שם\s*העמותה\s*[:\-]?\s*([\u0590-\u05FF].{1,55})/);
+    if(m){ const candidate = stripOrgTypeSuffix(m[1].trim()); if(candidate) name = candidate; }
+  }
+
+  if(!name){
+    // "לכבוד <שם>" can appear either with the name on the SAME line, or with
+    // "לכבוד" alone and the name on one of the next few lines — try both.
+    for(let i=0;i<lines.length;i++){
+      const sameLine = lines[i].match(/^לכבוד\s*[:\-]?\s*(.+)$/);
+      if(sameLine){
+        const candidate = stripOrgTypeSuffix(sameLine[1].trim());
+        const hasHebrewWords = (candidate.match(/[\u0590-\u05FF]{2,}/g)||[]).length>=2;
+        if(hasHebrewWords){ name = candidate; break; }
+      }
+      if(/^לכבוד\s*:?\s*$/.test(lines[i])){
+        for(let j=i+1;j<Math.min(i+4,lines.length);j++){
+          const candidate = lines[j].trim();
+          const hasHebrewWords = (candidate.match(/[\u0590-\u05FF]{2,}/g)||[]).length>=2;
+          const isHeaderOnly = /^(?:מספר\s*מזהה\s*ש?\s*ם?|שם\s*מספר\s*מזהה)$/.test(candidate.replace(/\s+/g," "));
+          if(hasHebrewWords && !isHeaderOnly){ name = stripOrgTypeSuffix(candidate.replace(/^\d{5,}\s*/,'')); break; }
+        }
+        if(name) break;
+      }
+    }
+  }
+
+  if(!name){
+    // some official tables interleave a pure-numeric row between the two
+    // halves of a wrapped name (e.g. "עמותת יחדיו באר-שבע" / "51 2 85 ..." /
+    // "והדרום (ע\"ר)"). Try this merged-lines variant BEFORE the naive
+    // per-line pattern below — otherwise the per-line check can find just
+    // the first half of a wrapped name on its own line and stop there,
+    // truncating the result before ever seeing the rest.
+    const stripped = lines.filter(function(l){ return !/^[\d\s\/\-]+$/.test(l); }).join(" ");
+    let m2 = stripped.match(/שם\s*העמותה\s*[:\-]?\s*([\u0590-\u05FF].{1,55})/);
+    if(m2){ const candidate = stripOrgTypeSuffix(m2[1].trim()); if(candidate) name = candidate; }
+    if(!name){
+      m2 = stripped.match(/עמותת\s+[\u0590-\u05FF0-9\s\-]{2,60}/);
+      if(m2){ const candidate = stripOrgTypeSuffix(m2[0].trim()); if(candidate) name = candidate; }
+    }
+  }
+  if(!name){
+    for(let i=0;i<lines.length && !name;i++){
+      const m = lines[i].match(/עמותת\s+[\u0590-\u05FF0-9\s\-]{2,50}/);
+      if(m){ const candidate = stripOrgTypeSuffix(m[0].trim()); if(candidate) name = candidate; }
+    }
+  }
+  if(!name){
+    m = flat.match(/[\u0590-\u05FF][\u0590-\u05FF0-9\s\-]{2,40}?בע["׳]?["]?מ\b/);
+    if(m) name = m[0].trim();
+  }
+
+  m = flat.match(/מספר\s*(?:עמותה|ע["']?ר|ח["']?פ|עוסק(?:\s*מורשה)?)\s*[:\-]?\s*(\d{9})/);
+  if(m) idNumber = m[1];
+  if(!idNumber){
+    const counts = {};
+    const re = /\b(\d{9})\b/g;
+    let mm;
+    while((mm = re.exec(flat))){ counts[mm[1]] = (counts[mm[1]]||0)+1; }
+    const sorted = Object.entries(counts).sort(function(a,b){ return b[1]-a[1]; });
+    if(sorted.length) idNumber = sorted[0][0];
+  }
+  return { name:name, idNumber:idNumber };
+}
+
+function extractAddressVendor(text){
+  const lines = String(text||"").split(/\r?\n/).map(function(l){ return l.trim(); }).filter(Boolean);
+  for(let i=0;i<lines.length;i++){
+    // require a plausible single-line street address (avoid grabbing garbled
+    // multi-cell table text from documents with broken table layouts)
+    if(/רחוב\s+/.test(lines[i]) && lines[i].length < 60){
+      let addr = lines[i];
+      if(lines[i+1] && /מיקוד\s*\d+/.test(lines[i+1]) && lines[i+1].length < 40) addr += ", " + lines[i+1];
+      return addr;
+    }
+  }
+  // some official tables print the value row BEFORE its header row (e.g. the
+  // address text appears, then a line reading "כתובת ישות כתובת עסק" labels
+  // it). Only accept this if the preceding line is short, plausible, and not
+  // itself another label/number row — otherwise stay empty rather than guess.
+  for(let i=1;i<lines.length;i++){
+    if(/^כתובת/.test(lines[i]) && lines[i].length < 40){
+      const prev = lines[i-1];
+      const isPlausibleValue = prev && prev.length < 60 && !/^[\d\s\/\-]+$/.test(prev) && (prev.match(/[\u0590-\u05FF]{2,}/g)||[]).length>=2;
+      if(isPlausibleValue) return prev;
+    }
+  }
+  return "";
+}
+function extractValidityVendor(text){
+  const flat = String(text||"");
+  const m = flat.match(/(?:תקף|בתוקף)\s*מיום\s*(\d{1,2}\/\d{1,2}\/\d{4})\s*(?:ו?עד\s*(?:ליום|יום)?\s*(\d{1,2}\/\d{1,2}\/\d{4}))?/);
+  if(!m) return null;
+  const parseDMY = function(s){ const p = s.split('/').map(Number); return new Date(p[2],p[1]-1,p[0]); };
+  return { from: m[1]?parseDMY(m[1]):null, to: m[2]?parseDMY(m[2]):null };
+}
+function validityCoversToday(validity){
+  if(!validity) return true; // no dates found — do not block the auto-check on this alone
+  if(!validity.to) return true;
+  const endOfDay = new Date(validity.to.getFullYear(), validity.to.getMonth(), validity.to.getDate(), 23,59,59);
+  return endOfDay >= new Date();
+}
+
+async function extractPdfTextVendor(file){
+  try{
+    const pdfjsLib = await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+    const data = new Uint8Array(await file.arrayBuffer());
+    const pdf = await pdfjsLib.getDocument({data:data}).promise;
+    let text = "";
+    const pages = Math.min(pdf.numPages, 6);
+    for(let i=1;i<=pages;i++){
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      // pdf.js returns disconnected text fragments with page coordinates, not
+      // pre-grouped lines. Reconstruct real lines by Y-position (same technique
+      // pdfplumber uses) — without this, an entire page collapses into one
+      // "line" and the bidi-fix below reverses the whole page instead of each
+      // visual line, scrambling label/value adjacency (e.g. "שם העמותה: ...").
+      const lines = [];
+      let currentLine = "";
+      let lastY = null;
+      content.items.forEach(function(item){
+        const y = item.transform ? item.transform[5] : null;
+        if(lastY !== null && y !== null && Math.abs(y - lastY) > 4){
+          lines.push(currentLine);
+          currentLine = "";
+        }
+        currentLine += item.str + " ";
+        if(item.hasEOL){ lines.push(currentLine); currentLine = ""; lastY = null; return; }
+        lastY = y;
+      });
+      if(currentLine) lines.push(currentLine);
+      // A short trailing fragment (e.g. an org-type abbreviation like ")ר"ע("
+      // that landed on a slightly different baseline than the rest of its
+      // line) is far more likely to be an over-split artifact than a genuine
+      // one-word visual line. Reversing such a tiny fragment in isolation
+      // scrambles its own internal letter order (proven bug), so merge it
+      // back into the previous line instead of treating it as independent.
+      const mergedLines = [];
+      lines.forEach(function(l){
+        if(mergedLines.length && l.trim().length > 0 && l.trim().length < 8){
+          mergedLines[mergedLines.length-1] += " " + l;
+        } else {
+          mergedLines.push(l);
+        }
+      });
+      text += "\n" + mergedLines.join("\n");
+    }
+    return text;
+  }catch(e){ return ""; }
+}
+
+function fillIfEmpty(el, value){
+  if(!el || !value) return false;
+  if(el.tagName === 'SELECT'){
+    const hasOption = Array.prototype.some.call(el.options, function(o){ return o.value === value; });
+    if(!hasOption) return false;
+    if(el.value && el.value.trim()) return false;
+    el.value = value;
+    el.dispatchEvent(new Event('change', {bubbles:true}));
+    return true;
+  }
+  if(el.value && el.value.trim()) return false;
+  el.value = value;
+  el.dispatchEvent(new Event('change', {bubbles:true}));
+  return true;
+}
+function checkIfEmpty(el){
+  if(!el || el.checked) return false;
+  el.checked = true;
+  el.dispatchEvent(new Event('change', {bubbles:true}));
+  return true;
+}
+
+let lastExtractedText = {}; // docId -> {raw, fixed, filename} — for diagnostics
+
+function copyDiagnosticText(docId){
+  const d = lastExtractedText[docId];
+  if(!d) return;
+  const payload = 'קובץ: ' + d.filename + '\n\n--- טקסט גולמי (raw) ---\n' + d.raw + '\n\n--- טקסט לאחר תיקון (fixed) ---\n' + d.fixed;
+  const btn = document.getElementById('diag' + docId.replace('file',''));
+  const showCopied = function(){
+    if(btn){ const orig = btn.textContent; btn.textContent = '✓ הועתק'; setTimeout(function(){ btn.textContent = orig; }, 2000); }
+  };
+  const fallbackCopy = function(){
+    // Clipboard API needs a secure context and is often unavailable on file://
+    // pages — fall back to the older execCommand approach via a hidden textarea.
+    try{
+      const ta = document.createElement('textarea');
+      ta.value = payload;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showCopied();
+    }catch(e){
+      if(btn) btn.textContent = 'לא ניתן להעתיק — ראו קונסול (F12)';
+      console.log(payload);
+    }
+  };
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(payload).then(showCopied).catch(fallbackCopy);
+    } else {
+      fallbackCopy();
+    }
+  }catch(e){
+    fallbackCopy();
+  }
+}
+
+async function analyzeAndAutofill(file, docId){
+  const num = docId.replace('file','');
+  const noteId = 'analysis' + num;
+  let note = document.getElementById(noteId);
+  if(!note){
+    note = document.createElement('div');
+    note.className = 'doc-analysis pending';
+    note.id = noteId;
+    document.getElementById('status' + num).insertAdjacentElement('afterend', note);
+  }
+  const diagId = 'diag' + num;
+  let diagBtn = document.getElementById(diagId);
+  if(!diagBtn){
+    diagBtn = document.createElement('button');
+    diagBtn.type = 'button';
+    diagBtn.className = 'diag-btn';
+    diagBtn.id = diagId;
+    diagBtn.textContent = 'העתקת טקסט לאבחון';
+    diagBtn.addEventListener('click', function(){ copyDiagnosticText(docId); });
+    note.insertAdjacentElement('afterend', diagBtn);
+  }
+  const isPdf = file.type === 'application/pdf' || /\.pdf$/i.test(file.name);
+  if(!isPdf){
+    note.className = 'doc-analysis pending';
+    note.textContent = 'זיהוי אוטומטי זמין כרגע רק לקובצי PDF (לא לתמונות).';
+    return;
+  }
+  note.className = 'doc-analysis pending';
+  note.textContent = 'מנתח את המסמך…';
+
+  const rawText = await extractPdfTextVendor(file);
+  // A born-digital PDF with real content typically yields well over a hundred
+  // characters even on a short letter. A handful of characters (e.g. just a
+  // date) means the page is essentially a scanned image with no real text
+  // layer — say so plainly, rather than implying something went wrong.
+  if(!rawText || rawText.trim().length < 20){
+    note.textContent = 'נראה שזהו מסמך סרוק (תמונה) ולא PDF עם טקסט אמיתי — זיהוי אוטומטי לא זמין עבור סוג קובץ זה. יש למלא את השדות הרלוונטיים ידנית.';
+    return;
+  }
+  const text = fixBidiTextAdaptive(rawText);
+  console.log('[זיהוי מסמך] קובץ: ' + file.name + '\n--- טקסט גולמי (raw, לפני תיקון) ---\n' + rawText + '\n--- טקסט לאחר תיקון (fixed) ---\n' + text);
+  lastExtractedText[docId] = { raw: rawText, fixed: text, filename: file.name };
+  try{
+    const types = classifyVendorDoc(text);
+    const filled = [];
+    const coveredSlots = [];
+
+    types.forEach(function(t){
+      const targetSlot = VENDOR_TYPE_TO_SLOT[t];
+      if(targetSlot && targetSlot !== docId && !attachedFiles[targetSlot]){
+        markCoveredForDoc(targetSlot, docId, file);
+        coveredSlots.push(docLabels[targetSlot]);
+      }
+    });
+
+    if(types.includes('bank')){
+      const bank = extractBankDetailsVendor(text);
+      if(fillIfEmpty(document.getElementById('bankSelect'), bank.name)) filled.push('בנק: ' + bank.name);
+      if(fillIfEmpty(document.getElementById('bankBranch'), bank.branch)) filled.push('סניף: ' + bank.branch);
+      if(fillIfEmpty(document.getElementById('bankAccount'), bank.account)) filled.push('חשבון: ' + bank.account);
+    }
+
+    const org = extractOrgIdentityVendor(text);
+    if(fillIfEmpty(document.getElementById('vendorName'), org.name)) filled.push('שם הספק: ' + org.name);
+    if(fillIfEmpty(document.getElementById('vendorId'), org.idNumber)) filled.push("מס' עוסק/עמותה: " + org.idNumber);
+
+    const address = extractAddressVendor(text);
+    if(fillIfEmpty(document.getElementById('contactAddress'), address)) filled.push('כתובת: ' + address);
+
+    const validity = extractValidityVendor(text);
+    const validNow = validityCoversToday(validity);
+    if(types.includes('taxWithholding') && validNow){ if(checkIfEmpty(document.getElementById('chkTax'))) filled.push('סומן: אישור ניכוי מס במקור בתוקף'); }
+    if((types.includes('bookkeeping') || types.includes('goodStanding')) && validNow){ if(checkIfEmpty(document.getElementById('chkBooks'))) filled.push('סומן: אישור ניהול ספרים בתוקף'); }
+    if(types.includes('dealerExempt')){ if(checkIfEmpty(document.getElementById('chkExempt'))) filled.push('סומן: עוסק פטור'); }
+
+    const typeLabel = types.map(function(t){ return VENDOR_TYPE_LABELS[t]; }).filter(Boolean).join(' + ') || 'סוג לא זוהה';
+    const coverageNote = coveredSlots.length ? (' קובץ זה מכסה גם את הדרישה ל"' + coveredSlots.join('", "') + '" — אין צורך לצרף שוב.') : '';
+    if(validity && !validNow){
+      note.textContent = 'זוהה: ' + typeLabel + ' — שים לב: תוקף המסמך פג, השדות לא סומנו אוטומטית כ"בתוקף".' + coverageNote;
+    } else if(filled.length){
+      note.textContent = 'זוהה: ' + typeLabel + '. מולא אוטומטית: ' + filled.join(' | ') + '. יש לבדוק את הנתונים.' + coverageNote;
+    } else {
+      note.textContent = 'זוהה: ' + typeLabel + '. לא נמצאו נתונים חדשים למילוי (ייתכן שכבר מולאו).' + coverageNote;
+    }
+    note.className = 'doc-analysis';
+  }catch(err){
+    console.error('vendor form analysis error:', err);
+    note.className = 'doc-analysis pending';
+    note.textContent = 'אירעה שגיאה בזיהוי האוטומטי (' + (err && err.message ? err.message : 'שגיאה לא ידועה') + '). ניתן למלא את השדות ידנית. פרטים נוספים במסוף המפתחים (F12).';
+  }
+}
+
+
 const fieldIds = ['vendorName','vendorCategory','categoryOther','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','contactAddress','bankOther','projectInfo','filledBy'];
 const checkIds = ['chkTax','chkBooks','chkExempt'];
 
@@ -738,23 +1261,94 @@ document.querySelectorAll('.file-btn').forEach(function(btn){
   });
 });
 
+document.querySelectorAll('.remove-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    clearFileForDoc(btn.dataset.target);
+  });
+});
+
 fileIds.forEach(function(id){
   const input = document.getElementById(id);
   input.addEventListener('change', function(){
     if(input.files && input.files.length > 0){
       setFileForDoc(id, input.files[0]);
       scheduleSave();
+      analyzeAndAutofill(input.files[0], id);
+    }
+  });
+});
+
+/* ===================== drag & drop onto doc-card ===================== */
+// Prevent the browser's default "navigate to dropped file" behavior anywhere
+// on the page, so a drop that misses a card slightly doesn't blow away the form.
+['dragover','drop'].forEach(function(evt){
+  window.addEventListener(evt, function(e){ e.preventDefault(); });
+});
+
+document.querySelectorAll('.doc-card').forEach(function(card){
+  const id = 'file' + card.dataset.doc;
+  card.addEventListener('dragenter', function(e){
+    e.preventDefault();
+    card.classList.add('drag-over');
+  });
+  card.addEventListener('dragover', function(e){
+    e.preventDefault(); // required to allow drop
+  });
+  card.addEventListener('dragleave', function(e){
+    if(!card.contains(e.relatedTarget)) card.classList.remove('drag-over');
+  });
+  card.addEventListener('drop', function(e){
+    e.preventDefault();
+    card.classList.remove('drag-over');
+    const dropped = e.dataTransfer && e.dataTransfer.files;
+    if(dropped && dropped.length > 0){
+      setFileForDoc(id, dropped[0]);
+      scheduleSave();
+      analyzeAndAutofill(dropped[0], id);
     }
   });
 });
 
 function setFileForDoc(id, file){
   attachedFiles[id] = file;
+  delete coveredBy[id]; // a direct upload always replaces a derived "covered" state
   const card = document.querySelector('.doc-card[data-doc="' + id.replace('file','') + '"]');
   const status = document.getElementById('status' + id.replace('file',''));
   card.classList.add('done');
   card.classList.remove('invalid');
   status.textContent = "✓ קובץ צורף: " + file.name;
+}
+
+function markCoveredForDoc(targetId, sourceId, file){
+  attachedFiles[targetId] = file;
+  coveredBy[targetId] = sourceId;
+  const num = targetId.replace('file','');
+  const card = document.querySelector('.doc-card[data-doc="' + num + '"]');
+  const status = document.getElementById('status' + num);
+  card.classList.add('done');
+  card.classList.remove('invalid');
+  status.textContent = "✓ מכוסה על ידי הקובץ שצורף עבור \"" + docLabels[sourceId] + "\": " + file.name;
+}
+
+function clearFileForDoc(id){
+  delete attachedFiles[id];
+  delete coveredBy[id];
+  const num = id.replace('file','');
+  const card = document.querySelector('.doc-card[data-doc="' + num + '"]');
+  const status = document.getElementById('status' + num);
+  const note = document.getElementById('analysis' + num);
+  const input = document.getElementById(id);
+  card.classList.remove('done', 'invalid');
+  status.textContent = "טרם צורף קובץ";
+  if(note) note.remove();
+  input.value = ''; // allows re-selecting the same file path later and still firing 'change'
+  scheduleSave();
+  // if another slot was only marked "done" because it was covered by THIS
+  // file, clearing this one must also clear the derived slot — otherwise it
+  // would keep pointing at a file the person just removed.
+  fileIds.forEach(function(otherId){
+    if(coveredBy[otherId] === id) clearFileForDoc(otherId);
+  });
 }
 
 /* ===================== restore draft on load ===================== */
