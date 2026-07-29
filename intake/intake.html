@@ -39,7 +39,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.57 — פתיחת Outlook והעתקת תוכן המייל</div></div>
+<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.58 — זיהוי שם/משפחה מת.ז. ומסמכים, פענוח IBAN לבנק</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -1087,10 +1087,6 @@ async function docs(){
     try{
       const result=await analyzeFile(files[i]);
       analysisResults[i]=result;
-      console.log("=== DEBUG ANALYZE:",files[i].name,"===");
-      console.log("סוג מזוהה:",result.type);
-      console.log("identity:",JSON.stringify(result.identity));
-      console.log("extractedText (raw):",result.extractedText);
       tr.dataset.suggestion=result.type;tr.dataset.ready="1";
       tr.dataset.originalDate=result.documentDate ? result.documentDate.toISOString() : "";
       applyIdentityCandidate(result.identity, files[i].name);
