@@ -127,7 +127,7 @@ body {
 
 /* FIELDS */
 .fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group { display: flex; flex-direction: column; gap: 5px; text-align: center; }
 .field-group label { font-size: 13px; font-weight: 700; color: var(--primary); }
 .field-group .field-val {
   width:100%;
@@ -135,6 +135,7 @@ body {
   border-radius: 7px; font-family: inherit; font-size: 14px;
   background: #f8fbff; color: var(--text); font-weight: 600;
   min-height: 40px;
+  text-align: center;
 }
 .field-group .field-val.empty { color: var(--muted); font-weight: 400; font-style: italic; }
 
@@ -371,6 +372,12 @@ img, canvas, select, input, button { max-width: 100%; }
 .panel-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
 .btn-manual { background:#475569; color:#fff; }
 .btn-all { background:#7c3aed; color:#fff; }
+
+.guardian-toggle-row { margin-top: 12px; }
+.guardian-toggle-label { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: var(--primary); cursor: pointer; }
+.guardian-toggle-label input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+.guardian-fields { margin-top: 12px; }
+.guardian-fields-display { display:none; margin-top:10px; }
 
 @media (max-width:600px){ .manual-grid{grid-template-columns:1fr;} .panel-actions{display:grid;grid-template-columns:1fr;} }
 
@@ -1250,6 +1257,22 @@ img, canvas, select, input, button { max-width: 100%; }
           <input id="manualDate" type="date" onchange="applyManualLive()">
         </div>
       </div>
+      <div class="guardian-toggle-row">
+        <label class="guardian-toggle-label">
+          <input type="checkbox" id="isGuardianCheck" onchange="toggleGuardianFields()">
+          מקבל השירות אינו חותם בעצמו — כתב הוויתור נחתם ע"י אפוטרופוס
+        </label>
+      </div>
+      <div class="manual-grid guardian-fields" id="guardianFields" style="display:none;">
+        <div>
+          <label for="guardianName">שם האפוטרופוס</label>
+          <input id="guardianName" type="text" autocomplete="off" placeholder="שם מלא של האפוטרופוס" oninput="applyManualLive()">
+        </div>
+        <div>
+          <label for="guardianTZ">ת.ז. האפוטרופוס (לא חובה)</label>
+          <input id="guardianTZ" type="text" inputmode="numeric" placeholder="מספר ת.ז." oninput="applyManualLive()">
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1282,7 +1305,7 @@ img, canvas, select, input, button { max-width: 100%; }
 
     <div class="fields-grid fields-grid-3">
       <div class="field-group">
-        <label>שם משפחה ושם פרטי</label>
+        <label>מקבל שירות / אפוטרופוס</label>
         <div class="field-val" id="fName" contenteditable="true" inputmode="text" oninput="syncManualFromDocumentFields()"></div>
       </div>
       <div class="field-group">
@@ -1295,13 +1318,24 @@ img, canvas, select, input, button { max-width: 100%; }
       </div>
     </div>
 
+    <div class="fields-grid guardian-fields-display" id="guardianFieldsDisplay">
+      <div class="field-group">
+        <label>שם האפוטרופוס</label>
+        <div class="field-val" id="fGuardianName"></div>
+      </div>
+      <div class="field-group">
+        <label>ת.ז. האפוטרופוס</label>
+        <div class="field-val" id="fGuardianTZ"></div>
+      </div>
+    </div>
+
     <div id="statusBar" class="status-bar"></div>
 
-    <div class="signature-title-print">חתימת מקבל השירות</div>
+    <div class="signature-title-print">חתימת מקבל השירות / אפוטרופוס</div>
 
     <div class="sig-section">
       <div class="sig-header">
-        <span>חתימת מקבל השירות</span>
+        <span>חתימת מקבל השירות / אפוטרופוס</span>
         <div class="sig-actions">
           <button class="sig-btn sig-btn-clear" onclick="clearSig()">מחק חתימה</button>
         </div>
@@ -1557,6 +1591,13 @@ function setPersonToForm(person, dateValue) {
   document.getElementById('manualName').value = currentPerson.name || '';
   document.getElementById('manualTZ').value = currentPerson.tz || '';
   document.getElementById('manualDate').value = document.getElementById('fDate').value;
+  document.getElementById('isGuardianCheck').checked = false;
+  document.getElementById('guardianFields').style.display = 'none';
+  document.getElementById('guardianName').value = '';
+  document.getElementById('guardianTZ').value = '';
+  document.getElementById('guardianFieldsDisplay').style.display = 'none';
+  setFieldText('fGuardianName', '');
+  setFieldText('fGuardianTZ', '');
   clearSig();
 }
 
@@ -1589,6 +1630,22 @@ function fillForm() {
   setPersonToForm(allPeople[parseInt(idx)], formatDateInput());
 }
 
+// ── GUARDIAN (אפוטרופוס) ──
+function isGuardianMode() {
+  const cb = document.getElementById('isGuardianCheck');
+  return !!(cb && cb.checked);
+}
+
+function toggleGuardianFields() {
+  const on = isGuardianMode();
+  document.getElementById('guardianFields').style.display = on ? 'grid' : 'none';
+  if (!on) {
+    document.getElementById('guardianName').value = '';
+    document.getElementById('guardianTZ').value = '';
+  }
+  applyManualLive();
+}
+
 // ── MANUAL INPUT ──
 function applyManualLive() {
   const name = document.getElementById('manualName').value.trim();
@@ -1597,7 +1654,18 @@ function applyManualLive() {
   setFieldText('fName', name);
   setFieldText('fTZ', tz);
   document.getElementById('fDate').value = dateValue;
+
+  const guardian = isGuardianMode();
+  const gName = guardian ? document.getElementById('guardianName').value.trim() : '';
+  const gTZ = guardian ? document.getElementById('guardianTZ').value.trim() : '';
+  document.getElementById('guardianFieldsDisplay').style.display = guardian ? 'grid' : 'none';
+  setFieldText('fGuardianName', gName);
+  setFieldText('fGuardianTZ', gTZ);
+
   currentPerson = normalizePerson({ name, tz, manual:true });
+  currentPerson.isGuardian = guardian;
+  currentPerson.guardianName = gName;
+  currentPerson.guardianTZ = gTZ;
   const ps = document.getElementById('personSelect');
   if (ps) ps.value = '';
 }
@@ -1605,6 +1673,10 @@ function applyManualLive() {
 function clearManualFields() {
   ['manualName','manualTZ'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('manualDate').value = formatDateInput();
+  document.getElementById('isGuardianCheck').checked = false;
+  document.getElementById('guardianFields').style.display = 'none';
+  document.getElementById('guardianName').value = '';
+  document.getElementById('guardianTZ').value = '';
   applyManualLive();
 }
 
@@ -1812,6 +1884,9 @@ function clearSig() {
 // ── SAVE ──
 function savePDF() {
   if (!ensureCurrentPersonFromFields()) { showStatus('יש לבחור מקבל שירות או להזין ידנית', 'error'); return; }
+  if (isGuardianMode() && !document.getElementById('guardianName').value.trim()) {
+    showStatus('יש להזין שם אפוטרופוס', 'error'); return;
+  }
   if (!isSigned) { showStatus('יש לחתום לפני השמירה', 'error'); return; }
   applyManualLive();
   const prevTitle = document.title;
@@ -1828,7 +1903,7 @@ function documentBodyHTML(p, sigData, dateText, guideText, signed) {
   const pNorm = normalizePerson(p || currentPerson || {});
   const sigBlock = signed && sigData
     ? '<img src="' + sigData + '" alt="חתימה">'
-    : '<div class="blank-signature">חתימת מקבל השירות</div>';
+    : '<div class="blank-signature">חתימת מקבל השירות / אפוטרופוס</div>';
   return '' +
   '<h1>כתב ויתור על סודיות</h1>' +
   '<div class="sub">' + ORG_CONFIG.orgName + '</div>' +
@@ -1843,7 +1918,7 @@ function documentBodyHTML(p, sigData, dateText, guideText, signed) {
   '<div class="field"><b>תעודת זהות</b><span>' + escapeHtml(pNorm.tz) + '</span></div>' +
   '<div class="field"><b>תאריך</b><span>' + escapeHtml(dateText || formatHebrewDate()) + '</span></div>' +
   '</div>' +
-  '<h3 class="print-signature-title">חתימת מקבל השירות</h3>' +
+  '<h3 class="print-signature-title">חתימת מקבל השירות / אפוטרופוס</h3>' +
   '<div class="sig-box">' + sigBlock + '</div>' +
   '<div class="validity-note">כתב ויתור זה יעמוד בתוקף כל עוד אני מקבל שירותי שיקום תעסוקתי דרך עמותת יחדיו או שלוחיה.</div>';
 }
@@ -1899,6 +1974,13 @@ function clearAll() {
   document.getElementById('manualName').value = '';
   document.getElementById('manualTZ').value = '';
   document.getElementById('manualDate').value = formatDateInput();
+  document.getElementById('isGuardianCheck').checked = false;
+  document.getElementById('guardianFields').style.display = 'none';
+  document.getElementById('guardianName').value = '';
+  document.getElementById('guardianTZ').value = '';
+  document.getElementById('guardianFieldsDisplay').style.display = 'none';
+  setFieldText('fGuardianName', '');
+  setFieldText('fGuardianTZ', '');
   clearSig();
   currentPerson = null;
   document.getElementById('statusBar').className = 'status-bar';
