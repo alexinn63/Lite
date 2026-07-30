@@ -894,6 +894,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
       <div class="block" style="margin-bottom:14px">
         <h4>נתוני מקבלי שירות (Excel)</h4>
         <div class="attach-btn" id="attachBtn" onclick="pickExcelInline()"><i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ EXCEL (בסיס נתונים)</div>
+        <div id="attachStatus" style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center"></div>
       </div>
 
       <div class="detail-panel" id="bdayDetail">
@@ -1995,9 +1996,25 @@ function renderListReal(id,items,tpl){
   el.innerHTML=items.map(tpl).join('');
 }
 
+// 30.07.2026: постоянный индикатор под кнопкой "החלפת קובץ EXCEL" — показывает,
+// какие данные сейчас реально используются (дата последней успешной загрузки + число
+// записей), включая случай, когда данные пришли не из свежей загрузки, а из localStorage
+// при возврате в дашборд. Раньше это было видно только на splash-экране, которого у нас нет.
+function updateAttachStatus(){
+  const el=document.getElementById('attachStatus');
+  if(!el) return;
+  let savedDate=''; try{savedDate=localStorage.getItem('portal_data_date')||'';}catch(e){logQuiet('read portal_data_date (attachStatus)',e);}
+  if(DATA && DATA.length){
+    el.textContent='נתונים מעודכנים ל-'+(savedDate||'—')+' · '+DATA.length+' רשומות';
+  }else{
+    el.textContent='לא נטען קובץ Excel — יש ללחוץ למעלה כדי לבחור קובץ';
+  }
+}
+
 function renderPersonDashboardReal(name){
   if(!document.getElementById('dashTitle')) return; // новый дашборд ещё не в DOM (защита)
   renderInstructorGridReal();
+  updateAttachStatus();
   CURRENT_PERSON=name;
   const isM=isManagementView(name);
   const d=computeStatsFor(name);
