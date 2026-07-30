@@ -893,7 +893,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 
       <div class="block" style="margin-bottom:14px">
         <h4>נתוני מקבלי שירות (Excel)</h4>
-        <div class="attach-btn" id="attachBtn" onclick="pickExcelInline()"><i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ Excel</div>
+        <div class="attach-btn" id="attachBtn" onclick="pickExcelInline()"><i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ EXCEL (בסיס נתונים)</div>
       </div>
 
       <div class="detail-panel" id="bdayDetail">
@@ -1184,10 +1184,10 @@ async function handleExcelFileSelected(input){
     if(btn){btn.innerHTML='✓ נטענו '+count+' מקבלי שירות';btn.classList.add('done');}
     renderPersonDashboardReal(CURRENT_PERSON);
     showToast(importReportToast(count,file.name,report));
-    setTimeout(()=>{ if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ Excel'; },2500);
+    setTimeout(()=>{ if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ EXCEL (בסיס נתונים)'; },2500);
   }catch(err){
     console.error(err);
-    if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ Excel';
+    if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ EXCEL (בסיס נתונים)';
     showToast('❌ שגיאה בטעינת הקובץ');
   }
 }
