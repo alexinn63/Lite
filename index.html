@@ -916,17 +916,17 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
         <div class="block">
           <div class="main-head" style="margin-bottom:8px"><h4 style="margin:0;font-size:11.5px">פילוח שירות</h4></div>
           <span style="font-size:10px;color:var(--muted);display:block;margin-bottom:6px" id="svcTotal"></span>
-          <div class="svc-row svc1" onclick="toggleDetail('svcDetail')"><span>משרד הבריאות</span><span class="n" id="svcBriut">0</span></div>
-          <div class="svc-row svc2" onclick="toggleDetail('svcDetail')"><span>משרד הבטחון</span><span class="n" id="svcBitachon">0</span></div>
-          <div class="svc-row svc3" onclick="toggleDetail('svcDetail')"><span>שירות יחיד</span><span class="n" id="svcYachid">0</span></div>
+          <div class="svc-row svc1" onclick="briutInfoToast()"><span>משרד הבריאות</span><span class="n" id="svcBriut">0</span></div>
+          <div class="svc-row svc2" onclick="openServiceDetail('bitachon')"><span>משרד הבטחון</span><span class="n" id="svcBitachon">0</span></div>
+          <div class="svc-row svc3" onclick="openServiceDetail('yachid')"><span>שירות יחיד</span><span class="n" id="svcYachid">0</span></div>
         </div>
         <div class="block">
           <h4 style="font-size:11.5px">התפלגות גילאים <span class="age-avg" id="ageAvg" style="font-size:10px"></span></h4>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">60+</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">50–59</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">40–49</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">30–39</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">18–29</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(60,200,'60+')"><span class="lbl">60+</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(50,59,'50–59')"><span class="lbl">50–59</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(40,49,'40–49')"><span class="lbl">40–49</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(30,39,'30–39')"><span class="lbl">30–39</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(18,29,'18–29')"><span class="lbl">18–29</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
         </div>
         <div class="block">
           <h4 style="font-size:11.5px">זכר / נקבה</h4>
@@ -941,8 +941,14 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
           </div>
         </div>
       </div>
-      <div class="detail-panel" id="svcDetail"><div class="drow"><span>לחיצה פותחת רשימה מסוננת לפי מקור השירות</span><span>→</span></div></div>
-      <div class="detail-panel" id="ageDetail"><div class="drow"><span>לחיצה על טווח גיל פותחת רשימת משתקמים בטווח זה</span><span>→</span></div></div>
+      <div class="detail-panel" id="svcDetail">
+        <p style="font-size:11px;color:var(--muted);margin:0 0 8px" id="svcDetailTitle">פילוח שירות</p>
+        <div id="svcListEl"></div>
+      </div>
+      <div class="detail-panel" id="ageDetail">
+        <p style="font-size:11px;color:var(--muted);margin:0 0 8px" id="ageDetailTitle">טווח גיל</p>
+        <div id="ageListEl"></div>
+      </div>
       <div class="detail-panel" id="genderDetail"><div class="drow"><span>לחיצה על מגדר פותחת רשימה מסוננת</span><span>→</span></div></div>
 
       <div class="block ref-block" style="margin-top:14px">
@@ -2071,6 +2077,54 @@ function toggleDetail(id){
   document.querySelectorAll('#dash .detail-panel').forEach(p=>{if(p.id!==id) p.classList.remove('open');});
   const el=document.getElementById(id);
   if(el) el.classList.toggle('open');
+}
+
+// 30.07.2026: реальный список для клика по корзине возраста (раньше ageDetail был просто
+// текстом-заглушкой "לחיצה פותחת רשימה" без функции). Берём те же rows, что и computeStatsFor
+// для текущего просмотра (הנהלה = все, מדריך = только его группа), фильтруем по возрасту.
+function openAgeDetail(min,max,label){
+  const name=CURRENT_PERSON;
+  const isM=isManagementView(name);
+  const workshopKey=INSTRUCTOR_SHORT_NAME[name]||name;
+  const rows=isM?(DATA||[]):(DATA||[]).filter(r=>workshopOf(r)===workshopKey);
+  const inRange=rows.filter(r=>{const age=calcAge(birthDateOf(r));return age!==null && age>=min && age<=max;})
+    .sort((a,b)=>(nameOf(a)||'').localeCompare(nameOf(b)||'','he'));
+  const title=document.getElementById('ageDetailTitle');
+  if(title) title.textContent=`טווח גיל ${label} — ${inRange.length} מקבלי שירות`;
+  const list=inRange.map(r=>{
+    const age=calcAge(birthDateOf(r));
+    const suffix=isM&&workshopOf(r)?' — '+workshopOf(r):'';
+    return [(nameOf(r)||'ללא שם')+suffix, age!=null?age+' שנים':''];
+  });
+  renderListReal('ageListEl', list, x=>`<div class="drow"><span>${x[0]}</span><span>${x[1]}</span></div>`);
+  toggleDetail('ageDetail');
+}
+
+// 30.07.2026: то же самое для "פילוח שירות" (раньше svcDetail был просто заглушкой без
+// функции). По просьбе Алекса список для "משרד הבריאות" НЕ строим — это почти всё население
+// (98 из 100), список бессмысленно большой; там просто короткое сообщение (briutInfoToast).
+// Для "משרד הבטחון" и "שירות יחיד" — полноценный список, как для возрастных корзин.
+function briutInfoToast(){
+  showToast('רשימת משרד הבריאות כוללת כמעט את כל מקבלי השירות ולכן אינה מוצגת כרשימה נפרדת');
+}
+function openServiceDetail(type){
+  const name=CURRENT_PERSON;
+  const isM=isManagementView(name);
+  const workshopKey=INSTRUCTOR_SHORT_NAME[name]||name;
+  const rows=isM?(DATA||[]):(DATA||[]).filter(r=>workshopOf(r)===workshopKey);
+  let filtered,label;
+  if(type==='bitachon'){filtered=rows.filter(isDefense);label='משרד הבטחון';}
+  else if(type==='yachid'){filtered=rows.filter(isSingle);label='שירות יחיד';}
+  else return;
+  filtered=[...filtered].sort((a,b)=>(nameOf(a)||'').localeCompare(nameOf(b)||'','he'));
+  const title=document.getElementById('svcDetailTitle');
+  if(title) title.textContent=`${label} — ${filtered.length} מקבלי שירות`;
+  const list=filtered.map(r=>{
+    const suffix=isM&&workshopOf(r)?' — '+workshopOf(r):'';
+    return [(nameOf(r)||'ללא שם')+suffix,''];
+  });
+  renderListReal('svcListEl', list, x=>`<div class="drow"><span>${x[0]}</span></div>`);
+  toggleDetail('svcDetail');
 }
 
 // 18.07.2026: персистентность списка "צוות" (было — только в DOM, добавление/
