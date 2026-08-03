@@ -394,7 +394,29 @@ async function extractPdfImageText(file,maxPages=2){
           if(d.name&&d.branch&&d.account)return text;
           const docType=classifyDocument(text,file.name);
           const person=extractPersonIdentity(text,file.name);
-          if(angle===0 && docType.type!=="לא מזוהה" && person.id && (person.first||person.last))return text;
+          // A bank certificate also contains the account holder's name and ID.
+          // Do not mistake that identity match for completed bank recognition:
+          // continue to the cropped OCR pass so the bank name/account can be read.
+          const isBankDocument=docType.type==="אישור חשבון בנק / צילום צ׳ק";
+          if(angle===0 && !isBankDocument && docType.type!=="לא מזוהה" && person.id && (person.first||person.last))return text;
+        }
+        // Bank branch details are often printed in a small header line. When the
+        // regular pass misses the branch, enlarge that header and OCR it once.
+        if(angle===0 && ocrCandidates.length){
+          const currentText=ocrCandidates.map(x=>x.text).join("\n");
+          const currentType=classifyDocument(currentText,file.name);
+          const currentBank=extractBankDetails(currentText);
+          if(currentType.type==="אישור חשבון בנק / צילום צ׳ק" && !currentBank.branch){
+            const headerCanvas=preparedBankHeaderCanvas(canvas);
+            const headerResult=await Tesseract.recognize(headerCanvas,"heb+eng",{logger:()=>{}});
+            const headerText=(headerResult?.data?.text||"").trim();
+            if(headerText){
+              const mergedText=(currentText+"\n"+headerText).trim();
+              ocrCandidates.push({text:mergedText,score:ocrTextQuality(mergedText)});
+              const mergedBank=extractBankDetails(mergedText);
+              if(mergedBank.name&&mergedBank.branch&&mergedBank.account)return mergedText;
+            }
+          }
         }
       }
     }
@@ -441,6 +463,19 @@ function preparedImageCanvas(source,angle){
     data[i]=data[i+1]=data[i+2]=y;
   }
   ctx.putImageData(image,0,0);return canvas;
+}
+
+function preparedBankHeaderCanvas(source){
+  // Focus on the upper account-details strip without assuming a bank or branch.
+  // Enlarging this small strip makes lines such as "סניף באר שבע 94" readable.
+  const sx=Math.round(source.width*.227),sy=Math.round(source.height*.08);
+  const sw=Math.max(1,Math.round(source.width*.68)),sh=Math.max(1,Math.round(source.height*.118));
+  const targetW=1800,targetH=Math.max(1,Math.round(sh*targetW/sw));
+  const crop=document.createElement("canvas");crop.width=targetW;crop.height=targetH;
+  const ctx=crop.getContext("2d",{willReadFrequently:true});
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,targetW,targetH);
+  ctx.drawImage(source,sx,sy,sw,sh,0,0,targetW,targetH);
+  return preparedImageCanvas(crop,0);
 }
 
 function ocrTextQuality(text){
@@ -747,7 +782,7 @@ function extractBankDetails(text){
     return "";
   };
   let number=pick([/מס(?:פר|['׳]?)?\s*בנק\s*[:\-]?\s*(\d{1,3})/i,/קוד\s*בנק\s*[:\-]?\s*(\d{1,3})/i,/bank\s*(?:code|no\.?|number)\s*[:\-]?\s*(\d{1,3})/i],3);
-  let branch=pick([/מס(?:פר|['׳]?)?\s*סניף\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(?:[^0-9]{0,60})?שמספרו\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(\d{1,5})/i,/branch\s*(?:no\.?|number)?\s*[:\-]?\s*(\d{1,5})/i],5);
+  let branch=pick([/מס(?:פר|['׳]?)?\s*סניף\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[\u0590-\u05FF\s\-]{1,24}?(\d{1,3})(?!\d)/i,/סניף\s+[^\d\n,]{1,20}?(\d{1,3})(?!\d)/i,/סניף\s*[:\-]?\s*(?:[^0-9]{0,60})?שמספרו\s*[:\-]?\s*(\d{1,5})/i,/סניף\s*[:\-]?\s*(\d{1,5})/i,/branch\s*(?:no\.?|number)?\s*[:\-]?\s*(\d{1,5})/i],5);
   let account=pick([/חשבון\s*מס(?:פר|['׳]?)?\s*[:\-]?\s*([0-9\- ]{4,20})/i,/מס(?:פר|['׳]?)?\s*חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/חשבון\s*[:\-]?\s*([0-9\- ]{4,20})/i,/account\s*(?:no\.?|number)?\s*[:\-]?\s*([0-9\/\- ]{4,20})/i],20);
 
   // מקור אמין ביותר וללא תלות בשפת המסמך: פענוח מבנה ה-IBAN הישראלי עצמו.
