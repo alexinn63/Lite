@@ -654,10 +654,6 @@
           <label for="filledBy">שם ממלא הטופס<span class="req">*</span></label>
           <input type="text" id="filledBy" required>
         </div>
-        <div class="field-wrap">
-          <label for="filledByEmail">דוא"ל ממלא הטופס<span class="req">*</span></label>
-          <input type="email" id="filledByEmail" required>
-        </div>
       </div>
 
       <div class="warning-box">
@@ -667,8 +663,9 @@
 
       <div class="submit-row">
         <div class="send-actions">
-          <button type="submit" class="submit-btn" id="submitBtn">שליחה</button>
+          <button type="submit" class="submit-btn" id="submitBtn">הכנת מייל לשליחה</button>
         </div>
+        <div class="send-reminder" id="sendReminder">לאחר ההורדה יש לפתוח את הקובץ בלחיצה כפולה — Outlook יפתח הודעה מוכנה עם כל הקבצים מצורפים, ונשאר רק ללחוץ על "שלח".</div>
         <div class="form-msg" id="formMsg"></div>
       </div>
     </form>
@@ -1198,7 +1195,7 @@ async function analyzeAndAutofill(file, docId){
 }
 
 
-const fieldIds = ['vendorName','vendorCategory','categoryOther','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','contactAddress','bankOther','projectInfo','filledBy','filledByEmail'];
+const fieldIds = ['vendorName','vendorCategory','categoryOther','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','contactAddress','bankOther','projectInfo','filledBy'];
 const checkIds = ['chkTax','chkBooks','chkExempt'];
 
 function currentFieldValues(){
@@ -1420,8 +1417,7 @@ function buildSnapshotHtml(values, fileNames){
     ['דוא"ל', values.contactEmail],
     ['כתובת', values.contactAddress || '—'],
     ["מס' ושם הפרויקט", values.projectInfo],
-    ['שם ממלא הטופס', values.filledBy],
-    ['דוא"ל ממלא הטופס', values.filledByEmail]
+    ['שם ממלא הטופס', values.filledBy]
   ];
   let rowsHtml = rows.map(function(r){
     return '<tr><td style="padding:8px 12px;font-weight:700;color:#0f1e3a;border-bottom:1px solid #dde3ec;width:220px;">' + r[0] + '</td><td style="padding:8px 12px;border-bottom:1px solid #dde3ec;">' + (r[1] || '—') + '</td></tr>';
@@ -1553,6 +1549,8 @@ function safeFilePart(value){
 }
 
 function invalidatePreparedPackage(){
+  const reminder = document.getElementById('sendReminder');
+  if(reminder) reminder.style.display = 'none';
   const msg = document.getElementById('formMsg');
   if(msg && msg.classList.contains('success')){
     msg.classList.remove('success');
@@ -1651,7 +1649,7 @@ document.getElementById('vendorForm').addEventListener('submit', async function(
   msg.textContent = '';
   let firstInvalid = null;
 
-  const requiredFields = ['vendorName','vendorCategory','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','projectInfo','filledBy','filledByEmail'];
+  const requiredFields = ['vendorName','vendorCategory','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','projectInfo','filledBy'];
   let missingField = false;
   requiredFields.forEach(function(id){
     const el = document.getElementById(id);
@@ -1729,61 +1727,46 @@ document.getElementById('vendorForm').addEventListener('submit', async function(
 
   const submitBtn = document.getElementById('submitBtn');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'שולח...';
+  submitBtn.textContent = 'מכין מייל...';
 
   const values = currentFieldValues();
-  const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/6n5tuvh0ccq0wkigp75k7gvhjmsp06ir';
+  const fileNames = fileIds.map(function(id){ return docLabels[id] + ': ' + attachedFiles[id].name; });
+
+  const snapshotHtml = buildSnapshotHtml(values, fileNames);
+  const cleanVendorName = safeFilePart(values.vendorName);
+  const snapshotFilename = 'טופס_ספק_' + cleanVendorName + '.html';
+  const emlFilename = 'מייל_פתיחת_ספק_' + cleanVendorName + '.eml';
 
   try{
-    const payload = new FormData();
-
-    payload.append('vendorName', values.vendorName || '');
-    payload.append('vendorCategory', values.vendorCategory === 'אחר' ? (values.categoryOther || '') : (values.vendorCategory || ''));
-    payload.append('vendorId', values.vendorId || '');
-    payload.append('familyRelation', values.familyRelation || '');
-    payload.append('bankName', values.bankSelect === 'אחר' ? (values.bankOther || '') : (values.bankSelect || ''));
-    payload.append('bankBranch', values.bankBranch || '');
-    payload.append('bankAccount', values.bankAccount || '');
-    payload.append('contactName', values.contactName || '');
-    payload.append('contactPhone', values.contactPhone || '');
-    payload.append('contactEmail', values.contactEmail || '');
-    payload.append('contactAddress', values.contactAddress || '');
-    payload.append('projectInfo', values.projectInfo || '');
-    payload.append('filledBy', values.filledBy || '');
-    payload.append('filledByEmail', values.filledByEmail || '');
-    payload.append('statusFlags',
-      'אישור ניכוי מס במקור בתוקף: ' + (values.chkTax ? 'כן' : 'לא') + ' | ' +
-      'אישור ניהול ספרים בתוקף: ' + (values.chkBooks ? 'כן' : 'לא') + ' | ' +
-      'עוסק פטור: ' + (values.chkExempt ? 'כן' : 'לא')
-    );
-
-    // descriptive names (not file1..file4) so they're easy to recognize when
-    // mapping fields inside the Make.com scenario later
-    const fileFieldNames = {
-      file1: 'file1_dealerStatus',
-      file2: 'file2_bookkeeping',
-      file3: 'file3_taxWithholding',
-      file4: 'file4_bankConfirmation'
-    };
-    fileIds.forEach(function(id){
-      const file = attachedFiles[id];
-      payload.append(fileFieldNames[id], file, file.name);
-    });
-
-    const response = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: payload });
-    if(!response.ok){
-      throw new Error('שגיאת שרת: ' + response.status + ' ' + response.statusText);
+    // сборка вложений: HTML-снимок формы + 4 документа отдельными файлами
+    const attachments = [{
+      filename: snapshotFilename,
+      mime: 'text/html; charset=UTF-8',
+      bytes: new Uint8Array(await new Blob([snapshotHtml], {type:'text/html;charset=utf-8'}).arrayBuffer())
+    }];
+    for(let i = 0; i < fileIds.length; i++){
+      const file = attachedFiles[fileIds[i]];
+      attachments.push({
+        filename: String(i + 1).padStart(2, '0') + '_' + safeFilePart(file.name),
+        mime: file.type || guessMime(file.name),
+        bytes: new Uint8Array(await file.arrayBuffer())
+      });
     }
 
+    const emlBlob = buildEml(values, attachments);
+    downloadBlob(emlBlob, emlFilename);
     await clearDraft();
+
+    document.getElementById('sendReminder').style.display = 'block';
     msg.classList.add('success');
-    msg.textContent = '✓ נשלח בהצלחה. הטופס וארבעת המסמכים הועברו.';
+    msg.innerHTML = 'קובץ המייל <b>' + emlFilename + '</b> הורד לתיקיית ההורדות.<br>' +
+      'יש לפתוח אותו בלחיצה כפולה — Outlook יציג הודעה מוכנה עם כל הקבצים מצורפים, ונשאר רק ללחוץ על "שלח".';
   } catch(err){
     console.error(err);
-    msg.textContent = 'השליחה נכשלה (' + (err && err.message ? err.message : 'שגיאה לא ידועה') + '). ניתן לנסות שוב, או לפנות לתמיכה אם זה חוזר על עצמו.';
+    msg.textContent = 'לא ניתן היה להכין את קובץ המייל. הנתונים נשמרו בטיוטה — נסו שוב.';
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'שליחה';
+    submitBtn.textContent = 'הכנת מייל לשליחה';
   }
 });
 </script>
