@@ -844,6 +844,8 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 
     <div class="panel">
 
+      <a class="item-btn doc" href="dashboard/dashboard.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-folder-check"></i></span> תיק דיגיטלי</a>
+
       <div class="divider-label" style="margin-top:0">קבלת מסמכים</div>
       <a class="item-btn doc" href="intake/intake.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-folder"></i></span> פתיחת תיק אישי</a>
       <a class="item-btn doc" href="מסמכים_דרושים_לקליטה.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-clipboard-list"></i></span> מסמכים דרושים לקליטה</a>
@@ -891,7 +893,8 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 
       <div class="block" style="margin-bottom:14px">
         <h4>נתוני מקבלי שירות (Excel)</h4>
-        <div class="attach-btn" id="attachBtn" onclick="pickExcelInline()"><i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ Excel</div>
+        <div class="attach-btn" id="attachBtn" onclick="pickExcelInline()"><i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ EXCEL (בסיס נתונים)</div>
+        <div id="attachStatus" style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center"></div>
       </div>
 
       <div class="detail-panel" id="bdayDetail">
@@ -913,17 +916,17 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
         <div class="block">
           <div class="main-head" style="margin-bottom:8px"><h4 style="margin:0;font-size:11.5px">פילוח שירות</h4></div>
           <span style="font-size:10px;color:var(--muted);display:block;margin-bottom:6px" id="svcTotal"></span>
-          <div class="svc-row svc1" onclick="toggleDetail('svcDetail')"><span>משרד הבריאות</span><span class="n" id="svcBriut">0</span></div>
-          <div class="svc-row svc2" onclick="toggleDetail('svcDetail')"><span>משרד הבטחון</span><span class="n" id="svcBitachon">0</span></div>
-          <div class="svc-row svc3" onclick="toggleDetail('svcDetail')"><span>שירות יחיד</span><span class="n" id="svcYachid">0</span></div>
+          <div class="svc-row svc1" onclick="briutInfoToast()"><span>משרד הבריאות</span><span class="n" id="svcBriut">0</span></div>
+          <div class="svc-row svc2" onclick="openServiceDetail('bitachon')"><span>משרד הבטחון</span><span class="n" id="svcBitachon">0</span></div>
+          <div class="svc-row svc3" onclick="openServiceDetail('yachid')"><span>שירות יחיד</span><span class="n" id="svcYachid">0</span></div>
         </div>
         <div class="block">
           <h4 style="font-size:11.5px">התפלגות גילאים <span class="age-avg" id="ageAvg" style="font-size:10px"></span></h4>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">60+</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">50–59</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">40–49</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">30–39</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
-          <div class="age-row" onclick="toggleDetail('ageDetail')"><span class="lbl">18–29</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(60,200,'60+')"><span class="lbl">60+</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(50,59,'50–59')"><span class="lbl">50–59</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(40,49,'40–49')"><span class="lbl">40–49</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(30,39,'30–39')"><span class="lbl">30–39</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
+          <div class="age-row" onclick="openAgeDetail(18,29,'18–29')"><span class="lbl">18–29</span><div class="track"><div class="fill" style="width:0%"></div></div><span class="val">0</span></div>
         </div>
         <div class="block">
           <h4 style="font-size:11.5px">זכר / נקבה</h4>
@@ -938,8 +941,14 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
           </div>
         </div>
       </div>
-      <div class="detail-panel" id="svcDetail"><div class="drow"><span>לחיצה פותחת רשימה מסוננת לפי מקור השירות</span><span>→</span></div></div>
-      <div class="detail-panel" id="ageDetail"><div class="drow"><span>לחיצה על טווח גיל פותחת רשימת משתקמים בטווח זה</span><span>→</span></div></div>
+      <div class="detail-panel" id="svcDetail">
+        <p style="font-size:11px;color:var(--muted);margin:0 0 8px" id="svcDetailTitle">פילוח שירות</p>
+        <div id="svcListEl"></div>
+      </div>
+      <div class="detail-panel" id="ageDetail">
+        <p style="font-size:11px;color:var(--muted);margin:0 0 8px" id="ageDetailTitle">טווח גיל</p>
+        <div id="ageListEl"></div>
+      </div>
       <div class="detail-panel" id="genderDetail"><div class="drow"><span>לחיצה על מגדר פותחת רשימה מסוננת</span><span>→</span></div></div>
 
       <div class="block ref-block" style="margin-top:14px">
@@ -994,6 +1003,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
         <button onclick="addPersonReal()">+</button>
       </div>
       <a class="item-btn doc team-quicklink" href="ציק_ליסט_הדרכה_עובד_חדש.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-clipboard-check"></i></span> צ'ק ליסט הדרכת עובד חדש</a>
+      <a class="item-btn doc team-quicklink" href="טופס_פתיחת_ספק.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-building-store"></i></span> טופס פתיחת ספק</a>
       <div class="divider-label">לפי מדריכים</div>
       <div class="instr-grid" id="instrGrid">
         <div class="instr-card" onclick="selectPersonReal('שלום מימון')"><div class="n" id="igShalom">0</div><div class="l">שלום</div></div>
@@ -1181,10 +1191,10 @@ async function handleExcelFileSelected(input){
     if(btn){btn.innerHTML='✓ נטענו '+count+' מקבלי שירות';btn.classList.add('done');}
     renderPersonDashboardReal(CURRENT_PERSON);
     showToast(importReportToast(count,file.name,report));
-    setTimeout(()=>{ if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ Excel'; },2500);
+    setTimeout(()=>{ if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ EXCEL (בסיס נתונים)'; },2500);
   }catch(err){
     console.error(err);
-    if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ Excel';
+    if(btn) btn.innerHTML=prevHtml||'<i class="ti ti-file-spreadsheet"></i> לחץ להחלפת קובץ EXCEL (בסיס נתונים)';
     showToast('❌ שגיאה בטעינת הקובץ');
   }
 }
@@ -1494,12 +1504,16 @@ function averageAge(rows){
   return Math.round(ages.reduce((a,b)=>a+b,0)/ages.length);
 }
 function ageBucketData(rows){
+  // 30.07.2026: порядок корзин теперь совпадает с DOM-разметкой (index.html, .age-row сверху вниз:
+  // 60+,50–59,40–49,30–39,18–29). Раньше здесь был порядок по возрастанию, а рендер (d.ages.forEach)
+  // писал значения в DOM-строки просто по индексу — из-за этого числа попадали в противоположные
+  // подписи (60+ показывал количество молодых 18–29 и наоборот).
   const bins=[
-    {label:'18–29',min:18,max:29},
-    {label:'30–39',min:30,max:39},
-    {label:'40–49',min:40,max:49},
+    {label:'60+',min:60,max:200},
     {label:'50–59',min:50,max:59},
-    {label:'60+',min:60,max:200}
+    {label:'40–49',min:40,max:49},
+    {label:'30–39',min:30,max:39},
+    {label:'18–29',min:18,max:29}
   ];
   bins.forEach(b=>b.count=0);
   rows.forEach(r=>{
@@ -1988,9 +2002,25 @@ function renderListReal(id,items,tpl){
   el.innerHTML=items.map(tpl).join('');
 }
 
+// 30.07.2026: постоянный индикатор под кнопкой "החלפת קובץ EXCEL" — показывает,
+// какие данные сейчас реально используются (дата последней успешной загрузки + число
+// записей), включая случай, когда данные пришли не из свежей загрузки, а из localStorage
+// при возврате в дашборд. Раньше это было видно только на splash-экране, которого у нас нет.
+function updateAttachStatus(){
+  const el=document.getElementById('attachStatus');
+  if(!el) return;
+  let savedDate=''; try{savedDate=localStorage.getItem('portal_data_date')||'';}catch(e){logQuiet('read portal_data_date (attachStatus)',e);}
+  if(DATA && DATA.length){
+    el.textContent='נתונים מעודכנים ל-'+(savedDate||'—')+' · '+DATA.length+' רשומות';
+  }else{
+    el.textContent='לא נטען קובץ Excel — יש ללחוץ למעלה כדי לבחור קובץ';
+  }
+}
+
 function renderPersonDashboardReal(name){
   if(!document.getElementById('dashTitle')) return; // новый дашборд ещё не в DOM (защита)
   renderInstructorGridReal();
+  updateAttachStatus();
   CURRENT_PERSON=name;
   const isM=isManagementView(name);
   const d=computeStatsFor(name);
@@ -2047,6 +2077,54 @@ function toggleDetail(id){
   document.querySelectorAll('#dash .detail-panel').forEach(p=>{if(p.id!==id) p.classList.remove('open');});
   const el=document.getElementById(id);
   if(el) el.classList.toggle('open');
+}
+
+// 30.07.2026: реальный список для клика по корзине возраста (раньше ageDetail был просто
+// текстом-заглушкой "לחיצה פותחת רשימה" без функции). Берём те же rows, что и computeStatsFor
+// для текущего просмотра (הנהלה = все, מדריך = только его группа), фильтруем по возрасту.
+function openAgeDetail(min,max,label){
+  const name=CURRENT_PERSON;
+  const isM=isManagementView(name);
+  const workshopKey=INSTRUCTOR_SHORT_NAME[name]||name;
+  const rows=isM?(DATA||[]):(DATA||[]).filter(r=>workshopOf(r)===workshopKey);
+  const inRange=rows.filter(r=>{const age=calcAge(birthDateOf(r));return age!==null && age>=min && age<=max;})
+    .sort((a,b)=>(nameOf(a)||'').localeCompare(nameOf(b)||'','he'));
+  const title=document.getElementById('ageDetailTitle');
+  if(title) title.textContent=`טווח גיל ${label} — ${inRange.length} מקבלי שירות`;
+  const list=inRange.map(r=>{
+    const age=calcAge(birthDateOf(r));
+    const suffix=isM&&workshopOf(r)?' — '+workshopOf(r):'';
+    return [(nameOf(r)||'ללא שם')+suffix, age!=null?age+' שנים':''];
+  });
+  renderListReal('ageListEl', list, x=>`<div class="drow"><span>${x[0]}</span><span>${x[1]}</span></div>`);
+  toggleDetail('ageDetail');
+}
+
+// 30.07.2026: то же самое для "פילוח שירות" (раньше svcDetail был просто заглушкой без
+// функции). По просьбе Алекса список для "משרד הבריאות" НЕ строим — это почти всё население
+// (98 из 100), список бессмысленно большой; там просто короткое сообщение (briutInfoToast).
+// Для "משרד הבטחון" и "שירות יחיד" — полноценный список, как для возрастных корзин.
+function briutInfoToast(){
+  showToast('רשימת משרד הבריאות כוללת כמעט את כל מקבלי השירות ולכן אינה מוצגת כרשימה נפרדת');
+}
+function openServiceDetail(type){
+  const name=CURRENT_PERSON;
+  const isM=isManagementView(name);
+  const workshopKey=INSTRUCTOR_SHORT_NAME[name]||name;
+  const rows=isM?(DATA||[]):(DATA||[]).filter(r=>workshopOf(r)===workshopKey);
+  let filtered,label;
+  if(type==='bitachon'){filtered=rows.filter(isDefense);label='משרד הבטחון';}
+  else if(type==='yachid'){filtered=rows.filter(isSingle);label='שירות יחיד';}
+  else return;
+  filtered=[...filtered].sort((a,b)=>(nameOf(a)||'').localeCompare(nameOf(b)||'','he'));
+  const title=document.getElementById('svcDetailTitle');
+  if(title) title.textContent=`${label} — ${filtered.length} מקבלי שירות`;
+  const list=filtered.map(r=>{
+    const suffix=isM&&workshopOf(r)?' — '+workshopOf(r):'';
+    return [(nameOf(r)||'ללא שם')+suffix,''];
+  });
+  renderListReal('svcListEl', list, x=>`<div class="drow"><span>${x[0]}</span></div>`);
+  toggleDetail('svcDetail');
 }
 
 // 18.07.2026: персистентность списка "צוות" (было — только в DOM, добавление/

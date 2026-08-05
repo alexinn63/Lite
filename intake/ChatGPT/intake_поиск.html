@@ -2,15 +2,22 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>פתיחת תיק אישי</title>
+<title>קליטת מקבל שירות חדש</title>
 <style>
 :root{--navy:#0f1e3a;--blue:#2563a8;--soft:#dbeafe;--bg:#f4f6fb;--card:#fff;--line:#e7ebf2;--muted:#7b8497;--green:#1f9d68;--amber:#b7791f}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Segoe UI,Arial,Heebo,sans-serif;color:#1c2333}
 .app{max-width:1400px;margin:auto;padding:20px}.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px rgba(15,30,58,.07)}
 header{padding:22px;margin-bottom:18px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{display:flex;gap:12px;align-items:center}.mark{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,#2563a8,#1d4ed8);color:white;display:grid;place-items:center;font-size:22px}h1{margin:0;color:var(--navy);font-size:28px}.sub{color:var(--muted);font-size:13px;margin-top:5px}.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:18px}.step{padding:10px;border-radius:10px;border:1px solid var(--line);background:#fafbfe;text-align:center;color:var(--muted);font-size:12px}.step.active{background:var(--blue);color:white;border-color:var(--blue)}.step.done{background:#edf9f4;color:#146c49;border-color:#bfe4d3}.step{font:inherit}.step.reachable{cursor:pointer}.step:not(.reachable):not(.active){cursor:not-allowed;opacity:.72}
-main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-template-columns:1fr;gap:16px}.card{border:1px solid var(--line);border-radius:16px;padding:22px;background:white}.card h2{margin:0;color:var(--navy);font-size:20px}.card p{color:var(--muted);font-size:13px;line-height:1.6}.btn{border:0;border-radius:10px;padding:12px 16px;cursor:pointer}.primary{background:var(--blue);color:white}.soft{background:var(--soft);color:#1d4ed8;border:1px solid #bfd3f7}.ghost{background:white;border:1px solid var(--line);color:#44506a}.actions{display:flex;gap:8px;flex-wrap:wrap}.files{display:grid;gap:8px;margin-top:14px}.file{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;font-size:13px}.summary{margin-top:14px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:10px}
+main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{border:1px solid var(--line);border-radius:16px;padding:22px;background:white}.card h2{margin:0;color:var(--navy);font-size:20px}.card p{color:var(--muted);font-size:13px;line-height:1.6}.btn{border:0;border-radius:10px;padding:12px 16px;cursor:pointer}.primary{background:var(--blue);color:white}.soft{background:var(--soft);color:#1d4ed8;border:1px solid #bfd3f7}.ghost{background:white;border:1px solid var(--line);color:#44506a}.actions{display:flex;gap:8px;flex-wrap:wrap}.files{display:grid;gap:8px;margin-top:14px}.file{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;font-size:13px}.summary{margin-top:14px;padding:13px 15px;border:1px solid var(--line);border-radius:12px;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}.field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fbfcff}.layout{display:grid;grid-template-columns:1fr 340px;gap:16px}.preview{border:1px dashed #cfd8e7;border-radius:12px;min-height:145px;background:#fafbfe;display:grid;place-items:center;text-align:center;padding:15px;color:var(--muted);font-size:12px}.docs{margin-top:16px}.docs table{width:100%;border-collapse:collapse;font-size:12px}.docs th,.docs td{padding:10px;border-bottom:1px solid var(--line);text-align:right}.docs th{background:#fafbfe;color:var(--muted);font-weight:400}.ok{color:var(--green)}.warn{color:var(--amber)}.agree{background:#edf9f4;color:#146c49;border:1px solid #bfe4d3;padding:8px 11px}.agree:disabled{opacity:.45;cursor:not-allowed}.suggestion{font-weight:600;color:var(--navy)}.footer{display:flex;justify-content:space-between;margin-top:18px;gap:10px}
 
+.mail-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.mail-form .wide{grid-column:1/-1}
+.checkline{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;font-size:13px}
+.mailbox-fixed{margin-top:12px;padding:11px 12px;border:1px solid #bfd3f7;background:#edf3ff;border-radius:10px;color:#244a7c;font-size:12px;line-height:1.5}
+.prompt-box{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:#f8fafc;padding:11px 12px;font-size:12px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+
+.search-hint{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:#44506a;margin-inline-start:6px}
 .analysis-note{margin-top:8px;color:var(--muted);font-size:11px;line-height:1.45}
 .analyzing{color:var(--blue)}
 .suggestion-text{font-weight:600;color:var(--navy)}
@@ -32,7 +39,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.58 — זיהוי שם/משפחה מת.ז. ומסמכים, פענוח IBAN לבנק</div></div>
+<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>קליטת מקבל שירות חדש</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.58 — זיהוי שם/משפחה מת.ז. ומסמכים, פענוח IBAN לבנק</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -45,6 +52,29 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <input id="filesInput" type="file" multiple hidden><input id="folderInput" type="file" webkitdirectory directory multiple hidden>
 <div class="files" id="fileList"></div>
 <div class="summary hidden" id="fileSummary"><span><b id="fileCount">0</b> קבצים נבחרו</span><div class="actions"><button class="btn ghost" id="clear">נקה</button><button class="btn primary" id="next">המשך לבדיקה</button></div></div>
+</section>
+
+<section class="card">
+<h2>מציאת מייל דרך ChatGPT</h2>
+<p>מלא את פרטי החיפוש. הם יישמרו במחשב הזה ויצורפו אוטומטית לבקשה אליי.</p>
+<div class="mailbox-fixed">
+  מקור החיפוש הקבוע: <b>Outlook / Microsoft 365 של העבודה בלבד</b><br>
+  אין לחפש ב-Gmail.
+</div>
+<div class="mail-form">
+  <div class="field"><label>מי כתב את המייל</label><input id="mailSender" placeholder="שם או כתובת מייל"></div>
+  <div class="field"><label>מילה מפתח</label><input id="mailKeyword" placeholder="נושא, שם עובד או טקסט מהמייל"></div>
+  <div class="field"><label>מתאריך</label><input id="mailFromDate" type="date"></div>
+  <div class="field"><label>עד תאריך</label><input id="mailToDate" type="date"></div>
+  <label class="checkline wide"><input id="mailAttachmentsOnly" type="checkbox" checked>חפש רק מיילים עם קבצים מצורפים</label>
+</div>
+<div class="actions" style="margin-top:12px">
+  <button class="btn primary" id="searchViaChatGPT">שמור וחפש דרך ChatGPT</button>
+  <button class="btn ghost" id="clearMailSearch">נקה חיפוש שמור</button>
+  <span class="search-hint">הבקשה תיפתח אוטומטית ב־ChatGPT</span>
+</div>
+<div id="mailPromptBox" class="prompt-box hidden"></div>
+<p class="sub" style="margin-bottom:0">הכפתור שומר את הפרטים, מכין בקשה מלאה בעברית ופותח אותה ישירות ב־ChatGPT.</p>
 </section>
 
 </div>
@@ -240,8 +270,7 @@ const OCR_ANCHORS=[
   "תעודת זהות","אישור ניהול חשבון","מספר חשבון","המוסד לביטוח לאומי","ביטוח לאומי",
   "נכות כללית","דרגת אי כושר","תעודת שחרור","סיכום רפואי","בית חולים","משרד הבריאות",
   "החלטת ועדת השיקום","ועדת השיקום","מפעל מוגן","תכנית שיקום עתידית","תוכנית שיקום עתידית",
-  "סל שיקום","אפוטרופוס","אישור על נכות רפואית","דרגת נכות","צילום תז","תעודת זהות ישראלית",
-  "ביטוח נכות","אבחון רפואי","ועדה רפואית","אחוז הנכות הרפואית המשוקללת"
+  "סל שיקום","אפוטרופוס","אישור על נכות רפואית","דרגת נכות","צילום תז","תעודת זהות ישראלית"
 ];
 
 function findIncluded(s,keys){return keys.filter(k=>s.includes(k))}
@@ -252,29 +281,10 @@ function bituachLeumiEvidence(text,fileName=""){
   const institution=findIncluded(s,["המוסד לביטוח לאומי","המוסד לבטוח לאומי","www.btl.gov.il","btl.gov.il"]);
   const weakInstitution=findIncluded(s,["ביטוח לאומי"]);
   const benefits=findIncluded(s,["נכות כללית","דרגת אי כושר","קצבת נכות","קצבה חודשית","אישור זכאות לקצבאות","סניף המוסד","אישור על נכות רפואית","נכות רפואית משוקללת","דרגת נכות","אחוזי נכות"]);
-  // Old National Insurance medical-committee protocols are often image-only
-  // scans. Their OCR may miss the logo and the full institution name, while
-  // still reading distinctive disability-protocol headings.
-  const medicalCommitteeStrong=findIncluded(s,[
-    "ביטוח נכות","אחוז הנכות הרפואית המשוקללת","אחוז נכות רפואית משוקללת",
-    "פרוטוקול ועדה רפואית","פרוטוקול הוועדה הרפואית",
-    "פרוטקול ועדה רפואית","פרוטקול הוועדה הרפואית"
-  ]);
-  const medicalCommitteeOther=findIncluded(s,[
-    "אבחון רפואי","ועדה רפואית","ממצאי הבדיקה הנוכחית","סיכום דיון ונימוק",
-    "הליקויים הרפואיים","מס' ועדה","מס׳ ועדה","מספר ועדה","מס ועדה"
-  ]);
   const fileMatches=[];
   if(fn.includes("ביטוחלאומי")||fn.includes("בטוחלאומי")||fn.includes("btl"))fileMatches.push("ביטוח לאומי בשם הקובץ");
-  const disabilityProtocolByName=fn.includes("נכות")&&
-    (fn.includes("פרוטוקול")||fn.includes("פרוטקול")||fn.includes("ועדהרפואית"));
-  if(disabilityProtocolByName)fileMatches.push("פרוטוקול/פרוטקול+נכות בשם הקובץ");
-  const committeeCombination=s.includes("נכות")&&medicalCommitteeOther.length>=2;
-  return {
-    institution:institution.concat(weakInstitution),benefits,medicalCommitteeStrong,medicalCommitteeOther,fileMatches,
-    isMatch:fileMatches.length>0 || institution.length>0 || weakInstitution.length+benefits.length>=2 ||
-      benefits.length>=2 || medicalCommitteeStrong.length>0 || committeeCombination
-  };
+  const allInstitution=institution.concat(weakInstitution,fileMatches);
+  return {institution:allInstitution,benefits,isMatch:fileMatches.length>0 || institution.length>0 || weakInstitution.length+benefits.length>=2 || benefits.length>=2};
 }
 
 function classifyDocument(text, fileName=""){
@@ -320,10 +330,7 @@ function classifyDocument(text, fileName=""){
   add("אפוטרופוס",guardian.length*5,guardian);
 
   const btl=bituachLeumiEvidence(text,fileName);
-  if(btl.isMatch) add("ביטוח לאומי",
-    btl.institution.length*8+btl.benefits.length*3+btl.medicalCommitteeStrong.length*12+
-      btl.medicalCommitteeOther.length*2+btl.fileMatches.length*18,
-    btl.institution.concat(btl.benefits,btl.medicalCommitteeStrong,btl.medicalCommitteeOther,btl.fileMatches));
+  if(btl.isMatch) add("ביטוח לאומי",btl.institution.length*8+btl.benefits.length*3,btl.institution.concat(btl.benefits));
 
   if(!candidates.length)return {type:"לא מזוהה",score:0,matches:[]};
   candidates.sort((a,b)=>b.score-a.score);
@@ -1839,6 +1846,52 @@ finishTrial.onclick=async()=>{
     : `Outlook נפתח. תוכן המייל ${copied?"הועתק וניתן להדביק באמצעות Ctrl+V":"לא הועתק"}. לא נמצא מסמך בנק שסווג במערכת.`),700);
 };
 window.addEventListener("DOMContentLoaded",()=>restoreSavedRoot(false));
+
+const MAIL_SEARCH_KEY="yachdav_mail_search_v2";
+function loadMailSearch(){
+  try{
+    const x=JSON.parse(localStorage.getItem(MAIL_SEARCH_KEY)||"{}");
+    mailSender.value=x.sender||"";
+    mailKeyword.value=x.keyword||"";
+    mailFromDate.value=x.fromDate||"";
+    mailToDate.value=x.toDate||"";
+    mailAttachmentsOnly.checked=x.attachmentsOnly!==false;
+  }catch(e){}
+}
+function getMailSearch(){
+  return {sender:mailSender.value.trim(),keyword:mailKeyword.value.trim(),fromDate:mailFromDate.value,toDate:mailToDate.value,attachmentsOnly:mailAttachmentsOnly.checked};
+}
+function buildMailPrompt(x){
+  return [
+    "חפש מייל אך ורק בתיבת הדואר של העבודה שלי ב-Outlook / Microsoft 365. אין להשתמש ב-Gmail.",
+    "תחילה מצא ובדוק את התיקייה: Входящие / חשבונית / גבע, כולל כל תיקיות המשנה שלה הרלוונטיות לטווח התאריכים. אל תבצע חיפוש כללי בכל תיבת הדואר לפני שבדקת תיקיות אלה.",
+    x.sender ? `שולח: ${x.sender}.` : "שולח לא צוין.",
+    x.fromDate ? `מתאריך: ${x.fromDate}.` : "תאריך התחלה לא צוין.",
+    x.toDate ? `עד תאריך כולל: ${x.toDate}.` : "תאריך סיום לא צוין.",
+    x.keyword ? `מילה מפתח או טקסט לחיפוש: ${x.keyword}.` : "מילה מפתח לא צוינה.",
+    x.attachmentsOnly ? "הצג רק מיילים עם קבצים מצורפים." : "אין חובה שלמייל יהיו קבצים מצורפים.",
+    "בדוק התאמה מדויקת לפי השולח, טווח התאריכים והמילה המפתח. ודא שהמילה או השם נמצאים בפועל בנושא, בגוף המייל או בשם קובץ מצורף; אל תסתמך רק על תוצאות דומות של Outlook.",
+    "הצג תחילה התאמות מדויקות, ובתוכן הצג קודם מיילים עם קבצים מצורפים.",
+    "לכל מייל הצג: תאריך, שולח, נושא, התיקייה שבה נמצא המייל, האם יש קובץ מצורף, והיכן נמצאה המילה או השם — בנושא, בגוף המייל או בשם הקובץ המצורף.",
+    "אם אין התאמה מדויקת, הצג בנפרד מיילים דומים באותו טווח תאריכים והסבר במפורש מדוע הם נחשבים דומים."
+  ].join("\n");
+}
+searchViaChatGPT.onclick=()=>{
+  const x=getMailSearch();localStorage.setItem(MAIL_SEARCH_KEY,JSON.stringify(x));
+  const prompt=buildMailPrompt(x);mailPromptBox.textContent=prompt;mailPromptBox.classList.remove("hidden");
+  const chatUrl=`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`;
+  const chatWindow=window.open(chatUrl,"_blank");
+  if(chatWindow){
+    try{chatWindow.opener=null}catch(e){}
+  }else if(confirm("הדפדפן חסם פתיחת חלון חדש. האם לפתוח את ChatGPT בחלון הנוכחי?")){
+    window.location.href=chatUrl;
+  }
+};
+clearMailSearch.onclick=()=>{
+  localStorage.removeItem(MAIL_SEARCH_KEY);mailSender.value="";mailKeyword.value="";mailFromDate.value="";mailToDate.value="";
+  mailAttachmentsOnly.checked=true;mailPromptBox.textContent="";mailPromptBox.classList.add("hidden");
+};
+loadMailSearch();
 
 </script>
 </body></html>

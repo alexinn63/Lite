@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>חיפוש מיילים ב-Outlook</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --text: #152238;
+      --muted: #5d6b82;
+      --line: #dce4ef;
+      --primary: #1557b0;
+      --primary-hover: #0e478f;
+      --primary-soft: #eaf2ff;
+      --success: #157347;
+      --warning-bg: #fff8e6;
+      --warning-line: #e3a008;
+      --danger: #b42318;
+      --focus: #7cb5ff;
+      --shadow: 0 18px 45px rgba(30, 64, 109, 0.10);
+      --radius-lg: 20px;
+      --radius-md: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 90% 0%, rgba(21, 87, 176, 0.10), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    .page {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 34px 0 54px;
+    }
+
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .hero-mark {
+      display: grid;
+      place-items: center;
+      width: 58px;
+      height: 58px;
+      flex: 0 0 58px;
+      border-radius: 17px;
+      color: #fff;
+      background: linear-gradient(145deg, #1765c1, #0c438d);
+      box-shadow: 0 12px 25px rgba(21, 87, 176, 0.25);
+      font-size: 27px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 2px;
+      font-size: clamp(1.6rem, 3vw, 2.25rem);
+      letter-spacing: -0.025em;
+    }
+
+    .hero p { margin: 0; color: var(--muted); }
+
+    .warning {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      border: 1px solid #f0d286;
+      border-right: 5px solid var(--warning-line);
+      border-radius: var(--radius-md);
+      background: var(--warning-bg);
+      color: #684b00;
+    }
+
+    .warning strong { display: block; margin-bottom: 2px; }
+    .warning-symbol { font-size: 21px; line-height: 1.35; }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+
+    .tab {
+      min-height: 54px;
+      padding: 10px 14px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 700;
+      transition: background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+    }
+
+    .tab:hover { background: #edf3fa; color: var(--text); }
+    .tab:active { transform: translateY(1px); }
+    .tab[aria-selected="true"] {
+      border-color: #bfd5f4;
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
+    .panel { padding: 24px; }
+    .panel[hidden] { display: none; }
+
+    .panel-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      margin-bottom: 20px;
+    }
+
+    .panel-heading h2 { margin: 0 0 4px; font-size: 1.25rem; }
+    .panel-heading p { margin: 0; color: var(--muted); }
+
+    .scope {
+      max-width: 370px;
+      padding: 8px 11px;
+      border: 1px solid #cddcf0;
+      border-radius: 10px;
+      background: #f4f8fd;
+      color: #244e82;
+      font-size: .89rem;
+      overflow-wrap: anywhere;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 17px;
+    }
+
+    .field { min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 650;
+    }
+
+    .required { color: var(--danger); }
+
+    input, textarea {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #bcc9da;
+      border-radius: 10px;
+      background: #fff;
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+      transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+    }
+
+    textarea { min-height: 84px; resize: vertical; }
+
+    input:hover, textarea:hover { border-color: #8fa7c5; }
+    input:focus, textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(124, 181, 255, 0.28);
+    }
+
+    input[readonly] {
+      background: #eef3f8;
+      color: #34435a;
+      cursor: default;
+    }
+
+    .hint {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .check-row {
+      display: flex;
+      align-items: center;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+
+    .check-row label {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .check-row input {
+      width: 20px;
+      height: 20px;
+      min-height: 0;
+      padding: 0;
+      accent-color: var(--primary);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding-top: 22px;
+      margin-top: 22px;
+      border-top: 1px solid var(--line);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 11px 18px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      cursor: pointer;
+      font-weight: 750;
+      transition: background .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(21, 87, 176, 0.20);
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-secondary { border-color: #bdcadd; background: #fff; color: #244160; }
+    .btn-secondary:hover { background: #f3f7fb; }
+
+    .status {
+      min-height: 24px;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+    .status.error { color: var(--danger); }
+    .status.success { color: var(--success); }
+
+    .privacy-note {
+      margin: 16px 2px 0;
+      color: var(--muted);
+      font-size: .87rem;
+    }
+
+    .noscript {
+      margin: 20px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #feeceb;
+      color: var(--danger);
+    }
+
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+    @media (max-width: 720px) {
+      .page { width: min(100% - 20px, 980px); padding-top: 20px; }
+      .hero { align-items: flex-start; }
+      .hero-mark { width: 50px; height: 50px; flex-basis: 50px; border-radius: 14px; }
+      .tabs { grid-template-columns: 1fr; }
+      .panel { padding: 18px 15px; }
+      .panel-heading { flex-direction: column; gap: 10px; }
+      .scope { max-width: 100%; width: 100%; }
+      .grid { grid-template-columns: 1fr; gap: 15px; }
+      .field.full { grid-column: auto; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="hero">
+      <div class="hero-mark" aria-hidden="true">✉</div>
+      <div>
+        <h1>חיפוש מיילים ב-Outlook</h1>
+        <p>חיפוש מדויק בתיבת הדואר של העבודה ב-Microsoft 365 בלבד</p>
+      </div>
+    </header>
+
+    <aside class="warning" aria-label="אזהרת אמינות">
+      <span class="warning-symbol" aria-hidden="true">!</span>
+      <div>
+        <strong>אין להסתמך על תשובה ללא גישה אמיתית ל-Outlook.</strong>
+        אם החיבור לתיבת הדואר אינו פעיל, ChatGPT נדרש לעצור ולא להמציא תוצאות. כל תוצאה חייבת לכלול קישור Outlook אמיתי ולחיץ.
+      </div>
+    </aside>
+
+    <section class="card" aria-label="טופס חיפוש מיילים">
+      <div class="tabs" role="tablist" aria-label="סוג חיפוש">
+        <button class="tab" id="tab-payment" type="button" role="tab" aria-selected="true" aria-controls="panel-payment" data-mode="payment">
+          חיפוש תשלום PAYMENT
+        </button>
+        <button class="tab" id="tab-general" type="button" role="tab" aria-selected="false" aria-controls="panel-general" data-mode="general">
+          חיפוש כללי בכל תיבת הדואר
+        </button>
+      </div>
+
+      <form id="panel-payment" class="panel" role="tabpanel" aria-labelledby="tab-payment" data-form="payment" novalidate>
+        <div class="panel-heading">
+          <div>
+            <h2>חיפוש תשלום לאדם</h2>
+            <p>החיפוש מוגבל לתיקיות גבע ולמיילים שבהם נמצאת המילה PAYMENT.</p>
+          </div>
+          <div class="scope" aria-label="נתיב החיפוש">Входящие / חשבונית / גבע</div>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label for="payment-sender">מי כתב את המייל <span class="required" aria-hidden="true">*</span></label>
+            <input id="payment-sender" name="sender" value="הודיה" autocomplete="off" required>
+            <span class="hint">עבור הודיה תיבדק גם הכתובת sender@invoice-one.com.</span>
+          </div>
+
+          <div class="field">
+            <label for="payment-person">שם האדם לחיפוש <span class="required" aria-hidden="true">*</span></label>
+            <input id="payment-person" name="person" placeholder="לדוגמה: גרין איליה" autocomplete="off" required>
+            <span class="hint">השם ייבדק גם בסדר מילים הפוך ובזהירות במקרה של שגיאת כתיב.</span>
+          </div>
+
+          <div class="field full">
+            <label for="payment-free-text">טקסט חופשי נוסף</label>
+            <input id="payment-free-text" name="freeText" placeholder="לא חובה" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="payment-from">מתאריך <span class="required" aria-hidden="true">*</span></label>
+            <input id="payment-from" name="from" type="date" required>
+          </div>
+
+          <div class="field">
+            <label for="payment-to">עד תאריך כולל <span class="required" aria-hidden="true">*</span></label>
+            <input id="payment-to" name="to" type="date" required>
+          </div>
+
+          <div class="field">
+            <label for="payment-keyword">מילת מפתח קבועה</label>
+            <input id="payment-keyword" name="keyword" value="PAYMENT" readonly aria-readonly="true">
+          </div>
+
+          <div class="field">
+            <label>סינון קבצים מצורפים</label>
+            <div class="check-row">
+              <label><input type="checkbox" checked disabled> הצג רק מיילים עם קבצים מצורפים</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">פתח חיפוש ב-ChatGPT</button>
+          <button class="btn btn-secondary" type="button" data-copy="payment">העתק את הוראות החיפוש</button>
+        </div>
+        <div class="status" id="status-payment" role="status" aria-live="polite"></div>
+      </form>
+
+      <form id="panel-general" class="panel" role="tabpanel" aria-labelledby="tab-general" data-form="general" hidden novalidate>
+        <div class="panel-heading">
+          <div>
+            <h2>חיפוש כללי במייל העבודה</h2>
+            <p>חיפוש בצד השרת בכל תיקיות Outlook, ללא Gmail וללא סריקה ידנית של רשימת התיקיות.</p>
+          </div>
+          <div class="scope">כל תיבת Outlook / Microsoft 365 של העבודה</div>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label for="general-sender">שולח</label>
+            <input id="general-sender" name="sender" placeholder="שם או כתובת מייל" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="general-person">שם האדם לחיפוש</label>
+            <input id="general-person" name="person" placeholder="שם מלא, אם ידוע" autocomplete="off">
+            <span class="hint">אם יוזן שם מלא, תיבדק גם הצורה ההפוכה.</span>
+          </div>
+
+          <div class="field">
+            <label for="general-keyword">מילת מפתח</label>
+            <input id="general-keyword" name="keyword" placeholder="לדוגמה: חוזה, ביטוח, invoice" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="general-free-text">טקסט חופשי נוסף</label>
+            <input id="general-free-text" name="freeText" placeholder="משפט, מספר או פרט נוסף" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="general-from">מתאריך <span class="required" aria-hidden="true">*</span></label>
+            <input id="general-from" name="from" type="date" required>
+          </div>
+
+          <div class="field">
+            <label for="general-to">עד תאריך כולל <span class="required" aria-hidden="true">*</span></label>
+            <input id="general-to" name="to" type="date" required>
+          </div>
+
+          <div class="field full">
+            <label>קבצים מצורפים</label>
+            <div class="check-row">
+              <label><input id="general-attachments" name="attachments" type="checkbox"> הצג רק מיילים עם קבצים מצורפים</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">פתח חיפוש ב-ChatGPT</button>
+          <button class="btn btn-secondary" type="button" data-copy="general">העתק את הוראות החיפוש</button>
+        </div>
+        <div class="status" id="status-general" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <p class="privacy-note">החיפוש נפתח בחשבון ChatGPT הפעיל בדפדפן. יש לוודא שזהו חשבון העבודה שבו מחובר Outlook Email.</p>
+    <noscript><div class="noscript">יש להפעיל JavaScript כדי ליצור את הוראות החיפוש.</div></noscript>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const tabs = [...document.querySelectorAll("[role='tab']")];
+      const forms = {
+        payment: document.getElementById("panel-payment"),
+        general: document.getElementById("panel-general")
+      };
+
+      const pad = number => String(number).padStart(2, "0");
+      const toLocalISO = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+
+      function setDefaultDates() {
+        const today = new Date();
+        const threeMonthsAgo = new Date(today);
+        threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+        ["payment", "general"].forEach(mode => {
+          document.getElementById(`${mode}-from`).value = toLocalISO(threeMonthsAgo);
+          document.getElementById(`${mode}-to`).value = toLocalISO(today);
+        });
+      }
+
+      function activateMode(mode, moveFocus = false) {
+        tabs.forEach(tab => {
+          const active = tab.dataset.mode === mode;
+          tab.setAttribute("aria-selected", String(active));
+          tab.tabIndex = active ? 0 : -1;
+          if (active && moveFocus) tab.focus();
+        });
+        Object.entries(forms).forEach(([key, form]) => { form.hidden = key !== mode; });
+      }
+
+      tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => activateMode(tab.dataset.mode));
+        tab.addEventListener("keydown", event => {
+          if (!['ArrowRight', 'ArrowLeft'].includes(event.key)) return;
+          event.preventDefault();
+          const direction = event.key === 'ArrowLeft' ? 1 : -1;
+          const next = (index + direction + tabs.length) % tabs.length;
+          activateMode(tabs[next].dataset.mode, true);
+        });
+      });
+
+      function value(id) {
+        return document.getElementById(id).value.trim();
+      }
+
+      function commonGuard() {
+        return `תנאי חובה לפני תחילת החיפוש:\nאם אין לך גישה פעילה לתיבת הדואר של העבודה באמצעות Outlook Email connector, עצור וכתוב שאין גישה. אל תמציא תוצאות ואל תסתמך על זיכרון, חיפוש אינטרנט או Gmail. אין להציג שום מייל שלא התקבל בפועל מכלי Outlook ושאין עבורו web_link אמיתי של Outlook. יש להשתמש אך ורק בתיבת Outlook / Microsoft 365 של העבודה שלי.`;
+      }
+
+      function nameRules(person) {
+        if (!person) return "שם אדם לא צוין.";
+        return `שם האדם לחיפוש: ${person}. בדוק תחילה התאמה מדויקת בנושא ובגוף, גם בסדר המילים כפי שנכתב וגם בסדר מילים הפוך. רק אם לא נמצאה התאמה מדויקת, בדוק שגיאת כתיב קטנה: אחת ממילות השם חייבת להיות זהה והמילה השנייה רשאית להיות שונה באות אחת חסרה, נוספת או מוחלפת, או בהחלפה של שתי אותיות סמוכות. הצג התאמה כזו בנפרד תחת \"התאמה אפשרית עקב שגיאת כתיב\", עם השם שנמצא בפועל והסבר ההבדל.`;
+      }
+
+      function exactRules(keyword, freeText) {
+        const keywordRule = keyword
+          ? `מילת המפתח \"${keyword}\" חייבת להימצא בנושא, בגוף או בשם קובץ מצורף. הבדיקה באנגלית אינה רגישה לאותיות גדולות וקטנות.`
+          : "מילת מפתח לא צוינה.";
+        const freeRule = freeText
+          ? `הטקסט החופשי \"${freeText}\" חייב להימצא בנושא, בגוף או בשם קובץ מצורף.`
+          : "טקסט חופשי נוסף לא צוין.";
+        return `${keywordRule}\n${freeRule}\nהתאמה מדויקת מחייבת שכל הפרטים שצוינו בפועל יתאימו. אל תסתמך על התאמות דומות או על דירוג הרלוונטיות של Outlook.`;
+      }
+
+      function resultRules(paymentMode) {
+        const linkRule = paymentMode
+          ? `חלץ את מספר העסקה או התשלום מנושא המייל. הצג את הקישור כך בלבד: [Транзакция מספר](web_link), לדוגמה [Транзакция 159706](קישור Outlook). אין להציג מזהה הודעה גולמי ואין להשתמש בקישור זמני להורדת קובץ.`
+          : `לכל תוצאה הצג קישור Outlook קבוע ולחיץ מתוך web_link. טקסט הקישור יהיה [פתח את המייל](web_link). אין להציג מזהה הודעה גולמי ואין להשתמש בקישור זמני להורדת קובץ.`;
+        const duplicateRule = paymentMode
+          ? "אם אותו מספר עסקה או תשלום מופיע יותר מפעם אחת, סמן את ההודעות הנוספות ככפילות כדי שלא יודפסו פעמיים."
+          : "אל תציג אותה הודעה יותר מפעם אחת. אם נמצאו הודעות שונות עם אותו נושא ותאריך, ציין שהן עשויות להיות כפולות.";
+        return `לכל התאמה הצג: תאריך, שולח, נושא, התיקייה המדויקת, שמות הקבצים המצורפים והיכן נמצאו השם, מילת המפתח והטקסט החופשי. אם פרט לא צוין, כתוב \"לא צוין\".\n${linkRule}\n${duplicateRule}\nהצג תחילה התאמות מדויקות. אם אין התאמה מדויקת, הצג בנפרד רק התאמות אפשריות והסבר מדוע הן דומות.`;
+      }
+
+      function buildPaymentPrompt() {
+        const sender = value("payment-sender");
+        const person = value("payment-person");
+        const freeText = value("payment-free-text");
+        const from = value("payment-from");
+        const to = value("payment-to");
+        const senderDetail = sender === "הודיה" ? "הודיה, כתובת מאומתת: sender@invoice-one.com" : sender;
+
+        return `${commonGuard()}\n\nמטרת החיפוש: לאתר מייל תשלום PAYMENT לאדם מסוים במהירות ובדיוק.\nפתח ישירות את התיקייה: Входящие / חשבונית / גבע. אל תתחיל ברשימה או בסריקה של כל תיקיות תיבת הדואר.\nלפי טווח התאריכים, אתר לפי נתיב מדויק ובחר רק את תיקיות השנה והחודש החופפות לטווח. התחשב במבנה הקיים בפועל, למשל גבע / 2025 / 04.25 או גבע / 04.26. אין לבדוק חודשים או שנים מחוץ לטווח.\n\nשולח: ${senderDetail}.\n${nameRules(person)}\nטקסט חופשי נוסף: ${freeText || "לא צוין"}.\nמתאריך: ${from}.\nעד תאריך כולל: ${to}.\nמילת מפתח קבועה: PAYMENT.\nהצג רק מיילים עם קבצים מצורפים.\n\nבכל תיקייה רלוונטית סנן בצד השרת תחילה לפי כל טווח התאריכים המבוקש, קיום קובץ מצורף וכתובת השולח. אל תצמצם את תאריך ההודעה לחודש שמופיע בשם התיקייה: מייל בתיקיית 06.26 עשוי להתקבל ביולי. את תאריך הסיום יש לכלול במלואו באמצעות סינון קטן מתחילת היום הבא. לאחר מכן בדוק את השם המלא בנושא ובגוף ההודעה.\nרק עבור הודעות מועמדות שבהן נמצא השם, בדוק מטא-נתונים של הקבצים המצורפים ואת שמותיהם. אל תפתח ואל תוריד את הקבצים עצמם.\n${exactRules("PAYMENT", freeText)}\n\nאם לא נמצאה התאמה בתיקיות גבע המדויקות, מותר לבצע חיפוש רחב בתיבת Outlook רק לאחר מכן. הצג את החיפוש הרחב בנפרד וציין במפורש שבוצע רק לאחר בדיקת תיקיות גבע.\n\n${resultRules(true)}`;
+      }
+
+      function buildGeneralPrompt() {
+        const sender = value("general-sender");
+        const person = value("general-person");
+        const keyword = value("general-keyword");
+        const freeText = value("general-free-text");
+        const from = value("general-from");
+        const to = value("general-to");
+        const attachmentsOnly = document.getElementById("general-attachments").checked;
+
+        return `${commonGuard()}\n\nמטרת החיפוש: חיפוש כללי ומדויק בכל תיבת הדואר של העבודה ב-Outlook / Microsoft 365. בצע חיפוש גלובלי בצד השרת; אל תציג תחילה רשימה של כל תיקיות הדואר ואל תסרוק אותן ידנית אחת-אחת. אין להשתמש ב-Gmail.\n\nשולח: ${sender || "לא צוין"}. אם נמסרה כתובת מייל, השתמש בה לסינון שרת מדויק. אם נמסר רק שם, זהה את כתובת השולח מתוך Outlook לפני הסינון ואל תנחש.\n${nameRules(person)}\nמילת מפתח: ${keyword || "לא צוינה"}.\nטקסט חופשי נוסף: ${freeText || "לא צוין"}.\nמתאריך: ${from}.\nעד תאריך כולל: ${to}.\nקבצים מצורפים בלבד: ${attachmentsOnly ? "כן" : "לא"}.\n\nסנן בצד השרת תחילה לפי טווח התאריכים המלא, השולח אם צוין, וקיום קובץ מצורף אם נבחר. את תאריך הסיום יש לכלול במלואו באמצעות סינון קטן מתחילת היום הבא. לאחר מכן בדוק את הנושא וגוף ההודעה.\nרק עבור הודעות מועמדות שבהן נמצאו התנאים שכבר ניתן לבדוק בנושא או בגוף, קבל את מטא-הנתונים ושמות הקבצים המצורפים. אל תפתח ואל תוריד קבצים מצורפים שאינם נחוצים, ואל תבדוק תוכן של מאות קבצים.\n${exactRules(keyword, freeText)}\n\nאם חיפוש Outlook מחזיר התאמות דומות בלבד, אל תציג אותן כהתאמות מדויקות. הצג אותן בנפרד עם הסבר ברור מה חסר או שונה.\n\n${resultRules(false)}`;
+      }
+
+      function setStatus(mode, message, kind = "") {
+        const status = document.getElementById(`status-${mode}`);
+        status.textContent = message;
+        status.className = `status ${kind}`.trim();
+      }
+
+      function validate(mode) {
+        const form = forms[mode];
+        setStatus(mode, "");
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          setStatus(mode, "יש למלא את כל שדות החובה.", "error");
+          return false;
+        }
+
+        const from = value(`${mode}-from`);
+        const to = value(`${mode}-to`);
+        if (from > to) {
+          document.getElementById(`${mode}-to`).focus();
+          setStatus(mode, "תאריך הסיום חייב להיות זהה לתאריך ההתחלה או מאוחר ממנו.", "error");
+          return false;
+        }
+
+        if (mode === "general") {
+          const hasCriterion = ["general-sender", "general-person", "general-keyword", "general-free-text"].some(id => value(id));
+          if (!hasCriterion) {
+            document.getElementById("general-sender").focus();
+            setStatus(mode, "בחיפוש כללי יש להזין לפחות שולח, שם אדם, מילת מפתח או טקסט חופשי.", "error");
+            return false;
+          }
+        }
+        return true;
+      }
+
+      function buildPrompt(mode) {
+        return mode === "payment" ? buildPaymentPrompt() : buildGeneralPrompt();
+      }
+
+      Object.entries(forms).forEach(([mode, form]) => {
+        form.addEventListener("submit", event => {
+          event.preventDefault();
+          if (!validate(mode)) return;
+          const prompt = buildPrompt(mode);
+          const url = `https://chatgpt.com/?q=${encodeURIComponent(prompt)}`;
+          const newWindow = window.open(url, "_blank");
+          if (newWindow) {
+            newWindow.opener = null;
+            setStatus(mode, "החיפוש נפתח ב-ChatGPT. יש לוודא שחיבור Outlook פעיל.", "success");
+          } else {
+            setStatus(mode, "הדפדפן חסם חלון חדש. אפשר להעתיק את ההוראות ולפתוח את ChatGPT ידנית.", "error");
+          }
+        });
+      });
+
+      document.querySelectorAll("[data-copy]").forEach(button => {
+        button.addEventListener("click", async () => {
+          const mode = button.dataset.copy;
+          if (!validate(mode)) return;
+          const prompt = buildPrompt(mode);
+          try {
+            if (navigator.clipboard && window.isSecureContext) {
+              await navigator.clipboard.writeText(prompt);
+            } else {
+              const helper = document.createElement("textarea");
+              helper.value = prompt;
+              helper.setAttribute("readonly", "");
+              helper.style.position = "fixed";
+              helper.style.opacity = "0";
+              document.body.appendChild(helper);
+              helper.select();
+              const copied = document.execCommand("copy");
+              helper.remove();
+              if (!copied) throw new Error("copy failed");
+            }
+            setStatus(mode, "הוראות החיפוש הועתקו.", "success");
+          } catch {
+            setStatus(mode, "לא ניתן להעתיק אוטומטית. יש להשתמש בכפתור פתיחת החיפוש.", "error");
+          }
+        });
+      });
+
+      setDefaultDates();
+      activateMode("payment");
+    })();
+  </script>
+</body>
+</html>

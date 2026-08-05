@@ -533,7 +533,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
   --sky:#93c5fd; --card:#ffffff; --line:#e7ebf2;
   --female:#d4506e; --male:#2563a8; --green:#1f9d68; --amber:#b7791f; --danger:#c23636;
 }
-#dash .dashboard-header{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border-bottom:1px solid var(--line);padding:16px;display:grid;grid-template-columns:225px minmax(0,1fr) 205px;align-items:center;gap:16px;max-width:1300px;margin:0 auto;box-shadow:0 8px 28px rgba(15,30,58,.05)}
+#dash .dashboard-header{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border:1px solid var(--line);padding:4px 16px;display:grid;grid-template-columns:225px minmax(0,1fr) 205px;align-items:center;gap:16px;max-width:1268px;margin:0 auto;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(15,30,58,.05)}
 #dash .dashboard-header__logo{min-height:122px;display:flex;align-items:center;justify-content:center}
 #dash .dashboard-header__logo img{display:block;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(15,30,58,.12))}
 #dash .dashboard-header__logo--yachdav img{height:122px}
@@ -544,7 +544,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .dashboard-header__subtitle{margin-top:6px;color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em}
 
 #dash .note{text-align:center;font-size:11px;color:var(--muted);padding:6px 24px 0}
-#dash .grid{display:grid;grid-template-columns:225px minmax(0,1fr) 205px;gap:16px;max-width:1300px;margin:20px auto;padding:0 16px}
+#dash .grid{display:grid;grid-template-columns:225px minmax(0,1fr) 205px;gap:16px;max-width:1300px;margin:10px auto 20px;padding:0 16px}
 
 #dash .tabbar{display:none;max-width:1300px;margin:0 auto;padding:0 16px 10px;gap:8px}
 #dash .tabbar button{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-size:13px;font-family:inherit;color:var(--muted);cursor:pointer}
@@ -670,7 +670,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
   #dash .grid > .panel.tab-active{display:block}
   #dash .kpi-row{grid-template-columns:repeat(3,1fr)}
   #dash .blocks-row{grid-template-columns:1fr !important}
-  #dash .dashboard-header{grid-template-columns:180px minmax(0,1fr) 170px}
+  #dash .dashboard-header{grid-template-columns:180px minmax(0,1fr) 170px;max-width:calc(100% - 24px)}
   #dash .dashboard-header__logo{min-height:88px}
   #dash .dashboard-header__logo--yachdav img{height:88px}
   #dash .dashboard-header__logo--health img{height:68px}
@@ -678,7 +678,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
   #dash .dashboard-header h1{font-size:20px}
 }
 @media(max-width:700px){
-  #dash .dashboard-header{grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px 12px}
+  #dash .dashboard-header{grid-template-columns:1fr 1fr;gap:8px;padding:8px 12px 10px;max-width:calc(100% - 16px);margin-top:0}
   #dash .dashboard-header__title{grid-column:1/-1;grid-row:1;padding:12px 14px;border-radius:17px}
   #dash .dashboard-header__logo{min-height:72px;grid-row:2}
   #dash .dashboard-header__logo--yachdav img{height:72px}
@@ -848,6 +848,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 
       <div class="divider-label" style="margin-top:0">קבלת מסמכים</div>
       <a class="item-btn doc" href="intake/intake.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-folder"></i></span> פתיחת תיק אישי</a>
+      <a class="item-btn doc" href="intake/חיפוש.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-search"></i></span> חיפוש</a>
       <a class="item-btn doc" href="מסמכים_דרושים_לקליטה.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-clipboard-list"></i></span> מסמכים דרושים לקליטה</a>
 
       <div class="divider-label">מסמכים וטפסים</div>
