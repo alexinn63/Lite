@@ -98,107 +98,6 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 @keyframes zoomOut{from{transform:scale(1.25)}to{transform:scale(1)}}
 @keyframes zoomOutPremium{0%{transform:scale(1.24);filter:brightness(1.14) contrast(1.05) saturate(1.1)}100%{transform:scale(1);filter:brightness(1.04) contrast(1.03) saturate(1.08)}}
 
-/* ── ROLE SCREEN ── */
-#role .inner{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:28px 20px 60px}
-.r-logo{text-align:center;opacity:0;animation:fadeUp .6s .1s forwards;transform:translateY(-20%)}
-.r-logo-panel{
-  min-width:min(420px,92vw);padding:22px 30px 18px;border-radius:34px;
-  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07));
-  border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(14px);
-  box-shadow:0 30px 80px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.26)
-}
-.r-logo img{width:168px;height:168px;object-fit:contain;filter:drop-shadow(0 16px 32px rgba(0,0,0,.34)) drop-shadow(0 0 26px rgba(232,201,106,.22))}
-.r-logo-sub{font-size:18px;font-weight:800;color:var(--white);margin-top:8px;text-shadow:0 2px 12px rgba(0,0,0,.38)}
-.r-logo h1{display:none}
-.r-logo p{font-size:19px;color:#f3d985;letter-spacing:.2px;margin-top:10px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,.35);line-height:1.3}
-.r-cards{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;perspective:1100px}
-.r-card{
-  width:282px;background:linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,.07));backdrop-filter:blur(22px);
-  border:1px solid rgba(255,255,255,.22);border-radius:30px;padding:34px 24px 28px;
-  text-align:center;cursor:pointer;opacity:0;position:relative;overflow:hidden;
-  transform-style:preserve-3d;
-  box-shadow:0 26px 70px rgba(0,0,0,.30),inset 0 1px 0 rgba(255,255,255,.22);
-  transition:transform .34s cubic-bezier(.34,1.4,.64,1),box-shadow .34s,background .34s,border-color .34s;
-}
-.r-card:nth-child(1){animation:cardIn .6s .3s forwards}
-.r-card:nth-child(2){animation:cardIn .6s .5s forwards}
-.r-card::before{content:'';position:absolute;inset:-40% -20% auto;height:120px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);transform:rotate(18deg);opacity:.65}
-.r-card::after{content:'';position:absolute;inset:auto 18px 12px;height:16px;border-radius:50%;background:rgba(0,0,0,.24);filter:blur(14px);z-index:-1}
-.r-card:hover{transform:translateY(-14px) rotateX(6deg) rotateY(-4deg) scale(1.035);border-color:rgba(201,168,76,.68);background:linear-gradient(160deg,rgba(255,255,255,.24),rgba(255,255,255,.10));box-shadow:0 36px 90px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.30)}
-@keyframes cardIn{from{opacity:0;transform:translateY(50px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
-.r-icon{width:88px;height:88px;margin:0 auto 18px;display:flex;align-items:center;justify-content:center;font-size:50px;border-radius:26px;background:linear-gradient(145deg,rgba(255,255,255,.92),rgba(225,233,248,.70));box-shadow:0 18px 34px rgba(0,0,0,.28),inset 8px 8px 18px rgba(255,255,255,.8),inset -10px -10px 22px rgba(15,30,58,.16);transform:translateZ(30px);transition:transform .3s cubic-bezier(.34,1.5,.64,1),box-shadow .3s}
-.r-card:hover .r-icon{transform:translateZ(44px) scale(1.08) rotate(-3deg);box-shadow:0 22px 46px rgba(0,0,0,.34),inset 8px 8px 18px rgba(255,255,255,.85),inset -10px -10px 22px rgba(15,30,58,.18)}
-.r-title{font-size:22px;font-weight:900;text-shadow:0 2px 6px rgba(0,0,0,.3)}
-.r-desc{font-size:12px;color:rgba(255,255,255,.65);margin-top:6px;line-height:1.5}
-.r-btn{
-  margin-top:20px;display:inline-flex;align-items:center;gap:6px;
-  font-family:'Heebo',sans-serif;font-size:14px;font-weight:500;
-  padding:12px 28px;border-radius:999px;border:none;cursor:pointer;
-  color:#5a3800;position:relative;overflow:hidden;
-  background-image:
-    linear-gradient(105deg,transparent 20%,rgba(255,255,255,.2) 40%,rgba(255,255,255,.38) 50%,rgba(255,255,255,.2) 60%,transparent 80%),
-    linear-gradient(180deg,#f5d06a 0%,#c8a94e 50%,#a8881e 100%);
-  background-size:200% 100%,100% 100%;
-  animation:shimmer-gold 2.4s linear infinite;
-  box-shadow:0 4px 18px rgba(180,140,20,.4);
-  transition:transform .15s;
-}
-.r-btn::before{content:'';position:absolute;top:3px;left:6%;right:6%;height:44%;border-radius:999px;background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,.04) 100%);pointer-events:none}
-.r-btn:hover{animation:none;background-image:linear-gradient(180deg,#fde080 0%,#d4a830 50%,#b8921e 100%);background-size:100% 100%;transform:translateY(-2px);box-shadow:0 6px 24px rgba(180,140,20,.55)}
-.r-btn:active{transform:translateY(1px)}
-@keyframes shimmer-gold{0%{background-position:-200% center}100%{background-position:200% center}}
-.r-card:hover .r-btn{background:var(--gold2)}
-
-/* ── MADRICH SCREEN ── */
-#madrich .inner{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px 20px}
-.m-title{font-size:22px;font-weight:800;opacity:0;animation:fadeUp .5s .1s forwards;text-shadow:0 2px 8px rgba(0,0,0,.4);letter-spacing:.3px}
-.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:520px;width:100%}
-.m-card{
-  border-radius:18px;padding:18px 14px 16px;text-align:center;cursor:pointer;
-  position:relative;overflow:hidden;opacity:0;
-  transition:transform .3s cubic-bezier(.34,1.4,.64,1),box-shadow .3s,border-color .3s;
-}
-.m-card:nth-child(1){animation:cardIn .5s .15s forwards;background:rgba(26,122,80,.35);border:1px solid rgba(26,122,80,.6)}
-.m-card:nth-child(2){animation:cardIn .5s .25s forwards;background:rgba(184,134,11,.35);border:1px solid rgba(184,134,11,.6)}
-.m-card:nth-child(3){animation:cardIn .5s .35s forwards;background:rgba(219,39,119,.35);border:1px solid rgba(219,39,119,.6)}
-.m-card:nth-child(4){animation:cardIn .5s .45s forwards;background:rgba(91,60,196,.35);border:1px solid rgba(91,60,196,.6)}
-.m-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:18px 18px 0 0}
-.m-card:nth-child(1)::before{background:#1a7a50}
-.m-card:nth-child(2)::before{background:#b8860b}
-.m-card:nth-child(3)::before{background:#db2777}
-.m-card:nth-child(4)::before{background:#5b3cc4}
-.m-card:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.35)}
-.m-card:nth-child(1):hover{border-color:rgba(26,122,80,.9);background:rgba(26,122,80,.48)}
-.m-card:nth-child(2):hover{border-color:rgba(184,134,11,.9);background:rgba(184,134,11,.48)}
-.m-card:nth-child(3):hover{border-color:rgba(219,39,119,.9);background:rgba(219,39,119,.48)}
-.m-card:nth-child(4):hover{border-color:rgba(91,60,196,.9);background:rgba(91,60,196,.48)}
-.m-av{width:52px;height:52px;border-radius:50%;margin:0 auto 12px;border:3px solid}
-.m-card:nth-child(1) .m-av{background:#1a7a50;border-color:#4ade80;box-shadow:0 0 18px rgba(26,122,80,.6)}
-.m-card:nth-child(2) .m-av{background:#b8860b;border-color:#fbbf24;box-shadow:0 0 18px rgba(184,134,11,.6)}
-.m-card:nth-child(3) .m-av{background:#db2777;border-color:#f9a8d4;box-shadow:0 0 18px rgba(219,39,119,.6)}
-.m-card:nth-child(4) .m-av{background:#5b3cc4;border-color:#a78bfa;box-shadow:0 0 18px rgba(91,60,196,.6)}
-.m-name{font-size:17px;font-weight:800;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.3)}
-.m-bignum{font-size:26px;font-weight:800;line-height:1;margin-top:8px}
-.m-card:nth-child(1) .m-bignum{color:#4ade80}
-.m-card:nth-child(2) .m-bignum{color:#fbbf24}
-.m-card:nth-child(3) .m-bignum{color:#f9a8d4}
-.m-card:nth-child(4) .m-bignum{color:#a78bfa}
-.m-subl{font-size:10px;color:rgba(255,255,255,.4);margin-top:2px}
-.m-tags{display:flex;gap:5px;justify-content:center;margin-top:10px;flex-wrap:wrap}
-.m-tag{font-size:10px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.9);padding:2px 8px;border-radius:20px;font-weight:600}
-@media(max-width:420px){.m-grid{grid-template-columns:1fr 1fr;gap:10px}.m-card{padding:14px 10px 12px}.m-bignum{font-size:22px}.m-av{width:42px;height:42px;font-size:14px}}
-/* ── EXCEL SCREEN ── */
-#excel .inner{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px 20px}
-.xl-box{background:rgba(255,255,255,.09);backdrop-filter:blur(20px);border:2px dashed rgba(201,168,76,.5);border-radius:28px;padding:48px 36px;text-align:center;max-width:400px;width:100%;animation:fadeUp .6s forwards;transition:all .3s}
-.xl-box:hover{border-color:var(--gold);background:rgba(255,255,255,.13)}
-.xl-icon{font-size:58px;display:block;margin-bottom:16px}
-.xl-title{font-size:21px;font-weight:800;margin-bottom:8px}
-.xl-desc{font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:20px}
-.xl-file{display:inline-block;font-family:monospace;font-size:12px;color:var(--gold2);background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);border-radius:8px;padding:5px 14px;margin-bottom:22px}
-#finput{display:none}
-.xl-btn{background:var(--gold);color:var(--navy);font-family:'Heebo',sans-serif;font-size:15px;font-weight:800;padding:14px 32px;border-radius:24px;border:none;cursor:pointer;box-shadow:0 6px 24px rgba(201,168,76,.4);transition:all .2s;display:inline-flex;align-items:center;gap:8px}
-.xl-btn:hover{background:var(--gold2);transform:scale(1.04)}
-.xl-status{margin-top:14px;font-size:13px;color:var(--gold2);min-height:20px}
 
 /* ── DASHBOARD ── */
 #dash{display:none;min-height:100vh;background:var(--bg);color:var(--text)}
@@ -498,22 +397,9 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 }
 
 @media(max-width:900px){
-  .r-logo-sub{font-size:26px}
-  .r-logo p{font-size:17px}
-  .r-card{width:min(300px,44vw)}
   .hero-logo{width:138px;height:138px}
 }
 @media(max-width:600px){
-  #role .inner{justify-content:flex-start;padding-top:48px;gap:18px}
-  .r-logo-panel{min-width:0;width:calc(100vw - 28px);padding:22px 18px 18px;border-radius:26px}
-  .r-logo-sub{font-size:22px}
-  .r-logo p{font-size:15px}
-  .r-cards{gap:14px;width:100%}
-  .r-card{width:calc(50% - 7px);padding:22px 10px 18px;border-radius:24px}
-  .r-icon{width:66px;height:66px;font-size:36px;border-radius:20px}
-  .r-title{font-size:19px}
-  .r-desc{font-size:11px}
-  .r-btn{padding:9px 16px;font-size:12px}
   .hero-txt{align-items:center;text-align:center;padding:0 18px}
   .hero-logo{width:116px;height:116px}
   .hero-txt h2{font-size:15px}
@@ -721,103 +607,6 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
     <input type="file" id="splash-xl-input" accept=".xlsx,.xls" style="display:none" onchange="handleExcelFileSelected(this)">
   </div>
 </div>
-
-<!-- ============================================================================
-     FALLBACK — не удалять (решение Alex, 16.07.2026): старый экран выбора
-     роли/мадриха, экран ручной загрузки Excel и старый дашборд (buildTools
-     для מדריך, HMetric/HAction для תמונה כללית) — в активном режиме больше НЕ
-     отображаются (вариант Б: без входа/без ролей, все видят и переключают
-     между всеми через панель "צוות" в новом дизайне ниже).
-     Сам HTML этих экранов (#role, #madrich, #excel, #dash-old) закомментирован
-     здесь целиком и никогда не рендерится.
-
-     ИСПРАВЛЕНО 18.07.2026 (было неверно указано здесь же): большинство
-     перечисленных ниже функций НЕ мёртвые — они активно вызываются новым
-     дашбордом v12 (раздел ниже, #dash) и составляют его текущую логику:
-     buildDash, buildStats, buildSbar, buildTools, HAction, HGroup, HCollapse,
-     openHanhalaDetail, bindHanhalaDetails, openBdays, openNeeds, openIntake,
-     openEnded, goHanhala — все проверены (грепом по вызовам) и используются.
-     Реально недостижима только buildMadrichCards() — она вызывается из ветки
-     show('madrich'), а сама эта ветка не вызывается нигде за пределами
-     закомментированного HTML выше. Итого: удалять из JS ничего из этого
-     списка нельзя, кроме buildMadrichCards (и то — только вместе с веткой
-     'madrich' в show(), одним изменением, если решим убрать).
-
-=== ROLE ===
-<div id="role" class="scr">
-  <div class="bg"><img src="%%IMG2%%" alt=""><div class="bg-ov"></div></div>
-  <div class="inner">
-    <div class="r-logo">
-      <div class="r-logo-panel">
-        <div class="r-logo-sub">מפעל מוגן שיקומי לבריאות הנפש</div>
-        <p>בחר את התפקיד להמשך</p>
-      </div>
-    </div>
-    <div class="r-cards">
-      <div class="r-card" onclick="goHanhala()">
-        <span class="r-icon">🏢</span>
-        <div class="r-title">תמונה כללית</div>
-        <div class="r-desc">גישה מלאה לכל הנתונים, הדוחות והכלים</div>
-        <button class="r-btn">כניסה ←</button>
-      </div>
-      <div class="r-card" onclick="show('madrich')">
-        <span class="r-icon">👤</span>
-        <div class="r-title">מדריך</div>
-        <div class="r-desc">טפסים אישיים ודשבורד מקבלי השירות שלי</div>
-        <button class="r-btn">כניסה ←</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-=== MADRICH SELECT ===
-<div id="madrich" class="scr">
-  <div class="bg"><img src="%%IMG2%%" alt=""><div class="bg-ov"></div></div>
-  <div class="inner">
-    <div class="m-title">בחר מדריך</div>
-    <div class="m-grid" id="madrich-grid"></div>
-  </div>
-</div>
-
-=== EXCEL ===
-<div id="excel" class="scr">
-  <div class="bg"><img src="%%IMG2%%" alt=""><div class="bg-ov"></div></div>
-  <div class="inner">
-    <div class="xl-box">
-      <span class="xl-icon">📊</span>
-      <div class="xl-title">טעינת נתונים</div>
-      <div class="xl-desc">כדי לראות נתונים עדכניים יש לטעון את קובץ הנתונים</div>
-      <div class="xl-file">מחלות_רקע.xlsx</div><br>
-      <div class="xl-actions">
-        <button class="xl-btn" onclick="pickExcelFile()">📂 בחר Excel</button>
-        <button class="xl-btn xl-btn-saved" id="xl-saved-btn" onclick="continueSavedExcel()" style="display:none">המשך עם שמור</button>
-      </div>
-      <input type="file" id="finput" accept=".xlsx,.xls" onchange="loadXL(this)">
-      <div class="xl-status" id="xl-st"></div>
-    </div>
-  </div>
-</div>
-
-=== OLD DASHBOARD (buildTools/HMetric/HAction) ===
-<div id="dash-old">
-  <div class="dh">
-    <div class="dh-l"><img src="%%IMG1%%" alt="יחדיו"><strong>יחדיו</strong></div>
-    <div class="dh-r"><div class="dh-badge" id="dbadge"></div></div>
-  </div>
-  <div class="hero">
-    <img src="%%IMG2%%" alt="מפעל יחדיו">
-    <div class="hero-ov"></div>
-    <div class="hero-txt">
-      <img class="hero-logo" src="%%IMG1%%" alt="יחדיו">
-      <h2 id="hero-sub">מפעל מוגן שיקומי לבריאות הנפש — באר שבע</h2>
-      <div class="tg"><span>יוזמה</span>•<span>חיבור</span>•<span>דרך</span>•<span>יכולת</span>•<span>תקווה</span></div>
-    </div>
-  </div>
-  <div class="stats" id="stats"></div>
-  <div class="sbar" id="sbar"></div>
-  <div class="dmain" id="dmain"></div>
-</div>
-============================================================================ -->
 
 <!-- ================= НОВЫЙ ДАШБОРД (v12, утверждено Alex 16.07.2026) ================= -->
 <div id="dash">
