@@ -38,6 +38,8 @@ body { font-family: Heebo, Arial, sans-serif; background: var(--bg); color: var(
 .btn-save:hover { background: #235f3e; }
 .btn-clear { background: transparent; color: #9bb8d4; border: 1px solid #4a6a88; font-size: 12px; padding: 6px 12px; }
 .btn-clear:hover { background: rgba(255,255,255,0.08); }
+.btn-video { background: var(--red); color: white; }
+.btn-video:hover { background: #8c2626; }
 
 /* STATUS */
 .status-bar-top { display: none; position: sticky; top: 60px; z-index: 200; padding: 10px 24px; font-size: 14px; font-weight: 700; text-align: center; }
@@ -135,7 +137,7 @@ body { font-family: Heebo, Arial, sans-serif; background: var(--bg); color: var(
 @page { size: A4 portrait; margin: 12mm; margin-top: 5mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 @media print {
   html, body { background: #fff; }
-  .top-bar, .load-panel, .top-bar-actions, .status-bar-top, .sig-clear-btn, .sig-placeholder, .sig-modal-overlay { display: none !important; }
+  .top-bar, .load-panel, .top-bar-actions, .status-bar-top, .sig-clear-btn, .sig-placeholder, .sig-modal-overlay, .video-modal { display: none !important; }
   .page { width: 100%; max-width: 100%; margin: 0; border-radius: 0; box-shadow: none; }
   .doc-body { padding: 0; min-height: 0; }
   .doc-header { padding: 0 0 4mm; border-bottom: 0.5mm solid var(--border); }
@@ -169,6 +171,14 @@ body { font-family: Heebo, Arial, sans-serif; background: var(--bg); color: var(
 .image-modal img{max-width:95vw;max-height:95vh}
 .enlargeable{cursor:zoom-in}
 
+/* VIDEO MODAL */
+.video-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:10001;justify-content:center;align-items:center;padding:20px}
+.video-modal.open{display:flex}
+.video-modal-box{background:#000;border-radius:14px;padding:0;width:min(94vw,720px);box-shadow:0 20px 60px rgba(0,0,0,.5);position:relative;overflow:hidden}
+.video-modal-box video{width:100%;max-height:80vh;display:block;background:#000}
+.video-modal-close{position:absolute;top:8px;left:8px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;font-size:18px;font-weight:700;cursor:pointer;z-index:2}
+.video-modal-close:hover{background:rgba(255,255,255,.3)}
+
 </style>
 </head>
 <body>
@@ -179,6 +189,7 @@ body { font-family: Heebo, Arial, sans-serif; background: var(--bg); color: var(
     <div class="top-bar-sub">מפעל מוגן שיקומי לבריאות הנפש – עמותת יחדיו</div>
   </div>
   <div class="top-bar-actions">
+    <button class="btn btn-video" onclick="openVideoModal()">▶ סרטון בטיחות</button>
     <button class="btn btn-clear" onclick="clearAll()">✕ נקה</button>
     <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
     <button class="btn btn-email" onclick="emailDoc()">✉ שלח במייל</button>
@@ -647,6 +658,35 @@ window.addEventListener('resize', resizeSig);
 </script>
 
 <div id="imageModal" class="image-modal"><img id="modalImage" src=""></div>
+
+<div id="videoModal" class="video-modal" onclick="if(event.target===this) closeVideoModal()">
+  <div class="video-modal-box">
+    <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+    <video id="safetyVideo" controls playsinline>
+      <source src="опасность.mp4" type="video/mp4">
+      הדפדפן שלך לא תומך בהצגת וידאו.
+    </video>
+  </div>
+</div>
+<script>
+function openVideoModal(){
+  const modal = document.getElementById('videoModal');
+  const video = document.getElementById('safetyVideo');
+  modal.classList.add('open');
+  video.currentTime = 0;
+  video.play().catch(()=>{});
+}
+function closeVideoModal(){
+  const modal = document.getElementById('videoModal');
+  const video = document.getElementById('safetyVideo');
+  video.pause();
+  modal.classList.remove('open');
+}
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') closeVideoModal();
+});
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded',function(){
  const modal=document.getElementById('imageModal');
