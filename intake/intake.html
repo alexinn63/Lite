@@ -659,9 +659,14 @@ function extractPersonIdentity(text,fileName=""){
 
   const hebWord="[\\u0590-\\u05FF][\\u0590-\\u05FF\\-׳״']{1,30}";
   const cleanLabelValue=value=>{
-    const stop=new Set(["שם","פרטי","משפחה","מספר","זהות","תעודת","המשתקם","הפרטי","המשפחה","השם"]);
+    const stop=new Set(["שם","פרטי","משפחה","מספר","זהות","תעודת","המשתקם","הפרטי","המשפחה","השם","שאלון"]);
     return cleanHebrewName(value).split(" ").filter(w=>w&&!stop.has(w)).slice(0,3).join(" ");
   };
+  // בטפסי משרד הבריאות/עמותה ("שאלון פונה", "שאלון רופא", "שאלון גורם מפנה" וכו') כל תוויות
+  // הזיהוי מגיעות בשורה אחת ("שם פרטי  שם משפחה  ת. זהות  מס' פניה") והערכים בשורה שאחריה.
+  // בלי הזיהוי הזה, ה-after נכשל (ת. זהות שובר את חיפוש המילה) וה-before (fallback אחרון,
+  // הפחות אמין) גורר מילים מכותרת המסמך עצמו — כך "שאלון גורם מפנה" הפך בעבר לשם פרטי.
+  const combinedHeaderRow=/^(?:ה)?שם\s*(?:ה)?פרט(?:י|['׳])\s+(?:ה)?שם\s*(?:ה)?משפחה\s+(?:ת\.?\s*זהות|(?:ה)?מספר\s*(?:ה)?זהות|תעודת\s*זהות|מס['׳]?\s*זהות)(?:\s+מס['׳]?\s*פניה)?\s*$/i;
   const findLabelValue=(label,nextLabels)=>{
     const after=new RegExp(label+"\\s*[:\\-]?\\s*("+hebWord+"(?:\\s+"+hebWord+"){0,2}?)(?=\\s+(?:"+nextLabels+")|$)","i");
     const before=new RegExp("("+hebWord+"(?:\\s+"+hebWord+"){0,2})\\s*[:\\-]?\\s*"+label,"i");
@@ -674,6 +679,11 @@ function extractPersonIdentity(text,fileName=""){
       if(labelAloneOnLine.test(lines[i]) && lines[i+1]){
         const nm=lines[i+1].match(new RegExp("^("+hebWord+")"));
         if(nm){const v=cleanLabelValue(nm[1]);if(v)return v}
+      }
+      if(combinedHeaderRow.test(lines[i]) && lines[i+1]){
+        const colIdx=/פרט/.test(label)?0:/משפחה/.test(label)?1:-1;
+        const words=lines[i+1].match(new RegExp(hebWord,"g"))||[];
+        if(colIdx>=0 && words[colIdx]){const v=cleanLabelValue(words[colIdx]);if(v)return v}
       }
     }
     for(const line of lines){
@@ -1117,6 +1127,11 @@ async function docs(){
       analysisResults[i]=result;
       tr.dataset.suggestion=result.type;tr.dataset.ready="1";
       tr.dataset.originalDate=result.documentDate ? result.documentDate.toISOString() : "";
+      if(result.type==="תעודת זהות / ספח" && isValidIsraeliId(result.identity.id)){
+        if(result.identity.first)result.identity.firstConfidence=10;
+        if(result.identity.last)result.identity.lastConfidence=10;
+        result.identity.idConfidence=10;
+      }
       applyIdentityCandidate(result.identity, files[i].name);
       let dateText=result.documentDate ? `תאריך המסמך זוהה ונשמר כתאריך המקורי.` : `לא זוהה תאריך. ניתן להזין ידנית.`;
       if(result.type==="הועדה" && result.committeeInfo.validUntil){
