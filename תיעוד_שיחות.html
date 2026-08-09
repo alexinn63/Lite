@@ -41,6 +41,10 @@ body {
 .btn-email:hover { background:#b07d2c; }
 .btn-save { background:var(--green); color:white; }
 .btn-save:hover { background:#235f3e; }
+.btn-excel { background:#21A366; color:white; }
+.btn-excel:hover { background:#107C41; }
+.btn-copyrow { background:white; color:#107C41; border:1.5px solid #21A366; }
+.btn-copyrow:hover { background:#eaf7ef; }
 .btn-clear { background:transparent; color:#9bb8d4; border:1px solid #4a6a88; font-size:12px; padding:6px 12px; }
 
 .status-bar-top { display:none; position:sticky; top:60px; z-index:200; padding:10px 24px; font-size:14px; font-weight:700; text-align:center; }
@@ -52,8 +56,8 @@ body {
 
 /* LOAD PANEL */
 .load-panel { padding:16px 28px; border-bottom:1px solid var(--border); background:rgba(255,251,230,0.97); display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-.load-panel label { font-size:13px; font-weight:700; color:var(--primary); cursor:pointer; display:flex; align-items:center; gap:6px; padding:8px 16px; background:var(--yellow); border-radius:8px; transition:background .15s; }
-.load-panel label:hover { background:var(--yellow-dark); color:white; }
+.load-panel label { font-size:13px; font-weight:700; color:white; cursor:pointer; display:flex; align-items:center; gap:6px; padding:8px 16px; background:#21A366; border-radius:8px; transition:background .15s; }
+.load-panel label:hover { background:#107C41; color:white; }
 .load-panel input[type=file] { display:none; }
 .load-panel select { padding:8px 12px; border:1.5px solid var(--border); border-radius:8px; font-family:inherit; font-size:14px; background:var(--yellow-light); min-width:220px; }
 .load-panel select:disabled { opacity:0.5; }
@@ -146,6 +150,10 @@ body {
   body { background:white !important; }
   .top-bar, .load-panel, .status-bar-top { display:none !important; }
   .page { margin:0; border-radius:0; box-shadow:none; background:white; }
+  #nameChips span { font-size:20px !important; font-weight:700 !important; background:none !important; color:var(--primary) !important; padding:0 !important; border-radius:0 !important; }
+  #nameChips span span { display:none !important; }
+  #nameChips > span:not(:last-child)::after { content: ", "; }
+  #nameSearch { display:none !important; }
 }
 
   .spinner { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin .6s linear infinite; }
@@ -164,6 +172,8 @@ body {
     <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
     <button class="btn btn-email" onclick="emailDoc()">✉ שלח במייל</button>
     <button class="btn btn-save" onclick="savePDF()">📄 שמור PDF</button>
+    <button class="btn btn-copyrow" onclick="copyRowToClipboard()">📋 העתק שורה</button>
+    <button class="btn btn-excel" onclick="saveAsExcel()">📊 שמור כ-Excel</button>
   </div>
 </div>
 <div id="statusBar" class="status-bar-top"></div>
@@ -313,7 +323,7 @@ async function translateField(fieldId, btn) {
 
 
 
-const NAMES = ["אביסידרים דוד", "אבקסיס אילן", "אטקין יעקוב", "אלברט דמיטריי", "אלוש אורלי", "אשטמקר אליס אשר", "בונדר מרינה", "בלנקי איליה", "בשן יפעת", "גיעאו דליה", "גכט בוריס", "גרייס ירוסלב", "דוברובקין יוליה", "דוידיאן אורלי", "דסטה יצחק", "זפרני דוד", "טרננקו טטיאנה", "לבן לאוניד", "סהר יעקב", "סמרה מנשה", "פישמן זכר", "פרז'וגין ולדיסלב", "קוזלוב יבגניי", "רוסלקין אנדרי", "שריקר בועז", "ברונשטיין סבטלנה", "דהן יוסי", "וייצמן-הרץ רות", "זגורי יוסי זוי אלון", "זינגר לוקה", "יופה טטיאנה", "יעקוב יהודה", "ישראל ליאור", "ליבין איגור", "מושייב לריסה", "מלכה ירין", "מנגיסטו סולומן", "מסלי שירן", "נוי גלעד", "נקין בוריס", "סמטננקו דמיטרי", "עם שלום אילנה", "פולוליאך ודים", "פורמן ליאת", "פיקדו אדיסלם", "פלמונוב לריסה", "קולטין ויטלי", "קלורפלד יוסף רומן", "קצנוביץ רון", "ריאזנוב אולגה", "שפובלוב איגור", "מורדוכוביץ איגור", "מנדי אברם", "שוורץ ראול", "אבו יחיה עבד", "אזולאי מאיר", "אריה יהושוע שלמה", "בן אור טל דב", "בן חמו ספי", "גולדשר רפאל מרסלו", "גילאי יוסרה", "גרין איליה", "דובידזון דימיטרי", "דלל מדי", "וולקומרסקי רומן", "טוחבטולין רומן", "כהן יוסי", "מולה ירח", "סיגווקר דותן", "עמר רחמים נתנאל", "פוטפוב יבגני", "פלדמן רומן", "פסיקוב איגור", "קרסיק הלנה", "רודרמן איליה", "אוקנין ישראל קובי", "אזולאי מרים", "אזייב דניאל", "אלבז יהודה", "אקימוב אלכס", "ביגול ילנה", "גיגי ברוך", "גרינברג ליאונרדו", "גרשומוב ניסים", "וטורי יניב", "יאנקוביץ ויקטוריה", "ינריץ' ונינה מרסלה", "יצהר יצחק", "מנחם אסתר", "סוסלוב אלכסנדר", "ספיאשוולי אליהו", "פלודרמן קלרה", "פליגל מרגריטה", "פרדו גנת", "צאפני חנה", "ציגלניק מרים", "קולטן עליזה", "רוזנבלט אלכסנדר", "שיטרית נטלי", "שראו גלעד"];
+const NAMES = [];
 const DEFAULT_TOPICS = [
   'לא מגיע לעבודה','מאחר','לא חוזר בזמן מהפסקה',
   'מתנהג בגסות כלפי עובדים','מיטפרץ בזמן עבודה','היגיינה',
@@ -355,6 +365,13 @@ function loadExcel(input) {
     }
     // allPeople is ready — search box will use it automatically
     renderNameOptions('');
+    showStatus('נטענו ' + allPeople.length + ' אנשים בהצלחה', 'success');
+    try {
+      const base64 = btoa(e.target.result);
+      localStorage.setItem('rehab_excel_raw_v1', JSON.stringify({ base64: base64, fileName: file.name }));
+    } catch (err) {
+      console.log('could not cache excel in localStorage:', err);
+    }
   };
   reader.readAsBinaryString(file);
 }
@@ -514,7 +531,7 @@ function buildPageHTML() {
   if (clNameSearch) clNameSearch.remove(); // no search box in the saved doc
   if (clNameChips) {
     clNameChips.style.display = 'block';
-    clNameChips.innerHTML = `<div style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;background:var(--yellow-light);">${nameVal || ''}</div>`;
+    clNameChips.innerHTML = `<div style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:20px;font-weight:700;color:var(--primary);background:var(--yellow-light);">${nameVal || ''}</div>`;
   }
   const clName = clone.querySelector('#nameInput');
   if (clName) clName.setAttribute('value', nameVal);
@@ -590,6 +607,45 @@ function buildPageHTML() {
 function safeFileName(v) { return (v||'ללא_שם').trim().replace(/[\/:*?"<>|]/g,'-').replace(/\s+/g,'_').slice(0,60); }
 function fmt() { return formatDate().slice(0,7); }
 
+function getStaffName() {
+  const val = document.getElementById('staffSelect').value;
+  if (val === 'אחר') return document.getElementById('staffOther').value.trim();
+  return val;
+}
+
+function buildRowValues() {
+  return [
+    dateToHe(document.getElementById('docDate').value),
+    document.getElementById('nameInput').value,
+    getStaffName(),
+    selectedTopic,
+    document.getElementById('content').value,
+    document.getElementById('summary').value
+  ];
+}
+
+function copyRowToClipboard() {
+  if (!validate()) return;
+  const row = buildRowValues().join('\t');
+  navigator.clipboard.writeText(row).then(() => {
+    showStatus('השורה הועתקה — הדביקו ב-Excel', 'success');
+  }).catch(() => {
+    showStatus('שגיאה בהעתקה ללוח', 'error');
+  });
+}
+
+function saveAsExcel() {
+  if (!validate()) return;
+  const headers = ['תאריך', 'שם מקבל השירות', 'תועד ע"י', 'נושא שיחה', 'תוכן שיחה', 'סיכום | החלטה'];
+  const row = buildRowValues();
+  const ws = XLSX.utils.aoa_to_sheet([headers, row]);
+  ws['!cols'] = [{wch:12},{wch:20},{wch:14},{wch:18},{wch:50},{wch:50}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'תיעוד שיחה');
+  const fname = safeFileName(document.getElementById('nameInput').value) + '_תיעוד_שיחה_' + fmt() + '.xlsx';
+  XLSX.writeFile(wb, fname);
+}
+
 function savePDF() {
   if (!validate()) return;
   const prevTitle = document.title;
@@ -658,29 +714,6 @@ window.addEventListener('load', () => {
 </div>
 
 
-<script>
-window.addEventListener('load', function() {
-  setTimeout(function() {
-    try {
-      const raw = localStorage.getItem('rehab_excel_raw_v1');
-      if (!raw) return;
-      const {base64, fileName} = JSON.parse(raw);
-      const binary = atob(base64);
-      const bytes = new Uint8Array(binary.length);
-      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      const file = new File([bytes], fileName || 'מחלות_רקע.xlsx');
-      const fakeInput = { files: [file] };
-      if (typeof loadExcel === 'function') {
-        loadExcel(fakeInput);
-        setTimeout(function() {
-          const panel = document.querySelector('.load-panel');
-          if (panel) panel.style.display = 'none';
-        }, 800);
-      }
-    } catch(e) { console.log('auto-load:', e); }
-  }, 400);
-});
-</script>
 
 <div style="position:fixed;bottom:20px;left:20px;z-index:9999;">
   <button onclick="history.back()" style="background:linear-gradient(135deg,#1a3a5c,#2563a8);color:white;border:none;border-radius:50px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,58,92,0.4);font-family:inherit;direction:rtl;">→ חזרה לתפריט</button>
