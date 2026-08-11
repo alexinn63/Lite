@@ -470,10 +470,10 @@
         <div class="table-scroll" id="tableScroll" tabindex="0" aria-label="טבלת בקרה">
           <table>
             <colgroup>
-              <col id="colName" style="width:16%">
+              <col id="colName" style="width:18%">
               <col id="colId" style="width:7%">
-              <col id="colGuide" style="width:6%">
-              <col id="colFolder" style="width:6%">
+              <col id="colGuide" style="width:7%">
+              <col id="colFolder" style="width:7%">
               <col id="colIdCopy" style="width:7%">
               <col id="colCommittee" style="width:9%">
               <col id="colWaiver" style="width:9%">
@@ -481,8 +481,7 @@
               <col id="colGuideReport" style="width:9%">
               <col id="colPersonalPlan" style="width:9%">
               <col id="colEntryClose" style="width:6%">
-              <col id="colGuardian" style="width:6%">
-              <col id="colCallLog" style="width:7%">
+              <col id="colGuardian" style="width:7%">
             </colgroup>
             <thead>
               <tr>
@@ -498,7 +497,6 @@
                 <th class="sortable" data-sort="personalPlan" tabindex="0">תוכנית אישית <span class="sort-icon">⇅</span></th>
                 <th class="sortable" data-sort="entryClose" tabindex="0">קליטה / סגירה <span class="sort-icon">⇅</span></th>
                 <th>אפוטרופוס</th>
-                <th>תיעוד שיחות</th>
               </tr>
             </thead>
             <tbody id="tableBody"></tbody>
@@ -839,7 +837,6 @@
             folderTarget,
             generalFolderTarget,
             idCopy: getPresence(sheet, r, 6),
-            callLog: getPresence(sheet, r, 14),
             guardian: {
               link: noteLink || (hasGuardian ? appendFolderTarget(folderTarget, "אפוטרופוס") : ""),
               state: hasGuardian || noteLink
@@ -966,7 +963,7 @@
         const sectionTotal = state.rows.filter((row) => row.status === state.viewStatus).length;
         el.resultCount.textContent = `מוצגות ${visible.length} מתוך ${sectionTotal} רשומות`;
         if (!visible.length) {
-          el.tbody.innerHTML = '<tr><td colspan="13"><div class="empty-state"><strong>לא נמצאו רשומות</strong>נסו לשנות את החיפוש או לנקות את הסינון.</div></td></tr>';
+          el.tbody.innerHTML = '<tr><td colspan="12"><div class="empty-state"><strong>לא נמצאו רשומות</strong>נסו לשנות את החיפוש או לנקות את הסינון.</div></td></tr>';
           return;
         }
         el.tbody.innerHTML = visible.map((row) => {
@@ -975,7 +972,7 @@
             <td class="sticky-name name" title="${escapeHtml(row.name)}">${escapeHtml(row.name)}</td>
             <td class="sticky-id id-value">${escapeHtml(row.id)}</td>
             <td class="sticky-guide">${escapeHtml(row.guide)}</td>
-            <td class="folder-cell">${folderHref ? `<a class="folder-btn" href="${escapeHtml(folderHref)}" target="_blank" rel="noopener" data-copy-target="${escapeHtml(row.generalFolderTarget)}">כללי</a>` : ""}</td>
+            <td class="folder-cell">${folderHref ? `<a class="folder-btn" href="${escapeHtml(folderHref)}" target="_blank" rel="noopener" data-copy-target="${escapeHtml(row.generalFolderTarget)}">פתיחת תיק</a>` : ""}</td>
             ${presenceCell(row.idCopy, "פתיחת צילום ת.ז.")}
             ${stateCell(row.committee)}
             ${stateCell(row.waiver)}
@@ -984,7 +981,6 @@
             ${stateCell(row.personalPlan)}
             <td>${escapeHtml(row.entryCloseDisplay || formatLooseDate(row.entryClose) || "")}</td>
             ${presenceCell(row.guardian, row.notes || "פתיחת תיק אפוטרופוס", "folder")}
-            ${presenceCell(row.callLog, "פתיחת תיעוד שיחות", "folder")}
           </tr>`;
         }).join("");
       }
@@ -1013,20 +1009,19 @@
         { id: "colGuideReport", weight: 9 },
         { id: "colPersonalPlan", weight: 9 },
         { id: "colEntryClose", weight: 6 },
-        { id: "colGuardian", weight: 6 },
-        { id: "colCallLog", weight: 7 }
+        { id: "colGuardian", weight: 7 }
       ];
       const OTHER_WEIGHT_SUM = OTHER_COLUMNS.reduce((sum, c) => sum + c.weight, 0);
       function sizeColumns() {
         if (!el.tableScroll || !state.rows.length) return;
         const containerWidth = el.tableScroll.clientWidth;
         if (!containerWidth) return;
-        const namePx = measureColumnPx("td.sticky-name", state.rows.map((row) => row.name), 6);
-        const guidePx = measureColumnPx("td.sticky-guide", state.rows.map((row) => row.guide), 10);
+        const namePx = measureColumnPx("td.sticky-name", state.rows.map((row) => row.name), 14);
+        const guidePx = measureColumnPx("td.sticky-guide", state.rows.map((row) => row.guide), 22);
         const idPx = measureColumnPx("td.sticky-id", ["000000000"], 14);
         const identPx = namePx + guidePx + idPx;
         if (!identPx) return;
-        const identPercent = Math.min(30, Math.max(18, (identPx / containerWidth) * 100));
+        const identPercent = Math.min(34, Math.max(20, (identPx / containerWidth) * 100));
         const remainingPercent = 100 - identPercent;
         const setWidth = (id, percent) => {
           const col = document.getElementById(id);
