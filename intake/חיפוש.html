@@ -204,6 +204,43 @@
       font-size: .84rem;
     }
 
+    .field-assist {
+      display: none;
+      margin-top: 8px;
+      padding: 11px 12px;
+      border: 1px solid #f0d286;
+      border-radius: 10px;
+      background: var(--warning-bg);
+      color: #684b00;
+      font-size: .89rem;
+    }
+
+    .field-assist.is-visible { display: block; }
+    .field-assist strong { display: block; margin-bottom: 3px; }
+    .field-assist-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 9px;
+    }
+    .field-assist button {
+      min-height: 44px;
+      padding: 8px 12px;
+      border-radius: 9px;
+      border: 1px solid #c9a94f;
+      background: #fff;
+      color: #5b4300;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .field-assist button:hover { background: #fffdf6; }
+    .field-assist .assist-primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+    .field-assist .assist-primary:hover { background: var(--primary-hover); }
+
     .check-row {
       display: flex;
       align-items: center;
@@ -229,6 +266,12 @@
       min-height: 0;
       padding: 0;
       accent-color: var(--primary);
+    }
+
+    .mode-note {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: .88em;
     }
 
     .actions {
@@ -398,7 +441,7 @@
         <div class="panel-heading">
           <div>
             <h2>חיפוש כללי במייל העבודה</h2>
-            <p>חיפוש בצד השרת בכל תיקיות Outlook, ללא Gmail וללא סריקה ידנית של רשימת התיקיות.</p>
+            <p>חיפוש מהיר בצד השרת בכל תיקיות Outlook. בדיקה מלאה של 7 הימים האחרונים מופעלת רק לפי בחירה.</p>
           </div>
           <div class="scope">כל תיבת Outlook / Microsoft 365 של העבודה</div>
         </div>
@@ -406,13 +449,21 @@
         <div class="grid">
           <div class="field">
             <label for="general-sender">שולח</label>
-            <input id="general-sender" name="sender" placeholder="שם או כתובת מייל" autocomplete="off">
+            <input id="general-sender" name="sender" placeholder="שם או כתובת מייל" autocomplete="off" aria-describedby="general-sender-assist">
+            <div class="field-assist" id="general-sender-assist" role="alert" aria-live="polite">
+              <strong>נראה שהטקסט מתאים יותר למילת מפתח או לנושא המייל.</strong>
+              <span id="general-sender-assist-text"></span>
+              <div class="field-assist-actions">
+                <button class="assist-primary" id="move-sender-to-keyword" type="button">העבר למילת מפתח</button>
+                <button id="keep-general-sender" type="button">השאר כשולח</button>
+              </div>
+            </div>
           </div>
 
           <div class="field">
             <label for="general-person">שם האדם לחיפוש</label>
             <input id="general-person" name="person" placeholder="שם מלא, אם ידוע" autocomplete="off">
-            <span class="hint">אם יוזן שם מלא, תיבדק גם הצורה ההפוכה.</span>
+            <span class="hint">IRIS ו־איריס נחשבים אותו שם. התאמה מדויקת בנושא מקבלת עדיפות על שדות העזר.</span>
           </div>
 
           <div class="field">
@@ -441,10 +492,21 @@
               <label><input id="general-attachments" name="attachments" type="checkbox"> הצג רק מיילים עם קבצים מצורפים</label>
             </div>
           </div>
+
+          <div class="field full">
+            <label>מצב חיפוש</label>
+            <div class="check-row">
+              <label>
+                <input id="general-full-recent-check" name="fullRecentCheck" type="checkbox" aria-describedby="general-search-mode-hint">
+                <span>בדיקה מלאה של 7 הימים האחרונים <span class="mode-note">(איטי יותר)</span></span>
+              </label>
+            </div>
+            <span class="hint" id="general-search-mode-hint">ברירת מחדל: חיפוש מהיר — ללא סריקת גיבוי. הפעל רק אם חשוב לבדוק גם מיילים טריים שעדיין לא נכנסו לאינדקס Outlook.</span>
+          </div>
         </div>
 
         <div class="actions">
-          <button class="btn btn-primary" type="submit">פתח חיפוש ב-ChatGPT</button>
+          <button class="btn btn-primary" id="general-submit" type="submit">פתח חיפוש מהיר ב-ChatGPT</button>
           <button class="btn btn-secondary" type="button" data-copy="general">העתק את הוראות החיפוש</button>
         </div>
         <div class="status" id="status-general" role="status" aria-live="polite"></div>
@@ -610,8 +672,116 @@ ${resultRules(true)}`;
         const from = value("general-from");
         const to = value("general-to");
         const attachmentsOnly = document.getElementById("general-attachments").checked;
+        const fullRecentCheck = document.getElementById("general-full-recent-check").checked;
+        const mailboxAddress = "alexander@yachdav.org.il";
+        const endExclusive = (() => {
+          const [year, month, day] = to.split("-").map(Number);
+          const nextDay = new Date(Date.UTC(year, month - 1, day + 1));
+          return nextDay.toISOString().slice(0, 10);
+        })();
+        const today = new Date();
+        const todayISO = toLocalISO(today);
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+        const recentIndexStart = toLocalISO(sevenDaysAgo);
+        const recentRangeIntersects = to >= recentIndexStart && from <= todayISO;
+        const backupNeeded = fullRecentCheck && recentRangeIntersects;
+        const backupStart = from > recentIndexStart ? from : recentIndexStart;
+        const primaryTerm = keyword || person || freeText;
+        const escapedTerm = primaryTerm.replace(/"/g, '\\"');
+        const queryTerm = /\s/.test(primaryTerm) ? `"${escapedTerm}"` : escapedTerm;
+        const senderIsEmail = sender.includes("@");
+        const senderFilter = senderIsEmail ? ` from:${sender}` : "";
+        const attachmentFilter = attachmentsOnly ? " hasattachment:true" : "";
+        const primaryQuery = `${queryTerm} received>=${from} received<${endExclusive}${senderFilter}${attachmentFilter}`;
+        const approximateWords = primaryTerm.split(/\s+/).filter(Boolean).sort((a, b) => b.length - a.length).slice(0, 3).join(" ");
+        const approximateQuery = `${approximateWords} received>=${from} received<${endExclusive}${senderFilter}${attachmentFilter}`;
+        const senderRule = sender
+          ? (senderIsEmail
+              ? `שולח: ${sender}. השתמש בכתובת זו כמסנן שרת מדויק.`
+              : `שולח: ${sender}. נמסר שם ולא כתובת. לפני החיפוש בצע לכל היותר קריאת Outlook אחת לזיהוי הכתובת (search_people או כלי Outlook המקביל) עם עד 5 תוצאות. אם אין זיהוי חד-משמעי, עצור ובקש הבהרה; אל תנחש.`)
+          : "שולח: לא צוין.";
+        const personRule = person
+          ? `שם האדם לחיפוש: ${person}. זהו שדה עזר. בדוק אותו רק בתוך תוצאות שכבר התקבלו בנושא או ב-bodyPreview/גוף. אם מילת המפתח נמצאה בדיוק בנושא, אל תפסול את ההודעה רק משום שהשם לא נמצא. IRIS ו-איריס נחשבים אותו טוקן לצורך השם.`
+          : "שם אדם לא צוין.";
+        const keywordRule = keyword
+          ? `מילת מפתח / ביטוי מרכזי: ${keyword}. זהו הקריטריון הראשי. התאמה מדויקת בנושא פירושה שהביטוי המלא מופיע ברצף וללא שינוי; מותרות מילים נוספות לפניו או אחריו וכן RE:/FW:.`
+          : `מילת מפתח לא צוינה. הביטוי הראשי לחיפוש הוא: ${primaryTerm}.`;
+        const freeTextRule = freeText
+          ? `טקסט חופשי נוסף: ${freeText}. זהו שדה עזר בלבד; בדוק אותו בתוך התוצאות שכבר התקבלו ואל תבצע בגללו חיפוש Outlook נוסף.`
+          : "טקסט חופשי נוסף לא צוין.";
+        const backupRule = backupNeeded
+          ? `כן. המשתמש בחר במפורש בדיקה מלאה. בצע בדיקת גיבוי מצומצמת רק עבור ${backupStart} עד לפני ${endExclusive}.`
+          : fullRecentCheck
+            ? `לא נדרשת בדיקת גיבוי: המשתמש בחר בדיקה מלאה, אך טווח החיפוש אינו חופף ל-7 הימים האחרונים ביחס להיום (${todayISO}). אין לבצע list_messages.`
+            : `לא. נבחר מצב חיפוש מהיר. אסור לבצע list_messages, סריקת גיבוי או בדיקת תיקיות, גם אם הטווח כולל את 7 הימים האחרונים.`;
+        const backupFolderRule = senderIsEmail && sender.toLowerCase() === mailboxAddress
+          ? `השולח הוא חשבון העבודה עצמו (${mailboxAddress}); בבדיקת הגיבוי בדוק רק Sent Items / "Отправленные".`
+          : sender
+            ? `השולח אינו חשבון העבודה הידוע; בבדיקת הגיבוי בדוק רק Inbox / "Входящие". אל תסרוק עץ תיקיות.`
+            : `שולח לא צוין; בבדיקת הגיבוי מותר לבדוק רק Sent Items ו-Inbox, כל אחת בקריאת list_messages ישירה, ללא סריקת עץ תיקיות.`;
 
-        return `${commonGuard()}\n\nמטרת החיפוש: חיפוש כללי ומדויק בכל תיבת הדואר של העבודה ב-Outlook / Microsoft 365. בצע חיפוש גלובלי בצד השרת; אל תציג תחילה רשימה של כל תיקיות הדואר ואל תסרוק אותן ידנית אחת-אחת. אין להשתמש ב-Gmail.\n\nשולח: ${sender || "לא צוין"}. אם נמסרה כתובת מייל, השתמש בה לסינון שרת מדויק. אם נמסר רק שם, זהה את כתובת השולח מתוך Outlook לפני הסינון ואל תנחש.\n${nameRules(person)}\nמילת מפתח: ${keyword || "לא צוינה"}.\nטקסט חופשי נוסף: ${freeText || "לא צוין"}.\nמתאריך: ${from}.\nעד תאריך כולל: ${to}.\nקבצים מצורפים בלבד: ${attachmentsOnly ? "כן" : "לא"}.\n\nסנן בצד השרת תחילה לפי טווח התאריכים המלא, השולח אם צוין, וקיום קובץ מצורף אם נבחר. את תאריך הסיום יש לכלול במלואו באמצעות סינון קטן מתחילת היום הבא. לאחר מכן בדוק את הנושא וגוף ההודעה.\nרק עבור הודעות מועמדות שבהן נמצאו התנאים שכבר ניתן לבדוק בנושא או בגוף, קבל את מטא-הנתונים ושמות הקבצים המצורפים. אל תפתח ואל תוריד קבצים מצורפים שאינם נחוצים, ואל תבדוק תוכן של מאות קבצים.\n${exactRules(keyword, freeText)}\n\nאם חיפוש Outlook מחזיר התאמות דומות בלבד, אל תציג אותן כהתאמות מדויקות. הצג אותן בנפרד עם הסבר ברור מה חסר או שונה.\n\n${resultRules(false)}`;
+        return `${commonGuard()}
+
+מטרת החיפוש: חיפוש כללי מהיר ומדויק בכל תיבת הדואר של העבודה ב-Outlook / Microsoft 365. יש למצוא את כל ההתאמות המדויקות בטווח שנבחר, אך להימנע מקריאות Outlook שאינן נחוצות. PAYMENT הוא מצב נפרד ואסור לשנות, להפעיל או לערב את הלוגיקה שלו.
+
+פרטי החיפוש:
+${senderRule}
+${personRule}
+${keywordRule}
+${freeTextRule}
+מתאריך: ${from}.
+עד תאריך כולל: ${to}.
+טווח מחייב: received>=${from} וגם received<${endExclusive}.
+קבצים מצורפים בלבד: ${attachmentsOnly ? "כן" : "לא"}.
+מצב חיפוש: ${fullRecentCheck ? "בדיקה מלאה של 7 הימים האחרונים" : "מהיר"}.
+
+כלל מהירות מרכזי:
+${fullRecentCheck ? "- בדיקת גיבוי מותרת רק בשלב 2 ולפי הכללים שלמטה." : "- מצב מהיר מחייב: לאחר search_messages אין לבצע list_messages, find/list folder או בדיקת גיבוי."}
+- אל תבצע get_profile רק לצורך אימות החיבור. עצם השימוש ב-Outlook search_messages הוא בדיקת החיבור; אם הכלי אינו זמין או מחזיר שגיאת הרשאה/חיבור, עצור וכתוב שאין גישה.
+- אל תבצע fetch_message או fetch_messages_batch אם הנושא, התאריך, השולח, bodyPreview וה-web_link שכבר חזרו מספיקים להחלטה.
+- אל תבצע list_attachments בחיפוש רגיל. אם נבחר "קבצים מצורפים בלבד", הסתמך על hasAttachments/hasattachment של Outlook. אין צורך בשמות הקבצים לצורך הצגת התוצאה.
+- אל תבצע קריאה נוספת רק כדי לגלות את שם התיקייה. אם התיקייה לא חזרה מהקריאה שכבר בוצעה, כתוב "התיקייה לא אומתה".
+
+שלב 1 — חיפוש גלובלי ראשי:
+1. בצע search_messages עם query בדיוק:
+${primaryQuery}
+2. בקש עד 50 תוצאות בעמוד. אם has_more=true, המשך רק באמצעות next_from_index ובאותו query בדיוק עד has_more=false. אין לעצור אחרי ההתאמות הראשונות — צריך להציג את כל ההודעות המדויקות בטווח.
+3. אל תוסיף ל-query את שם האדם או הטקסט החופשי כאשר קיימת מילת מפתח; אלה שדות עזר ואסור להם להעלים הודעה שבה הנושא מתאים בדיוק.
+4. סנן לפי receivedDateTime בפועל: כל תוצאה חייבת להיות בתוך ${from}–${to} כולל.
+5. התאמה מדויקת בנושא קודמת לכל התאמה אחרת. אם הביטוי הראשי מופיע ברצף בנושא, זו התאמה מדויקת גם אם יש RE:/FW: או מילים נוספות.
+6. אם הביטוי אינו בנושא, מותר להחשיב התאמה מדויקת רק אם הביטוי המלא נמצא ברצף ב-bodyPreview/גוף שכבר חזר. אל תפתח את ההודעה רק כדי לחפש שוב.
+
+שלב 2 — בדיקת גיבוי אופציונלית להודעות טריות:
+${backupRule}
+${backupNeeded ? `- ${backupFolderRule}
+- השתמש ב-list_messages עם order_by="receivedDateTime desc" ו-top=100.
+- הפעל filter שרת שמגביל ל-receivedDateTime מ-${backupStart} עד לפני ${endExclusive}${senderIsEmail ? ` ולשולח ${sender}` : ""}${attachmentsOnly ? " וכן hasAttachments=true" : ""}.
+- אם הקריאה החזירה has_more=true, המשך רק עם next_from_index/skip עד has_more=false. בגלל top=100 ברוב המקרים זו תהיה קריאה אחת בלבד.
+- בדוק את הנושא וה-bodyPreview של ההודעות שחזרו. אם הביטוי המדויק כבר נמצא בנושא, אל תבצע fetch_message, אל תבדוק קבצים מצורפים ואל תבצע שום קריאת Outlook נוספת עבור אותה הודעה.
+- אל תסרוק תיקיות אחרות ואל תבדוק מחדש את כל טווח החיפוש.` : "- דלג לחלוטין על שלב זה. אין לבצע שום קריאת Outlook חלופית במקום הגיבוי."}
+
+שלב 3 — איחוד תוצאות:
+- אחד את תוצאות search_messages ובדיקת הגיבוי לפי message id והסר רק כפילות של אותה הודעה.
+- אם כמה הודעות שונות מכילות אותו נושא, הצג את כולן.
+- עבור כל התאמה מדויקת הצג: תאריך, שולח, נושא, האם יש קבצים מצורפים (כן/לא), היכן נמצא הביטוי (נושא או גוף), התיקייה אם כבר ידועה, וקישור [פתח את המייל](web_link).
+- אל תציג שמות קבצים מצורפים בחיפוש הכללי הרגיל. זה חוסך קריאות Outlook ואינו נדרש לאימות התאמה בנושא.
+- אם שם האדם הוא IRIS/איריס, ציין איזו צורה נמצאה בפועל רק אם השם אכן נמצא.
+- נמען/CC הם מידע בלבד ואינם הוכחה להתאמה.
+
+שלב 4 — רק אם לא נמצאה אף התאמה מדויקת:
+- רק אז מותר לבצע search_messages נוסף ואחרון לחיפוש קרוב לפי נושא, עם query:
+${approximateQuery}
+ובקש עד 20 תוצאות בלבד, ללא pagination וללא fetch_message.
+- הצג אותן תחת כותרת "התאמות קרובות בנושא" והסבר בקצרה מה שונה מהביטוי המדויק. אל תציג התאמה קרובה כאילו היא מדויקת.
+- אם גם שם אין תוצאה סבירה, כתוב שלא נמצאה התאמה.
+
+איסורים:
+- אין Gmail, אין web search, אין זיכרון במקום Outlook.
+- אין סריקה ידנית של כל תיקיות הדואר.
+- אין fetch_message רק לצורך תאריך/נושא/שולח/קישור/תיקייה/שמות קבצים.
+- אין בדיקת מטא-נתונים של קבצים מצורפים אלא אם המשתמש יבקש זאת במפורש בהודעה נפרדת.
+- אין להציג הודעה ללא web_link אמיתי של Outlook.`;
       }
 
       function setStatus(mode, message, kind = "") {
@@ -619,6 +789,78 @@ ${resultRules(true)}`;
         status.textContent = message;
         status.className = `status ${kind}`.trim();
       }
+
+      const generalSender = document.getElementById("general-sender");
+      const generalKeyword = document.getElementById("general-keyword");
+      const generalFullRecentCheck = document.getElementById("general-full-recent-check");
+      const generalSubmit = document.getElementById("general-submit");
+      const generalSenderAssist = document.getElementById("general-sender-assist");
+      const generalSenderAssistText = document.getElementById("general-sender-assist-text");
+      const moveSenderToKeyword = document.getElementById("move-sender-to-keyword");
+      const keepGeneralSender = document.getElementById("keep-general-sender");
+      let approvedGeneralSenderValue = "";
+
+      function looksLikeSearchPhraseInSender() {
+        const sender = generalSender.value.trim();
+        const keyword = generalKeyword.value.trim();
+        if (!sender || keyword || sender.includes("@") || sender === approvedGeneralSenderValue) return false;
+
+        const words = sender.split(/\s+/).filter(Boolean);
+        const phraseSignals = /(^|\s)(טופס|פתיחת|ספק|חשבונית|תשלום|חוזה|בקשה|אישור|הזמנה|דוח|דו[״"]?ח|קבלה|invoice|payment|form|contract|request|report)(\s|$)/iu;
+        const hasPhraseSignal = phraseSignals.test(sender);
+        const looksLikeLongPhrase = words.length >= 4 && sender.length >= 16;
+        return hasPhraseSignal || looksLikeLongPhrase;
+      }
+
+      function showGeneralSenderAssist() {
+        if (!looksLikeSearchPhraseInSender()) {
+          generalSenderAssist.classList.remove("is-visible");
+          return false;
+        }
+        generalSenderAssistText.textContent = `הוזן בשדה השולח: “${generalSender.value.trim()}”. אם זו מילת החיפוש, אפשר להעביר אותה בלחיצה אחת.`;
+        generalSenderAssist.classList.add("is-visible");
+        return true;
+      }
+
+      function hideGeneralSenderAssist() {
+        generalSenderAssist.classList.remove("is-visible");
+      }
+
+      generalSender.addEventListener("input", () => {
+        if (generalSender.value.trim() !== approvedGeneralSenderValue) approvedGeneralSenderValue = "";
+        if (!generalSender.value.trim()) hideGeneralSenderAssist();
+      });
+      generalSender.addEventListener("blur", showGeneralSenderAssist);
+      generalKeyword.addEventListener("input", () => {
+        if (generalKeyword.value.trim()) hideGeneralSenderAssist();
+      });
+
+      generalFullRecentCheck.addEventListener("change", () => {
+        generalSubmit.textContent = generalFullRecentCheck.checked
+          ? "פתח חיפוש מלא ב-ChatGPT"
+          : "פתח חיפוש מהיר ב-ChatGPT";
+        setStatus("general", generalFullRecentCheck.checked
+          ? "בדיקה מלאה הופעלה: ייתכן שהחיפוש יארך יותר בגלל בדיקת 7 הימים האחרונים."
+          : "מצב מהיר הופעל: לא תתבצע בדיקת גיבוי של 7 הימים האחרונים.");
+      });
+
+      moveSenderToKeyword.addEventListener("click", () => {
+        const senderValue = generalSender.value.trim();
+        if (!senderValue) return;
+        generalKeyword.value = senderValue;
+        generalSender.value = "";
+        approvedGeneralSenderValue = "";
+        hideGeneralSenderAssist();
+        generalKeyword.focus();
+        setStatus("general", "הטקסט הועבר למילת המפתח. אפשר לבדוק את שאר השדות ולפתוח את החיפוש.", "success");
+      });
+
+      keepGeneralSender.addEventListener("click", () => {
+        approvedGeneralSenderValue = generalSender.value.trim();
+        hideGeneralSenderAssist();
+        setStatus("general", "הטקסט יישאר כשולח בחיפוש הזה.");
+        generalSender.focus();
+      });
 
       function validate(mode) {
         const form = forms[mode];
@@ -638,6 +880,12 @@ ${resultRules(true)}`;
         }
 
         if (mode === "general") {
+          if (showGeneralSenderAssist()) {
+            generalSender.focus();
+            setStatus(mode, "בדוק את שדה השולח לפני פתיחת החיפוש.", "error");
+            return false;
+          }
+
           const hasCriterion = ["general-sender", "general-person", "general-keyword", "general-free-text"].some(id => value(id));
           if (!hasCriterion) {
             document.getElementById("general-sender").focus();
