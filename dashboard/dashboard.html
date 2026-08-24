@@ -179,6 +179,8 @@
     }
     .mini-stat strong { color: var(--ink); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
     .mini-stat.expired strong { color: var(--expired); }
+    .mini-clear-btn { width: 22px; height: 22px; min-width: 22px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--muted); font-size: 12px; line-height: 1; display: inline-flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+    .mini-clear-btn:hover { background: var(--expired-soft); color: var(--expired); border-color: var(--expired); }
     .source-status { margin: 2px 0 0; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; text-align: right; }
     .source-actions { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; align-items: center; }
     .file-input { display: none; }
@@ -420,6 +422,7 @@
         <span class="load-status" id="loadStatus" aria-live="polite"></span>
         <div class="source-summary" aria-label="סיכום נתונים">
           <span class="mini-stat"><span>פעילים</span><strong id="kpiActive">0</strong></span>
+          <button type="button" class="mini-clear-btn" id="clearDataBtn" title="נקה נתונים שנטענו">✕</button>
           <span class="mini-stat expired"><span>מסמך שפג</span><strong id="kpiExpired">0</strong></span>
         </div>
         <input class="file-input" id="fileInput" type="file" accept=".xlsx,.xls">
@@ -543,6 +546,7 @@
         status: $("statusSelect"),
         guide: $("guideSelect"),
         clear: $("clearFiltersBtn"),
+        clearData: $("clearDataBtn"),
         tbody: $("tableBody"),
         resultCount: $("resultCount"),
         toast: $("toast"),
@@ -594,6 +598,18 @@
           console.warn("Could not load cached data", error);
           return false;
         }
+      }
+      function clearLoadedData() {
+        try { localStorage.removeItem(CACHE_KEY); } catch (error) { console.warn("Could not clear cache", error); }
+        try { sessionStorage.removeItem(SCROLL_KEY); } catch (error) { /* ignore */ }
+        state.rows = [];
+        state.file = null;
+        state.fileHandle = null;
+        el.content.hidden = true;
+        el.refresh.disabled = true;
+        el.sourceStatus.textContent = "לא נבחר קובץ. יש לבחור את קובץ ה-Excel העדכני.";
+        updateKpis();
+        toast("🗑️ הנתונים נוקו — יש לבחור קובץ Excel מחדש");
       }
       function saveScroll() {
         if (!el.tableScroll) return;
@@ -1190,6 +1206,10 @@
         state.quickFilter = "all";
         document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === "all")));
         render();
+      });
+      el.clearData.addEventListener("click", () => {
+        if (!confirm("לנקות את הנתונים שנטענו כרגע? יהיה צורך לבחור מחדש את קובץ ה-Excel.")) return;
+        clearLoadedData();
       });
       document.querySelectorAll(".chip").forEach((chip) => chip.addEventListener("click", () => {
         state.quickFilter = chip.dataset.filter;
