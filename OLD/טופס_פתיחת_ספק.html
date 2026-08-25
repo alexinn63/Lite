@@ -6,7 +6,14 @@
 <title>טופס פתיחת ספק חדש – יחדיו</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
+<style>
+@font-face{font-family:'Heebo';font-style:normal;font-weight:300;font-display:swap;src:url('assets/fonts/heebo-300.woff2') format('woff2')}
+@font-face{font-family:'Heebo';font-style:normal;font-weight:400;font-display:swap;src:url('assets/fonts/heebo-400.woff2') format('woff2')}
+@font-face{font-family:'Heebo';font-style:normal;font-weight:500;font-display:swap;src:url('assets/fonts/heebo-500.woff2') format('woff2')}
+@font-face{font-family:'Heebo';font-style:normal;font-weight:600;font-display:swap;src:url('assets/fonts/heebo-600.woff2') format('woff2')}
+@font-face{font-family:'Heebo';font-style:normal;font-weight:700;font-display:swap;src:url('assets/fonts/heebo-700.woff2') format('woff2')}
+@font-face{font-family:'Heebo';font-style:normal;font-weight:800;font-display:swap;src:url('assets/fonts/heebo-800.woff2') format('woff2')}
+</style>
 <style>
   :root{
     --navy:#0f1e3a;
@@ -76,6 +83,7 @@
     display:flex;
     align-items:center;
     justify-content:center;
+    min-height:120px;
   }
   .logo-img{
     position:absolute;
@@ -132,6 +140,9 @@
   .mini-btn.primary{background:var(--blue-soft);color:#174f82;}
   .mini-btn.primary:hover{background:var(--blue-soft-hover);}
   .mini-btn.ghost{background:#eef1f6;color:var(--navy);}
+  .field-with-btn{display:flex;gap:8px;align-items:center;}
+  .field-with-btn input{flex:1;min-width:0;}
+  .field-with-btn .mini-btn{flex-shrink:0;white-space:nowrap;}
   .section-title{
     font-size:15px;
     font-weight:700;
@@ -467,10 +478,9 @@
     <div class="bubble b4"></div>
     <div class="bubble b5"></div>
     <div class="header-inner">
-      <img class="logo-img" src="data:image/png;base64,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" alt="עמותת יחדיו">
+      <img class="logo-img" src="data:image/png;base64,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" alt="עמותת יחדיו">
       <div class="header-text">
         <h1>טופס פתיחת ספק חדש</h1>
-        <p class="subtitle">עמותת יחדיו – באר שבע והדרום | מחלקת רכש</p>
       </div>
     </div>
   </header>
@@ -578,14 +588,6 @@
           </div>
           <div class="family-note" id="familyNote">במידה וכן – העסקה/התקשרות מותנית בקבלת אישור מנכ״ל/משנה למנכ״ל.</div>
         </div>
-        <div class="field-wrap full">
-          <label>סטטוס הספק (יש לסמן את המתאים)</label>
-          <div class="checks">
-            <label class="check-row"><input type="checkbox" id="chkTax"> אישור ניכוי מס במקור בתוקף</label>
-            <label class="check-row"><input type="checkbox" id="chkBooks"> אישור ניהול ספרים בתוקף</label>
-            <label class="check-row"><input type="checkbox" id="chkExempt"> עוסק פטור (ככל שרלוונטי)</label>
-          </div>
-        </div>
       </div>
 
       <div class="section-title"><span class="num">3</span> פרטי חשבון בנק</div>
@@ -624,7 +626,7 @@
         </div>
       </div>
 
-      <div class="section-title"><span class="num">4</span> פרטי איש קשר</div>
+      <div class="section-title"><span class="num">4</span> פרטי איש הקשר של הספק</div>
       <div class="grid">
         <div class="field-wrap">
           <label for="contactName">שם איש הקשר<span class="req">*</span></label>
@@ -644,15 +646,22 @@
         </div>
       </div>
 
-      <div class="section-title"><span class="num">5</span> פרטי הבקשה</div>
+      <div class="section-title"><span class="num">5</span> פרטי מילוי הטופס מול יחדיו</div>
       <div class="grid">
         <div class="field-wrap">
           <label for="projectInfo">מס' ושם הפרויקט<span class="req">*</span></label>
-          <input type="text" id="projectInfo" required>
+          <div class="field-with-btn">
+            <input type="text" id="projectInfo" required>
+            <button type="button" class="mini-btn ghost" id="projectInfoNaBtn">לא רלוונטי</button>
+          </div>
         </div>
         <div class="field-wrap">
           <label for="filledBy">שם ממלא הטופס<span class="req">*</span></label>
           <input type="text" id="filledBy" required>
+        </div>
+        <div class="field-wrap">
+          <label for="filledByEmail">דוא"ל שלך, למקרה שנצטרך לחזור אליך עם שאלה<span class="req">*</span></label>
+          <input type="email" id="filledByEmail" required>
         </div>
       </div>
 
@@ -663,9 +672,8 @@
 
       <div class="submit-row">
         <div class="send-actions">
-          <button type="submit" class="submit-btn" id="submitBtn">הכנת מייל לשליחה</button>
+          <button type="submit" class="submit-btn" id="submitBtn">שליחה</button>
         </div>
-        <div class="send-reminder" id="sendReminder">לאחר ההורדה יש לפתוח את הקובץ בלחיצה כפולה — Outlook יפתח הודעה מוכנה עם כל הקבצים מצורפים, ונשאר רק ללחוץ על "שלח".</div>
         <div class="form-msg" id="formMsg"></div>
       </div>
     </form>
@@ -990,10 +998,26 @@ function validityCoversToday(validity){
   return endOfDay >= new Date();
 }
 
+let pdfJsPromise=null;
+function loadPdfJs(){
+  if(pdfJsPromise) return pdfJsPromise;
+  pdfJsPromise=(async()=>{
+    try{
+      const local=await import("./lib/pdf.min.mjs");
+      local.GlobalWorkerOptions.workerSrc="./lib/pdf.worker.min.mjs";
+      return local;
+    }catch(e){
+      const cdn=await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
+      cdn.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+      return cdn;
+    }
+  })();
+  return pdfJsPromise;
+}
+
 async function extractPdfTextVendor(file){
   try{
-    const pdfjsLib = await import("https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs");
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
+    const pdfjsLib = await loadPdfJs();
     const data = new Uint8Array(await file.arrayBuffer());
     const pdf = await pdfjsLib.getDocument({data:data}).promise;
     let text = "";
@@ -1173,9 +1197,8 @@ async function analyzeAndAutofill(file, docId){
 
     const validity = extractValidityVendor(text);
     const validNow = validityCoversToday(validity);
-    if(types.includes('taxWithholding') && validNow){ if(checkIfEmpty(document.getElementById('chkTax'))) filled.push('סומן: אישור ניכוי מס במקור בתוקף'); }
-    if((types.includes('bookkeeping') || types.includes('goodStanding')) && validNow){ if(checkIfEmpty(document.getElementById('chkBooks'))) filled.push('סומן: אישור ניהול ספרים בתוקף'); }
-    if(types.includes('dealerExempt')){ if(checkIfEmpty(document.getElementById('chkExempt'))) filled.push('סומן: עוסק פטור'); }
+    // סטטוס המסמכים (ניכוי מס / ניהול ספרים / עוסק פטור) מוצג כעת רק בהודעת
+    // הזיהוי עצמה לכל קובץ, ללא תיבות סימון נפרדות בטופס.
 
     const typeLabel = types.map(function(t){ return VENDOR_TYPE_LABELS[t]; }).filter(Boolean).join(' + ') || 'סוג לא זוהה';
     const coverageNote = coveredSlots.length ? (' קובץ זה מכסה גם את הדרישה ל"' + coveredSlots.join('", "') + '" — אין צורך לצרף שוב.') : '';
@@ -1195,13 +1218,11 @@ async function analyzeAndAutofill(file, docId){
 }
 
 
-const fieldIds = ['vendorName','vendorCategory','categoryOther','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','contactAddress','bankOther','projectInfo','filledBy'];
-const checkIds = ['chkTax','chkBooks','chkExempt'];
+const fieldIds = ['vendorName','vendorCategory','categoryOther','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','contactAddress','bankOther','projectInfo','filledBy','filledByEmail'];
 
 function currentFieldValues(){
   const values = {};
   fieldIds.forEach(function(id){ values[id] = document.getElementById(id).value; });
-  checkIds.forEach(function(id){ values[id] = document.getElementById(id).checked; });
   values.bankSelect = document.getElementById('bankSelect').value;
   const familyChoice = document.querySelector('input[name="familyRelation"]:checked');
   values.familyRelation = familyChoice ? familyChoice.value : '';
@@ -1251,8 +1272,12 @@ fieldIds.concat(['bankSelect']).forEach(function(id){
   el.addEventListener('input', scheduleSave);
   el.addEventListener('change', scheduleSave);
 });
-checkIds.forEach(function(id){
-  document.getElementById(id).addEventListener('change', scheduleSave);
+
+document.getElementById('projectInfoNaBtn').addEventListener('click', function(){
+  const input = document.getElementById('projectInfo');
+  input.value = 'לא רלוונטי';
+  input.dispatchEvent(new Event('input', {bubbles:true}));
+  input.dispatchEvent(new Event('change', {bubbles:true}));
 });
 
 document.querySelectorAll('.file-btn').forEach(function(btn){
@@ -1406,9 +1431,6 @@ function buildSnapshotHtml(values, fileNames){
     ['קטגורית רכש / תחום פעילות', categoryLabel],
     ["מס' עוסק מורשה", values.vendorId],
     ['האם קיים קשר משפחתי?', values.familyRelation],
-    ['אישור ניכוי מס במקור בתוקף', values.chkTax ? 'כן' : 'לא'],
-    ['אישור ניהול ספרים בתוקף', values.chkBooks ? 'כן' : 'לא'],
-    ['עוסק פטור', values.chkExempt ? 'כן' : 'לא'],
     ['שם הבנק', bankLabel],
     ["מס' סניף", values.bankBranch],
     ["מס' חשבון", values.bankAccount],
@@ -1416,8 +1438,9 @@ function buildSnapshotHtml(values, fileNames){
     ['טלפון', values.contactPhone],
     ['דוא"ל', values.contactEmail],
     ['כתובת', values.contactAddress || '—'],
-    ["מס' ושם הפרויקט", values.projectInfo],
-    ['שם ממלא הטופס', values.filledBy]
+    ["מס' ושם הפרויקט", values.projectInfo || '—'],
+    ['שם ממלא הטופס', values.filledBy],
+    ['דוא"ל ממלא הטופס', values.filledByEmail]
   ];
   let rowsHtml = rows.map(function(r){
     return '<tr><td style="padding:8px 12px;font-weight:700;color:#0f1e3a;border-bottom:1px solid #dde3ec;width:220px;">' + r[0] + '</td><td style="padding:8px 12px;border-bottom:1px solid #dde3ec;">' + (r[1] || '—') + '</td></tr>';
@@ -1549,8 +1572,6 @@ function safeFilePart(value){
 }
 
 function invalidatePreparedPackage(){
-  const reminder = document.getElementById('sendReminder');
-  if(reminder) reminder.style.display = 'none';
   const msg = document.getElementById('formMsg');
   if(msg && msg.classList.contains('success')){
     msg.classList.remove('success');
@@ -1649,7 +1670,7 @@ document.getElementById('vendorForm').addEventListener('submit', async function(
   msg.textContent = '';
   let firstInvalid = null;
 
-  const requiredFields = ['vendorName','vendorCategory','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','projectInfo','filledBy'];
+  const requiredFields = ['vendorName','vendorCategory','vendorId','bankBranch','bankAccount','contactName','contactPhone','contactEmail','projectInfo','filledBy','filledByEmail'];
   let missingField = false;
   requiredFields.forEach(function(id){
     const el = document.getElementById(id);
@@ -1727,46 +1748,56 @@ document.getElementById('vendorForm').addEventListener('submit', async function(
 
   const submitBtn = document.getElementById('submitBtn');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'מכין מייל...';
+  submitBtn.textContent = 'שולח...';
 
   const values = currentFieldValues();
-  const fileNames = fileIds.map(function(id){ return docLabels[id] + ': ' + attachedFiles[id].name; });
-
-  const snapshotHtml = buildSnapshotHtml(values, fileNames);
-  const cleanVendorName = safeFilePart(values.vendorName);
-  const snapshotFilename = 'טופס_ספק_' + cleanVendorName + '.html';
-  const emlFilename = 'מייל_פתיחת_ספק_' + cleanVendorName + '.eml';
+  const MAKE_WEBHOOK_URL = 'https://hook.eu1.make.com/6n5tuvh0ccq0wkigp75k7gvhjmsp06ir';
 
   try{
-    // сборка вложений: HTML-снимок формы + 4 документа отдельными файлами
-    const attachments = [{
-      filename: snapshotFilename,
-      mime: 'text/html; charset=UTF-8',
-      bytes: new Uint8Array(await new Blob([snapshotHtml], {type:'text/html;charset=utf-8'}).arrayBuffer())
-    }];
-    for(let i = 0; i < fileIds.length; i++){
-      const file = attachedFiles[fileIds[i]];
-      attachments.push({
-        filename: String(i + 1).padStart(2, '0') + '_' + safeFilePart(file.name),
-        mime: file.type || guessMime(file.name),
-        bytes: new Uint8Array(await file.arrayBuffer())
-      });
+    const payload = new FormData();
+
+    payload.append('vendorName', values.vendorName || '');
+    payload.append('vendorCategory', values.vendorCategory === 'אחר' ? (values.categoryOther || '') : (values.vendorCategory || ''));
+    payload.append('vendorId', values.vendorId || '');
+    payload.append('familyRelation', values.familyRelation || '');
+    payload.append('bankName', values.bankSelect === 'אחר' ? (values.bankOther || '') : (values.bankSelect || ''));
+    payload.append('bankBranch', values.bankBranch || '');
+    payload.append('bankAccount', values.bankAccount || '');
+    payload.append('contactName', values.contactName || '');
+    payload.append('contactPhone', values.contactPhone || '');
+    payload.append('contactEmail', values.contactEmail || '');
+    payload.append('contactAddress', values.contactAddress || '');
+    payload.append('projectInfo', values.projectInfo || '');
+    payload.append('filledBy', values.filledBy || '');
+    payload.append('filledByEmail', values.filledByEmail || '');
+
+    // descriptive names (not file1..file4) so they're easy to recognize when
+    // mapping fields inside the Make.com scenario later
+    const fileFieldNames = {
+      file1: 'file1_dealerStatus',
+      file2: 'file2_bookkeeping',
+      file3: 'file3_taxWithholding',
+      file4: 'file4_bankConfirmation'
+    };
+    fileIds.forEach(function(id){
+      const file = attachedFiles[id];
+      payload.append(fileFieldNames[id], file, file.name);
+    });
+
+    const response = await fetch(MAKE_WEBHOOK_URL, { method: 'POST', body: payload });
+    if(!response.ok){
+      throw new Error('שגיאת שרת: ' + response.status + ' ' + response.statusText);
     }
 
-    const emlBlob = buildEml(values, attachments);
-    downloadBlob(emlBlob, emlFilename);
     await clearDraft();
-
-    document.getElementById('sendReminder').style.display = 'block';
     msg.classList.add('success');
-    msg.innerHTML = 'קובץ המייל <b>' + emlFilename + '</b> הורד לתיקיית ההורדות.<br>' +
-      'יש לפתוח אותו בלחיצה כפולה — Outlook יציג הודעה מוכנה עם כל הקבצים מצורפים, ונשאר רק ללחוץ על "שלח".';
+    msg.textContent = '✓ נשלח בהצלחה. הטופס וארבעת המסמכים הועברו.';
   } catch(err){
     console.error(err);
-    msg.textContent = 'לא ניתן היה להכין את קובץ המייל. הנתונים נשמרו בטיוטה — נסו שוב.';
+    msg.textContent = 'השליחה נכשלה (' + (err && err.message ? err.message : 'שגיאה לא ידועה') + '). ניתן לנסות שוב, או לפנות לתמיכה אם זה חוזר על עצמו.';
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'הכנת מייל לשליחה';
+    submitBtn.textContent = 'שליחה';
   }
 });
 </script>

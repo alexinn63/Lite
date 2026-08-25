@@ -735,10 +735,10 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
     document.getElementById("output").value = lines.join("\n");
     document.getElementById("output-card").style.display = "block";
-    document.getElementById("copy-status").textContent = "";
+    copyOutputToClipboard();
   });
 
-  document.getElementById("copy-btn").addEventListener("click", function () {
+  function copyOutputToClipboard() {
     var t = STR[lang];
     var ta = document.getElementById("output");
     var status = document.getElementById("copy-status");
@@ -755,7 +755,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       ta.select();
       try { done(document.execCommand("copy")); } catch (e) { done(false); }
     }
-  });
+  }
+
+  document.getElementById("copy-btn").addEventListener("click", copyOutputToClipboard);
 
   // init
   (function init() {
