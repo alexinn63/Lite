@@ -391,9 +391,9 @@
 
         <div class="grid">
           <div class="field">
-            <label for="payment-sender">מי כתב את המייל <span class="required" aria-hidden="true">*</span></label>
-            <input id="payment-sender" name="sender" value="הודיה" autocomplete="off" required>
-            <span class="hint">עבור הודיה תיבדק גם הכתובת sender@invoice-one.com.</span>
+            <label for="payment-sender">כתובת השולח הקבועה</label>
+            <input id="payment-sender" name="sender" value="sender@invoice-one.com" dir="ltr" readonly aria-readonly="true">
+            <span class="hint">במצב PAYMENT החיפוש מתבצע תמיד לפי כתובת Invoice-One זו.</span>
           </div>
 
           <div class="field">
@@ -526,6 +526,7 @@
         payment: document.getElementById("panel-payment"),
         general: document.getElementById("panel-general")
       };
+      const PAYMENT_SENDER = "sender@invoice-one.com";
 
       const pad = number => String(number).padStart(2, "0");
       const toLocalISO = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -598,12 +599,10 @@
       }
 
       function buildPaymentPrompt() {
-        const sender = value("payment-sender");
         const person = value("payment-person");
         const freeText = value("payment-free-text");
         const from = value("payment-from");
         const to = value("payment-to");
-        const senderDetail = sender === "הודיה" ? "הודיה, כתובת מאומתת: sender@invoice-one.com" : sender;
         const personWords = person.trim().split(/\s+/).filter(Boolean);
         const searchWords = [...personWords].sort((a, b) => b.length - a.length).slice(0, 2);
         const primarySearchWord = searchWords[0] || person;
@@ -613,10 +612,9 @@
           const next = new Date(Date.UTC(y, m - 1, d + 1));
           return next.toISOString().slice(0, 10);
         })();
-        const verifiedSender = sender === "הודיה" ? "sender@invoice-one.com" : sender;
-        const firstQuery = `${primarySearchWord} received>=${from} received<${endExclusive} from:${verifiedSender} subject:\"תשלום ספק מספר\"`;
+        const firstQuery = `${primarySearchWord} received>=${from} received<${endExclusive} from:${PAYMENT_SENDER} subject:\"תשלום ספק מספר\"`;
         const secondQuery = secondarySearchWord
-          ? `${secondarySearchWord} received>=${from} received<${endExclusive} from:${verifiedSender} subject:\"תשלום ספק מספר\"`
+          ? `${secondarySearchWord} received>=${from} received<${endExclusive} from:${PAYMENT_SENDER} subject:\"תשלום ספק מספר\"`
           : "";
         const freeTextRule = freeText
           ? `טקסט חופשי נוסף: ${freeText}. בדוק אותו רק על המועמדים שכבר נמצאו; אין לבצע בגללו חיפוש תיבה נוסף.`
@@ -636,7 +634,7 @@ ${secondQuery ? `3. רק אם החיפוש הראשון החזיר אפס תוצ
 5. אם search_messages הראשון החזיר התאמה מדויקת או אפשרית שאפשר לאמת מהשדות שחזרו, סיים את עבודת Outlook מיד שם. אין לבצע שום קריאת Outlook נוספת לצורך תיקייה, קבצים מצורפים או השלמת שדות תצוגה.
 6. read_resource מותר רק אם פלט search_messages הוצג מקוצר ונדרש כדי לקרוא שדות שכבר קיימים באותה תוצאה, ובמיוחד receivedDateTime או web_link. זו אינה קריאת Outlook נוספת. אם המידע הדרוש כבר מוצג, אין לבצע read_resource נוסף.
 
-שולח: ${senderDetail}.
+שולח קבוע במצב PAYMENT: ${PAYMENT_SENDER}.
 טווח: ${from} ועד ${to} כולל. החיפוש משתמש ב-received<${endExclusive} כדי לכלול את כל יום הסיום.
 שם האדם: ${person}.
 ${freeTextRule}
