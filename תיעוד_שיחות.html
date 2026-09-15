@@ -41,10 +41,6 @@ body {
 .btn-email:hover { background:#b07d2c; }
 .btn-save { background:var(--green); color:white; }
 .btn-save:hover { background:#235f3e; }
-.btn-excel { background:#21A366; color:white; }
-.btn-excel:hover { background:#107C41; }
-.btn-copyrow { background:white; color:#107C41; border:1.5px solid #21A366; }
-.btn-copyrow:hover { background:#eaf7ef; }
 .btn-clear { background:transparent; color:#9bb8d4; border:1px solid #4a6a88; font-size:12px; padding:6px 12px; }
 
 .status-bar-top { display:none; position:sticky; top:60px; z-index:200; padding:10px 24px; font-size:14px; font-weight:700; text-align:center; }
@@ -64,7 +60,7 @@ body {
 
 /* HEADER */
 .doc-header { padding:20px 32px 16px; border-bottom:2px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:16px; background:rgba(255,255,255,0.98); }
-.doc-header-logos img { height:48px; width:auto; max-width:160px; object-fit:contain; }
+.doc-header-logos img { height:48px; width:auto; max-width:320px; object-fit:contain; }
 .doc-title { text-align:center; flex:1; }
 .doc-title h1 { font-size:22px; font-weight:800; color:var(--primary); }
 .doc-title p { font-size:12px; color:var(--muted); }
@@ -150,9 +146,9 @@ body {
   body { background:white !important; }
   .top-bar, .load-panel, .status-bar-top { display:none !important; }
   .page { margin:0; border-radius:0; box-shadow:none; background:white; }
-  #nameChips span { font-size:20px !important; font-weight:700 !important; background:none !important; color:var(--primary) !important; padding:0 !important; border-radius:0 !important; }
+  .no-print { display:none !important; }
+  #nameChips span { font-size:16px !important; font-weight:700 !important; background:var(--yellow-light) !important; color:var(--primary) !important; border:1.5px solid var(--border) !important; border-radius:8px !important; padding:4px 10px !important; box-shadow:none !important; }
   #nameChips span span { display:none !important; }
-  #nameChips > span:not(:last-child)::after { content: ", "; }
   #nameSearch { display:none !important; }
 }
 
@@ -172,8 +168,6 @@ body {
     <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
     <button class="btn btn-email" onclick="emailDoc()">✉ שלח במייל</button>
     <button class="btn btn-save" onclick="savePDF()">📄 שמור PDF</button>
-    <button class="btn btn-copyrow" onclick="copyRowToClipboard()">📋 העתק שורה</button>
-    <button class="btn btn-excel" onclick="saveAsExcel()">📊 שמור כ-Excel</button>
   </div>
 </div>
 <div id="statusBar" class="status-bar-top"></div>
@@ -189,12 +183,12 @@ body {
 
   <!-- HEADER -->
   <div class="doc-header">
-    <div class="doc-header-logos"><img data-logo="org" src="" style="height:50px;width:auto;object-fit:contain;" alt="עמותת יחדיו"></div>
+    <div class="doc-header-logos"><img data-logo="org" src="" style="height:100px;width:auto;object-fit:contain;" alt="עמותת יחדיו"></div>
     <div class="doc-title">
       <h1>תיעוד שיחות</h1>
       <p data-org="name">מפעל מוגן שיקומי לבריאות הנפש – עמותת יחדיו, באר שבע</p>
     </div>
-    <div class="doc-header-logos"><img data-logo="ministry" src="" style="height:40px;width:auto;object-fit:contain;" alt="משרד הבריאות"></div>
+    <div class="doc-header-logos"><img data-logo="ministry" src="" style="height:80px;width:auto;object-fit:contain;" alt="משרד הבריאות"></div>
   </div>
 
   <div class="doc-body">
@@ -271,8 +265,8 @@ body {
       <div id="summary_status" style="font-size:12px;color:var(--muted);margin-top:3px;min-height:16px;"></div>
     </div>
 
-    <!-- 7. צרף קובץ -->
-    <div class="field">
+    <!-- 7. צרף קובץ (לא נכלל בהדפסה/PDF) -->
+    <div class="field no-print">
       <div class="field-label"><span class="field-num">7</span>צרף קובץ</div>
       <div class="file-upload" onclick="document.getElementById('fileInput').click()">
         <input type="file" id="fileInput" multiple onchange="handleFiles(this.files)">
@@ -391,7 +385,7 @@ function renderChips() {
   const box = document.getElementById('nameChips');
   if (!box) return;
   box.innerHTML = selectedNames.map((n,i) =>
-    `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--blue,#2563a8);color:#fff;border-radius:16px;padding:4px 10px;font-size:13px;">${n}<span style="cursor:pointer;font-weight:700;" onclick="removeName(${i})">×</span></span>`
+    `<span style="display:inline-flex;align-items:center;gap:6px;background:var(--yellow-light);color:var(--primary);border:1.5px solid var(--border);border-radius:8px;padding:4px 10px;font-size:14px;font-weight:700;">${n}<span style="cursor:pointer;font-weight:700;color:var(--red);" onclick="removeName(${i})">×</span></span>`
   ).join('');
 }
 function removeName(i) {
@@ -505,12 +499,10 @@ function validate() {
 function buildPageHTML() {
   const clone = document.documentElement.cloneNode(true);
 
-  // Hide UI controls
-  const topBar = clone.querySelector('.top-bar'); if(topBar) topBar.style.display='none';
+  // Hide UI controls that don't make sense in the saved copy —
+  // but keep the top bar (print / PDF buttons) so it can still be converted to PDF later
   const sb = clone.querySelector('#statusBar'); if(sb) sb.style.display='none';
   const lp = clone.querySelector('.load-panel'); if(lp) lp.style.display='none';
-  // Remove back button and modals
-  clone.querySelectorAll('[onclick="history.back()"]').forEach(el => el.closest('div') && el.closest('div[style*="fixed"]') ? el.closest('div[style*="fixed"]').remove() : el.remove());
 
   // ── Textareas — write content as value attribute ──
   ['content','summary'].forEach(id => {
@@ -530,8 +522,13 @@ function buildPageHTML() {
   const clNameSearch = clone.querySelector('#nameSearch');
   if (clNameSearch) clNameSearch.remove(); // no search box in the saved doc
   if (clNameChips) {
-    clNameChips.style.display = 'block';
-    clNameChips.innerHTML = `<div style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:20px;font-weight:700;color:var(--primary);background:var(--yellow-light);">${nameVal || ''}</div>`;
+    clNameChips.style.display = 'flex';
+    clNameChips.style.flexWrap = 'wrap';
+    clNameChips.style.gap = '6px';
+    const namesArr = nameVal ? nameVal.split(',').map(s => s.trim()).filter(Boolean) : [];
+    clNameChips.innerHTML = namesArr.map(n =>
+      `<div style="padding:6px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:18px;font-weight:700;color:var(--primary);background:var(--yellow-light);">${n}</div>`
+    ).join('');
   }
   const clName = clone.querySelector('#nameInput');
   if (clName) clName.setAttribute('value', nameVal);
@@ -607,45 +604,6 @@ function buildPageHTML() {
 function safeFileName(v) { return (v||'ללא_שם').trim().replace(/[\/:*?"<>|]/g,'-').replace(/\s+/g,'_').slice(0,60); }
 function fmt() { return formatDate().slice(0,7); }
 
-function getStaffName() {
-  const val = document.getElementById('staffSelect').value;
-  if (val === 'אחר') return document.getElementById('staffOther').value.trim();
-  return val;
-}
-
-function buildRowValues() {
-  return [
-    dateToHe(document.getElementById('docDate').value),
-    document.getElementById('nameInput').value,
-    getStaffName(),
-    selectedTopic,
-    document.getElementById('content').value,
-    document.getElementById('summary').value
-  ];
-}
-
-function copyRowToClipboard() {
-  if (!validate()) return;
-  const row = buildRowValues().join('\t');
-  navigator.clipboard.writeText(row).then(() => {
-    showStatus('השורה הועתקה — הדביקו ב-Excel', 'success');
-  }).catch(() => {
-    showStatus('שגיאה בהעתקה ללוח', 'error');
-  });
-}
-
-function saveAsExcel() {
-  if (!validate()) return;
-  const headers = ['תאריך', 'שם מקבל השירות', 'תועד ע"י', 'נושא שיחה', 'תוכן שיחה', 'סיכום | החלטה'];
-  const row = buildRowValues();
-  const ws = XLSX.utils.aoa_to_sheet([headers, row]);
-  ws['!cols'] = [{wch:12},{wch:20},{wch:14},{wch:18},{wch:50},{wch:50}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'תיעוד שיחה');
-  const fname = safeFileName(document.getElementById('nameInput').value) + '_תיעוד_שיחה_' + fmt() + '.xlsx';
-  XLSX.writeFile(wb, fname);
-}
-
 function savePDF() {
   if (!validate()) return;
   const prevTitle = document.title;
@@ -703,21 +661,6 @@ window.addEventListener('load', () => {
 });
 </script>
 
-<div style="position:fixed;bottom:20px;left:20px;z-index:9999;">
-  <button onclick="history.back()" style="
-    background:linear-gradient(135deg,#1a3a5c,#2563a8);
-    color:white;border:none;border-radius:50px;
-    padding:12px 20px;font-size:15px;font-weight:700;
-    cursor:pointer;box-shadow:0 4px 16px rgba(26,58,92,0.4);
-    font-family:inherit;direction:rtl;
-  ">→ חזרה לתפריט</button>
-</div>
-
-
-
-<div style="position:fixed;bottom:20px;left:20px;z-index:9999;">
-  <button onclick="history.back()" style="background:linear-gradient(135deg,#1a3a5c,#2563a8);color:white;border:none;border-radius:50px;padding:12px 20px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(26,58,92,0.4);font-family:inherit;direction:rtl;">→ חזרה לתפריט</button>
-</div>
 <script>
 function autoLoadFromStorage() {
   try {
@@ -813,8 +756,8 @@ const ORG_CONFIG = {
 
   // ── גדלי לוגואים במסמכים ─────────────────────────
   logoSizes: {
-    orgHeight:      "50px",
-    ministryHeight: "40px"
+    orgHeight:      "100px",
+    ministryHeight: "80px"
   }
 };
 

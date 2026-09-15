@@ -1834,18 +1834,6 @@ finishTrial.onclick=async()=>{
   if(!mail.fullName||!id.value.trim())return alert("יש למלא שם ותעודת זהות לפני פתיחת המייל.");
   const copied=await copyMailBody(mail.body);
   const bankFile=bankDocumentIndex>=0?files[bankDocumentIndex]:null;
-  if(bankFile && navigator.share && navigator.canShare && navigator.canShare({files:[bankFile]})){
-    try{
-      markIntakeCompleted();
-      alert(copied
-        ? "תוכן המייל הועתק. בחלון Outlook בחר או הקלד sivans@yachdav.org.il, לחץ בשדה ההודעה והדבק באמצעות Ctrl+V."
-        : "לא ניתן היה להעתיק אוטומטית. חלון Outlook ייפתח עם מסמך הבנק; יש להזין את הנמען והטקסט ידנית.");
-      await navigator.share({files:[bankFile],title:mail.subject});
-      return;
-    }catch(e){
-      if(e && e.name==="AbortError")return;
-    }
-  }
   const url=`mailto:sivans@yachdav.org.il?subject=${encodeURIComponent(mail.subject)}&body=${encodeURIComponent(mail.body)}`;
   markIntakeCompleted();
   window.location.href=url;
