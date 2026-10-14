@@ -688,6 +688,11 @@ function fallbackCopy(text) {
 
 function openDoc(idx) {
   if (!currentData) return;
+  // FIX: תמיד לקחת את הנתונים העדכניים מהטופס (ולא את מה שנשמר ברגע "קלוט")
+  const fresh = getFormData();
+  if (!fresh.shem) { showStatus("יש להזין שם מקבל שירות", "error"); return; }
+  if (!fresh.tz || fresh.tz.length < 8) { showStatus("יש להזין תעודת זהות תקינה", "error"); return; }
+  currentData = fresh;
   const docs = [
     "ויתור_סודיות",
     "חוזה_אישי",
@@ -703,6 +708,29 @@ function openDoc(idx) {
   document.getElementById("status_" + idx).textContent = "✓ נפתח";
   document.getElementById("status_" + idx).style.color = "#2e7d52";
 }
+
+// FIX: אם אחרי "קלוט" שינו פרט כלשהו — מסמכים שכבר נפתחו מכילים נתונים ישנים
+function markDocsStale() {
+  if (!currentData) return;
+  let anyOpened = false;
+  for (let i = 0; i < 6; i++) {
+    const st = document.getElementById("status_" + i);
+    if (st && st.textContent.indexOf("נפתח") !== -1) {
+      anyOpened = true;
+      st.textContent = "⚠ הנתונים שונו — לפתוח מחדש";
+      st.style.color = "#b83232";
+    }
+  }
+  if (anyOpened) {
+    showStatus("⚠ הנתונים שונו אחרי הקליטה. סגור את לשוניות המסמכים הישנות ופתח כל מסמך מחדש.", "error");
+  }
+}
+document.addEventListener("input", function (e) {
+  if (e.target && e.target.id && e.target.id.indexOf("f_") === 0) markDocsStale();
+});
+document.addEventListener("change", function (e) {
+  if (e.target && e.target.id && e.target.id.indexOf("f_") === 0) markDocsStale();
+});
 
 function resetForm() {
   document.querySelectorAll("input, select, textarea").forEach(el => el.value = "");
