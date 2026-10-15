@@ -24,6 +24,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 
 .viewer-modal{position:fixed;inset:0;z-index:1000;background:rgba(15,30,58,.72);display:grid;place-items:center;padding:18px}.viewer-shell{width:min(1320px,96vw);height:min(860px,94vh);background:white;border-radius:16px;display:grid;grid-template-columns:minmax(0,1fr) 360px;overflow:hidden;box-shadow:0 25px 70px rgba(0,0,0,.3)}.viewer-main{display:flex;flex-direction:column;min-width:0;background:#eef2f7}.viewer-toolbar{display:flex;gap:8px;align-items:center;padding:10px;background:white;border-bottom:1px solid var(--line);flex-wrap:wrap}.viewer-title{margin-inline-end:auto;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}.viewer-stage{flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;padding:18px;min-width:0;min-height:0;position:relative}.viewer-frame-wrap{width:100%;height:100%;transform-origin:center center;transition:transform .2s ease;display:flex;align-items:center;justify-content:center;flex:0 0 auto}.viewer-frame,.viewer-image{width:100%;height:100%;border:0;background:white;object-fit:contain;display:block}.viewer-side{padding:20px;overflow:auto;border-inline-start:1px solid var(--line)}.viewer-side h3{margin-top:0}.viewer-side .field{margin-bottom:10px}.viewer-note{font-size:12px;color:var(--muted);line-height:1.5}.warning-box{padding:10px 12px;border-radius:10px;background:#fff8e8;border:1px solid #edd9a7;color:#765615;font-size:12px;margin-top:10px}.compact-action{padding:7px 10px}.bank-inline{min-width:240px;line-height:1.45}.bank-inline b{display:block}.bank-open{margin-top:6px}.date-help{font-size:11px;color:var(--muted);margin-top:4px}
 @media(max-width:850px){.viewer-shell{grid-template-columns:1fr;height:96vh}.viewer-side{border-inline-start:0;border-top:1px solid var(--line);max-height:42vh}.viewer-title{max-width:45%}}
+.finish-modal{position:fixed;inset:0;z-index:1100;background:rgba(15,30,58,.72);display:grid;place-items:center;padding:18px}.finish-shell{width:min(680px,96vw);max-height:92vh;overflow:auto;background:white;border-radius:16px;padding:22px;box-shadow:0 25px 70px rgba(0,0,0,.3)}.finish-shell h3{margin:0 0 6px;color:var(--navy)}.finish-file{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fbfcff;margin:10px 0;font-size:13px}.finish-file code{background:#eef2f7;border-radius:6px;padding:4px 8px;font-size:12px;word-break:break-all}.finish-steps{margin:12px 0 0;padding:0 18px 0 0;font-size:13px;line-height:1.9;color:#44506a}.finish-steps li{margin-bottom:2px}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs" type="module"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -32,7 +33,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.63 — זיהוי שם/משפחה מת.ז. ומסמכים, יישור (deskew) ופענוח רצף הספרות של המחאה לבנק, תיקון שנת OCR שגויה, כפתורי שם קובץ בגודל אחיד ויישור לימין</div></div>
+<div class="top"><div class="brand"><div class="mark">▣</div><div><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub">גרסה 2.66 — זיהוי שם/משפחה מת.ז. ומסמכים, יישור (deskew) ופענוח רצף הספרות של המחאה לבנק, תיקון שנת OCR שגויה, כפתורי שם קובץ בגודל אחיד ויישור לימין, צירוף מסמך הבנק למייל לסיון ומדריך לצירוף ידני</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -166,10 +167,29 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
   <section class="card" style="text-align:center;padding:42px 28px">
     <h2 style="margin-top:0">סיום</h2>
     <div class="status-line good" style="font-size:18px;padding:18px">תהליך הקליטה הושלם. המייל לסיון נפתח ומוכן להשלמה ושליחה.</div>
-    <p style="margin:18px 0 6px">בחלון Outlook יש להדביק את תוכן המייל באמצעות Ctrl+V, לבדוק את הנמען ולשלוח.</p>
+    <p style="margin:18px 0 6px">בחלון Outlook יש לבדוק את הנמען ואת טקסט המייל, ולוודא שמסמך הבנק מצורף לפני השליחה.</p>
     <div class="actions" style="justify-content:center;margin-top:22px"><button class="btn primary" id="startNewIntake" type="button">התחלת קליטה חדשה</button></div>
   </section>
 </main>
+
+<div id="finishModal" class="finish-modal hidden" role="dialog" aria-modal="true" aria-labelledby="finishModalTitle">
+  <div class="finish-shell">
+    <h3 id="finishModalTitle">המייל נפתח — נותר לצרף את מסמך הבנק</h3>
+    <div id="finishModalText"></div>
+    <div class="finish-file" id="finishFileRow">
+      <span>שם הקובץ:</span><code id="finishFileName"></code>
+      <button class="btn soft" id="finishCopyName" type="button">העתק שם קובץ</button>
+      <span id="finishCopyMsg" class="analysis-note"></span>
+    </div>
+    <ol class="finish-steps">
+      <li>בחלון Outlook ודא שהנמען הוא <b>sivans@yachdav.org.il</b> ושהנושא מולא.</li>
+      <li>בדוק את טקסט המייל — הוא כבר נמצא בגוף ההודעה, אין צורך להדביק אותו.</li>
+      <li>צרף את מסמך הבנק: גרור את הקובץ מחלון התיקייה אל גוף ההודעה, או לחץ «צרף קובץ» (סיכת נייר) ובחר את הקובץ. לחיפוש מהיר לחץ «העתק שם קובץ» והדבק את השם בחלון הבחירה.</li>
+      <li>ודא שהקובץ מופיע כמצורף, ואז שלח.</li>
+    </ol>
+    <div class="actions" style="margin-top:16px;justify-content:flex-end"><button class="btn primary" id="finishModalClose" type="button">הבנתי, סגור</button></div>
+  </div>
+</div>
 
 <div id="viewerModal" class="viewer-modal hidden" role="dialog" aria-modal="true" aria-labelledby="viewerTitle">
   <div class="viewer-shell">
@@ -2233,17 +2253,47 @@ function markIntakeCompleted(){
 }
 startNewIntake.onclick=()=>window.location.reload();
 
+// מוצג רק כשהמייל נפתח דרך mailto (בלי קובץ מצורף). בנתיב השיתוף הקובץ כבר מצורף ולכן החלון לא מוצג.
+function showAttachInstructions(name,noBankFile){
+  try{
+    finishModalText.innerHTML=noBankFile
+      ? `המייל נפתח, אך <b>לא נמצא מסמך שסווג כמסמך בנק</b> — לכן הקובץ לא צורף. יש לצרף אותו ידנית מהמקום שבו שמרת את המסמכים.`
+      : `נפתחה טיוטה חדשה ב-Outlook. הנמען, הנושא וטקסט המייל כבר מוכנים — נשאר רק לצרף את מסמך הבנק.`;
+    finishFileRow.classList.toggle("hidden",!name);
+    finishFileName.textContent=name||"";
+    finishCopyMsg.textContent="";
+    finishModal.classList.remove("hidden");
+  }catch(e){}
+}
+finishModalClose.onclick=()=>finishModal.classList.add("hidden");
+finishCopyName.onclick=async()=>{
+  const ok=await copyMailBody(finishFileName.textContent||"");
+  finishCopyMsg.textContent=ok?"שם הקובץ הועתק.":"לא הצלחתי להעתיק — העתק ידנית מהשורה שלמעלה.";
+};
 finishTrial.onclick=async()=>{
   const mail=newRecipientMailText();
   if(!mail.fullName||!id.value.trim())return alert("יש למלא שם ותעודת זהות לפני פתיחת המייל.");
   const copied=await copyMailBody(mail.body);
   const bankFile=bankDocumentIndex>=0?files[bankDocumentIndex]:null;
+  // מדריך צירוף ידני — רק לנתיב mailto.
+  const remind=()=>showAttachInstructions(bankFile?bankFile.name:"",!bankFile);
+  if(bankFile && navigator.share && navigator.canShare && navigator.canShare({files:[bankFile]})){
+    markIntakeCompleted();
+    alert(copied
+      ? "בחלון השיתוף בחר Outlook — מסמך הבנק יצורף אוטומטית. הקלד את הנמען sivans@yachdav.org.il. אם טקסט המייל לא מופיע בהודעה, לחץ בשדה ההודעה והדבק באמצעות Ctrl+V (הוא כבר הועתק)."
+      : "בחלון השיתוף בחר Outlook — מסמך הבנק יצורף אוטומטית. לא ניתן היה להעתיק את הטקסט; אם הוא לא מופיע בהודעה, יש להזין את הנמען והטקסט ידנית.");
+    try{
+      // מעבירים לחלון השיתוף: קובץ הבנק + הנושא + גוף המייל.
+      await navigator.share({files:[bankFile],title:mail.subject,text:mail.body});
+      return;
+    }catch(e){
+      if(e && e.name==="AbortError")return;
+    }
+  }
   const url=`mailto:sivans@yachdav.org.il?subject=${encodeURIComponent(mail.subject)}&body=${encodeURIComponent(mail.body)}`;
   markIntakeCompleted();
   window.location.href=url;
-  setTimeout(()=>alert(bankFile
-    ? `Outlook נפתח. תוכן המייל ${copied?"הועתק וניתן להדביק באמצעות Ctrl+V":"לא הועתק"}. יש לצרף את הקובץ: ${bankFile.name}`
-    : `Outlook נפתח. תוכן המייל ${copied?"הועתק וניתן להדביק באמצעות Ctrl+V":"לא הועתק"}. לא נמצא מסמך בנק שסווג במערכת.`),700);
+  setTimeout(remind,700);
 };
 window.addEventListener("DOMContentLoaded",()=>restoreSavedRoot(false));
 
