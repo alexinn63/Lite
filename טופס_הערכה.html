@@ -1097,7 +1097,7 @@ function buildTable(tbodyId, items, itemsRu) {
           </div>
         </td>
       `).join('')}
-      <td><input type="text" class="note-input" id="${prefix}_note" list="note-options" placeholder="הערה... / לא רלבנטי (חובה)"></td>
+      <td><input type="text" class="note-input" id="${prefix}_note" list="note-options" placeholder="הערה... / לא רלבנטי"></td>
     `;
     tbody.appendChild(tr);
   });
@@ -1272,7 +1272,7 @@ function formatWageField() {
 
 
 // ──────────────────────────────────────────
-// REQUIRED: all fields before section ח (meta, א–ד ratings + notes, ה/ו/ז)
+// REQUIRED: all fields before section ח (meta, א–ד ratings, ה/ו/ז). Notes (הערות) are optional.
 // ──────────────────────────────────────────
 function validateRequiredBeforeH() {
   document.querySelectorAll('#evaluationForm .field-error').forEach(el => el.classList.remove('field-error'));
@@ -1288,7 +1288,7 @@ function validateRequiredBeforeH() {
 
   const secNames = { a: 'א. הרגלי עבודה', b: 'ב. תקשורת והתנהגות בינאישית', g: 'ג. תפקוד בעבודה', d: 'ד. מוטיבציה' };
   Object.entries({ a: TABLES.a, b: TABLES.b, g: TABLES.g, d: TABLES.d }).forEach(([tbl, items]) => {
-    let noScore = 0, noNote = 0;
+    let noScore = 0;
     items.forEach((item, i) => {
       const prefix = `table_${tbl}_${i}`;
       const note = document.getElementById(prefix + '_note');
@@ -1297,10 +1297,8 @@ function validateRequiredBeforeH() {
         noScore++;
         if (tr) { tr.classList.add('row-missing'); if (!firstEl) firstEl = tr; }
       }
-      if (note && !note.value.trim()) { noNote++; mark(note); }
     });
     if (noScore) missing.push(`${secNames[tbl]} — חסר דירוג ב-${noScore} שורות`);
-    if (noNote) missing.push(`${secNames[tbl]} — חסרה הערה ב-${noNote} שורות (אפשר "לא רלבנטי")`);
   });
 
   TEXT_SECTIONS.forEach(ts => {
