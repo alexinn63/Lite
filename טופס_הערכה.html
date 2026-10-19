@@ -90,6 +90,8 @@
   .form-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
   .form-header .facility-name { font-size: 16px; font-weight: 500; color: #c5ddf5; }
   .form-header .address { font-size: 13px; color: #8ab5d9; margin-top: 4px; }
+  /* Large org logo (×2.5) without growing the header: negative margins eat the header padding */
+  .form-header .hdr-logo { margin: -26px 0 -22px; }
 
   /* ── FORM BODY ── */
   .form-body { padding: 32px 40px; }
@@ -148,6 +150,11 @@
   .rating-table td { padding: 9px 12px; border-bottom: 1px solid var(--blue-border); vertical-align: middle; }
   .rating-table td:first-child { font-size: 14px; }
   .rating-table td.center { text-align: center; }
+  /* Russian subtitle under each question — small & thin, must not grow the row */
+  .ru-sub { font-size: 10px; font-weight: 300; line-height: 1.15; color: #7d8a9c; margin-top: 1px; text-align: right; unicode-bidi: plaintext; }
+  .rating-table td:first-child { line-height: 1.25; }
+  .section-title-text { min-width: 0; }
+  .ru-sub-title { font-size: 11px; margin-top: 2px; }
 
   /* Radio buttons styled as score circles */
   .radio-group { display: flex; justify-content: center; gap: 6px; }
@@ -214,6 +221,15 @@
 
   /* Translation status */
   .ta-status { font-size: 12px; margin-top: 5px; height: 16px; }
+  /* Required-field star (CSS only, so label textContent in alerts stays clean) */
+  .section-title.req h3::after { content: " *"; color: #dc2626; font-weight: 700; }
+  tr.row-missing td:first-child { color: var(--red); font-weight: 600; }
+  tr.row-missing { background: #fff5f5 !important; }
+  label.req::after { content: " *"; color: #dc2626; font-size: 13px; font-weight: 700; }
+  /* Translate button inside behavioral observations (section ח) */
+  .obs-ta-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 4px; }
+  .obs-ta-actions .btn-translate { padding: 3px 9px; font-size: 11px; }
+  .obs-ta-actions .ta-status { margin-top: 0; height: auto; font-size: 11px; }
   .ta-status.loading { color: var(--blue-mid); }
   .ta-status.done { color: var(--green); }
   .ta-status.error { color: var(--red); }
@@ -227,6 +243,9 @@
   .obs-table td { display: block; border: none; padding: 4px 0; }
   .obs-row-item { font-size: 14px; font-weight: 700; color: #1a3a5c; margin-bottom: 8px; line-height: 1.4; }
   .obs-row-item { font-size: 13px; font-weight: 500; }
+  /* compensate for the Russian subtitle so the card keeps its height */
+  .obs-row-item { margin-bottom: 0; line-height: 1.25; }
+  .obs-row-item .ru-sub { margin-top: -1px; line-height: 1.1; }
   .obs-radios { display: flex; gap: 8px; justify-content: stretch; margin: 6px 0; }
   .obs-radio-label { display: flex; align-items: center; justify-content: center; flex: 1; font-size: 14px; font-weight: 700; padding: 10px 6px; border-radius: 10px; border: 2px solid #c5d5e8; cursor: pointer; transition: all 0.15s; color: #888; background: #f4f7fc; text-align: center; }
   .obs-radio-label input { display: none; }
@@ -593,7 +612,10 @@
     .top-bar { display: none !important; }
     .page { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
     .form-body { padding: 20px 24px; }
-    .btn-translate, .ta-actions, .legend { display: none !important; }
+    .btn-translate, .ta-actions, .obs-ta-actions, .legend, .ru-sub { display: none !important; }
+    label.req::after, .section-title.req h3::after { content: none; }
+    tr.row-missing td:first-child { color: inherit; font-weight: normal; }
+    tr.row-missing { background: none !important; }
     .ta-wrapper textarea { background: white; border: 1px solid #ccc; min-height: 60px; }
     .radio-group label { border: 1.5px solid #ccc; width: 26px; height: 26px; font-size: 12px; color: #bbb; background: #f5f5f5; box-shadow: none !important; transform: none !important; }
     .radio-1 input:checked + label { background: #c0392b !important; border-color: #c0392b !important; color: #fff !important; }
@@ -608,6 +630,14 @@
   /* ── SPINNER ── */
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin .6s linear infinite; }
+  @media (max-width: 700px) {
+    .form-header .hdr-logo { margin: 0; height: 50px !important; }
+  }
+  @media (max-width: 720px) {
+    /* Russian subtitle: take the space from the gap under the question, not from the card */
+    .rating-table td:first-child { margin-bottom: 0; line-height: 1.2; }
+    .rating-table td:first-child .ru-sub { margin-top: 0; line-height: 1.1; }
+  }
 </style>
 </head>
 <body>
@@ -644,7 +674,7 @@
         <div class="facility-name">משרד הבריאות - מפעל מוגן שיקומי לבריאות הנפש באר שבע</div>
         <div class="address">שאול המלך 113, באר שבע</div>
       </div>
-      <img data-logo="org" src="" style="height:50px;width:auto;object-fit:contain;" alt="logo">
+      <img data-logo="org" data-logo-height="125px" class="hdr-logo" src="" style="height:125px;width:auto;max-width:100%;object-fit:contain;" alt="logo">
     </div>
   </div>
 
@@ -659,20 +689,20 @@
         <span id="excel_status" class="excel-status">בודק בסיס נתונים משותף... אפשר למלא ידנית גם אם לא נטען Excel.</span>
       </div>
       <div class="field-group">
-        <label>תאריך</label>
+        <label class="req">תאריך</label>
         <input type="date" id="f_date">
       </div>
       <div class="field-group name-suggest-wrap" style="grid-column: span 2;">
-        <label>שם המשתקם</label>
+        <label class="req">שם המשתקם</label>
         <input type="text" id="f_name" placeholder="שם מלא" autocomplete="off" oninput="onNameInput()" onfocus="onNameInput()" onblur="setTimeout(hideNameSuggestions, 180)">
         <div id="client_suggestions" class="client-suggestions"></div>
       </div>
       <div class="field-group">
-        <label>מספר תעודת זהות</label>
+        <label class="req">מספר תעודת זהות</label>
         <input type="text" id="f_id" placeholder="000000000" maxlength="9" inputmode="numeric" oninput="onIdInput()">
       </div>
       <div class="field-group" style="grid-column: span 2;">
-        <label>ממוצע גב"ע חודשי (3 חודשים אחרונים) – שכר קבוע</label>
+        <label class="req">ממוצע גב"ע חודשי (3 חודשים אחרונים) – שכר קבוע</label>
         <input type="text" id="f_wage" placeholder='לדוגמה: 1,200 ש&quot;ח' onblur="formatWageField()">
       </div>
     </div>
@@ -687,7 +717,7 @@
 
     <!-- SECTION A: הרגלי עבודה -->
     <div class="section">
-      <div class="section-title">
+      <div class="section-title req">
         <div class="section-badge">א</div>
         <h3>הרגלי עבודה</h3>
       </div>
@@ -703,7 +733,7 @@
 
     <!-- SECTION B: תקשורת -->
     <div class="section">
-      <div class="section-title">
+      <div class="section-title req">
         <div class="section-badge">ב</div>
         <h3>תקשורת והתנהגות בינאישית</h3>
       </div>
@@ -719,7 +749,7 @@
 
     <!-- SECTION G: תפקוד בעבודה -->
     <div class="section">
-      <div class="section-title">
+      <div class="section-title req">
         <div class="section-badge">ג</div>
         <h3>תפקוד בעבודה</h3>
       </div>
@@ -735,7 +765,7 @@
 
     <!-- SECTION D: מוטיבציה -->
     <div class="section">
-      <div class="section-title">
+      <div class="section-title req">
         <div class="section-badge">ד</div>
         <h3>מוטיבציה להתפתחות ולתעסוקה נתמכת</h3>
       </div>
@@ -795,7 +825,7 @@
     <!-- FOOTER SIGNATURES -->
     <div class="form-footer">
       <div class="sig-block field-group">
-        <label>חתימת המדריך</label>
+        <label class="req">חתימת המדריך</label>
         <select id="f_signature" required aria-required="true">
           <option value="">בחר חתימה</option>
           <option>אריסטרך קפוסטה</option>
@@ -1003,22 +1033,62 @@ const TABLES = {
   ]
 };
 
+// תרגום לרוסית — מוצג מתחת לכל שאלה (רק במסך; לא נכנס לדוח ולא להדפסה)
+const TABLES_RU = {
+  a: [
+    "Регулярное посещение",
+    "Приходит вовремя",
+    "Внешний вид и гигиена соответствуют рабочей среде",
+    "Усидчивость и концентрация в работе",
+    "Добросовестное отношение к работе"
+  ],
+  b: [
+    "Способность к ясному общению",
+    "Поддерживает нормальные отношения с коллегами",
+    "Поддерживает нормальные отношения с руководителями",
+    "Адекватно принимает авторитет руководства",
+    "Адекватно реагирует в стрессовых или конфликтных ситуациях"
+  ],
+  g: [
+    "Выполняет простые действия",
+    "Выполняет сложные (многоэтапные) действия",
+    "Точность в выполнении заданий",
+    "Работает аккуратно и систематично",
+    "Производительность — темп выполнения заданий",
+    "Справляется с изменениями в заданиях",
+    "Самостоятельно выполняет задания",
+    "Самостоятельно решает проблемы",
+    "Понимает устные инструкции",
+    "Обучаемость заданиям и работе с инструментами"
+  ],
+  d: [
+    "Реалистичная оценка своих возможностей и ограничений",
+    "Мотивация к поддерживаемому трудоустройству"
+  ]
+};
+const OBS_ITEMS_RU = [
+  "Склонность к агрессии или вспышкам",
+  "Заметные перемены в работе или поведении за последнее время",
+  "Переменчивое настроение — резкие подъёмы и спады",
+  "Слова расходятся с делами — обещает прийти, но не приходит"
+];
+
 const TEXT_SECTIONS = [
-  { id: "ts_h", badge: "ה", label: "תחומי תפקוד הבולטים לטובה (ניתן לסכם ביתר פירוט את המדדים שצוינו)" },
-  { id: "ts_v", badge: "ו", label: "תחומי תפקוד הטעונים שיפור (ניתן לסכם ביתר פירוט את המדדים שצוינו)" },
-  { id: "ts_z", badge: "ז", label: "שינויים בולטים שראיתי לאחרונה — מה שמשך את תשומת לבי בתקופה האחרונה" }
+  { id: "ts_h", badge: "ה", label: "תחומי תפקוד הבולטים לטובה (ניתן לסכם ביתר פירוט את המדדים שצוינו)", ru: "Сильные стороны функционирования (можно подробнее описать отмеченные показатели)" },
+  { id: "ts_v", badge: "ו", label: "תחומי תפקוד הטעונים שיפור (ניתן לסכם ביתר פירוט את המדדים שצוינו)", ru: "Области функционирования, требующие улучшения (можно подробнее описать отмеченные показатели)" },
+  { id: "ts_z", badge: "ז", label: "שינויים בולטים שראיתי לאחרונה — מה שמשך את תשומת לבי בתקופה האחרונה", ru: "Заметные изменения в последнее время — что привлекло моё внимание" }
 ];
 
 // ──────────────────────────────────────────
 // BUILD RATING TABLES
 // ──────────────────────────────────────────
-function buildTable(tbodyId, items) {
+function buildTable(tbodyId, items, itemsRu) {
   const tbody = document.getElementById(tbodyId);
   items.forEach((item, i) => {
     const tr = document.createElement('tr');
     const prefix = tbodyId + '_' + i;
     tr.innerHTML = `
-      <td>${item}</td>
+      <td>${item}${itemsRu && itemsRu[i] ? `<div class="ru-sub" lang="ru" dir="ltr">${itemsRu[i]}</div>` : ''}</td>
       ${[1,2,3].map(v => `
         <td class="center" data-mobile-score="${v}">
           <div class="radio-group radio-${v}">
@@ -1027,16 +1097,16 @@ function buildTable(tbodyId, items) {
           </div>
         </td>
       `).join('')}
-      <td><input type="text" class="note-input" id="${prefix}_note" list="note-options" placeholder="הערה... / לא רלבנטי"></td>
+      <td><input type="text" class="note-input" id="${prefix}_note" list="note-options" placeholder="הערה... / לא רלבנטי (חובה)"></td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-buildTable('table_a', TABLES.a);
-buildTable('table_b', TABLES.b);
-buildTable('table_g', TABLES.g);
-buildTable('table_d', TABLES.d);
+buildTable('table_a', TABLES.a, TABLES_RU.a);
+buildTable('table_b', TABLES.b, TABLES_RU.b);
+buildTable('table_g', TABLES.g, TABLES_RU.g);
+buildTable('table_d', TABLES.d, TABLES_RU.d);
 
 // ──────────────────────────────────────────
 // BUILD BEHAVIORAL OBSERVATIONS TABLE
@@ -1053,7 +1123,7 @@ OBS_ITEMS.forEach((item, i) => {
   const tr = document.createElement('tr');
   const prefix = 'obs_' + i;
   tr.innerHTML = `
-    <td class="obs-row-item">${item}</td>
+    <td class="obs-row-item">${item}${OBS_ITEMS_RU[i] ? `<div class="ru-sub" lang="ru" dir="ltr">${OBS_ITEMS_RU[i]}</div>` : ''}</td>
     <td>
       <div class="obs-radios">
         <label class="obs-radio-label lo">
@@ -1071,7 +1141,11 @@ OBS_ITEMS.forEach((item, i) => {
       </div>
     </td>
     <td>
-      <textarea class="obs-note" id="${prefix}_note" rows="2" placeholder="תאר בקצרה..."></textarea>
+      <textarea class="obs-note" id="${prefix}_note" rows="2" placeholder="תאר בקצרה... ניתן גם ברוסית"></textarea>
+      <div class="obs-ta-actions">
+        <span class="ta-status" id="${prefix}_note_status"></span>
+        <button type="button" class="btn-translate" onclick="translateField('${prefix}_note', this)">🌐 תרגם לעברית</button>
+      </div>
     </td>
   `;
   obsTbody.appendChild(tr);
@@ -1085,9 +1159,12 @@ TEXT_SECTIONS.forEach(ts => {
   const div = document.createElement('div');
   div.className = 'section';
   div.innerHTML = `
-    <div class="section-title">
+    <div class="section-title req">
       <div class="section-badge">${ts.badge}</div>
-      <h3>${ts.label}</h3>
+      <div class="section-title-text">
+        <h3>${ts.label}</h3>
+        ${ts.ru ? `<div class="ru-sub ru-sub-title" lang="ru" dir="ltr">${ts.ru}</div>` : ''}
+      </div>
     </div>
     <div class="textarea-block">
       <div class="ta-wrapper">
@@ -1159,7 +1236,8 @@ async function translateField(fieldId, btn) {
     const translated = data[0].map(chunk => chunk[0]).join('');
     if (!translated) throw new Error('Empty translation');
     ta.value = translated;
-    autoResizeTextarea(ta);
+    ta.classList.remove('field-error');
+    autoResizeTextarea(ta, ta.classList.contains('obs-note') ? 44 : 90);
     status.textContent = '✅ תורגם בהצלחה';
     status.className = 'ta-status done';
   } catch (err) {
@@ -1192,6 +1270,56 @@ function formatWageField() {
   el.value = normalizeWage(el.value);
 }
 
+
+// ──────────────────────────────────────────
+// REQUIRED: all fields before section ח (meta, א–ד ratings + notes, ה/ו/ז)
+// ──────────────────────────────────────────
+function validateRequiredBeforeH() {
+  document.querySelectorAll('#evaluationForm .field-error').forEach(el => el.classList.remove('field-error'));
+  document.querySelectorAll('tr.row-missing').forEach(tr => tr.classList.remove('row-missing'));
+  const missing = [];
+  let firstEl = null;
+  const mark = (el, label) => { el.classList.add('field-error'); if (!firstEl) firstEl = el; if (label) missing.push(label); };
+
+  [['f_date','תאריך'],['f_name','שם המשתקם'],['f_id','מספר תעודת זהות'],['f_wage','ממוצע גב"ע חודשי']].forEach(([id,label]) => {
+    const el = document.getElementById(id);
+    if (el && !el.value.trim()) mark(el, label);
+  });
+
+  const secNames = { a: 'א. הרגלי עבודה', b: 'ב. תקשורת והתנהגות בינאישית', g: 'ג. תפקוד בעבודה', d: 'ד. מוטיבציה' };
+  Object.entries({ a: TABLES.a, b: TABLES.b, g: TABLES.g, d: TABLES.d }).forEach(([tbl, items]) => {
+    let noScore = 0, noNote = 0;
+    items.forEach((item, i) => {
+      const prefix = `table_${tbl}_${i}`;
+      const note = document.getElementById(prefix + '_note');
+      const tr = note ? note.closest('tr') : null;
+      if (!document.querySelector(`input[name="${prefix}"]:checked`)) {
+        noScore++;
+        if (tr) { tr.classList.add('row-missing'); if (!firstEl) firstEl = tr; }
+      }
+      if (note && !note.value.trim()) { noNote++; mark(note); }
+    });
+    if (noScore) missing.push(`${secNames[tbl]} — חסר דירוג ב-${noScore} שורות`);
+    if (noNote) missing.push(`${secNames[tbl]} — חסרה הערה ב-${noNote} שורות (אפשר "לא רלבנטי")`);
+  });
+
+  TEXT_SECTIONS.forEach(ts => {
+    const el = document.getElementById(ts.id);
+    if (el && !el.value.trim()) mark(el, ts.badge + '. ' + ts.label.split('(')[0].split('—')[0].trim());
+  });
+
+  if (!missing.length) return true;
+  if (firstEl) { firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (firstEl.focus) firstEl.focus({ preventScroll: true }); }
+  alert('יש למלא את כל השדות המסומנים ב-* לפני שמירה או שליחה.\n\nחסר:\n- ' + missing.join('\n- '));
+  return false;
+}
+
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.type === 'radio') {
+    const tr = e.target.closest('tr.row-missing');
+    if (tr) tr.classList.remove('row-missing');
+  }
+});
 
 function validateRequiredSignature() {
   const signature = document.getElementById('f_signature');
@@ -1230,7 +1358,7 @@ function getFieldHumanLabel(el) {
   const row = el.closest('tr');
   if (row) {
     const firstCell = row.querySelector('td:first-child');
-    if (firstCell && firstCell.textContent.trim()) return firstCell.textContent.trim();
+    if (firstCell && firstCell.firstChild && firstCell.firstChild.textContent.trim()) return firstCell.firstChild.textContent.trim();
   }
 
   return el.placeholder || el.id || 'שדה לא מזוהה';
@@ -1476,6 +1604,7 @@ function downloadBlob(blob, filename) {
 }
 
 async function sendEmail() {
+  if (!validateRequiredBeforeH()) return;
   if (!validateRequiredSignature()) return;
   if (!validateNoCyrillicText()) return;
   const d = collectFormData();
@@ -1716,6 +1845,7 @@ function saveAsHtml() {
     alert('יש למלא שם מקבל השירות ותאריך לפני השמירה.');
     return;
   }
+  if (!validateRequiredBeforeH()) return;
   if (!validateRequiredSignature()) return;
   if (!validateNoCyrillicText()) return;
 
@@ -1899,7 +2029,7 @@ function fillLogos() {
   // לוגו עמותה
   document.querySelectorAll('[data-logo="org"]').forEach(img => {
     img.src    = ORG_CONFIG.files.logoOrg;
-    img.style.height = ORG_CONFIG.logoSizes.orgHeight;
+    img.style.height = img.dataset.logoHeight || ORG_CONFIG.logoSizes.orgHeight;
     img.style.width  = 'auto';
     img.style.objectFit = 'contain';
   });
