@@ -654,7 +654,11 @@
     .draft-banner .db-actions { width: 100%; margin-inline-start: 0; }
     .draft-banner .db-actions button { flex: 1; min-height: 40px; }
   }
-  @media print { .draft-banner, .draft-saved-hint { display: none !important; } }
+  @media print {
+    .draft-banner, .draft-saved-hint { display: none !important; }
+    .section-title { break-after: avoid; page-break-after: avoid; }
+    .textarea-block { break-inside: avoid; page-break-inside: avoid; }
+  }
 </style>
 </head>
 <body>
@@ -1622,11 +1626,12 @@ function buildPrintDoc(d) {
   Object.entries(d.ratings).forEach(([tbl, rows]) => {
     const rowsHtml = rows.map((r, idx) => {
       const sc = r.score || '–';
+      const na = sc === '–' && isNotRelevantNote(r.note);      // "לא רלבנטי" instead of a score
       const bg = idx % 2 === 0 ? '#fff' : '#eef4fb';
       return `<tr style="background:${bg}">
         <td style="padding:5px 9px;border:1px solid #c5d5e8;font-size:11.8px;">${r.item}</td>
-        <td style="padding:5px 9px;border:1px solid #c5d5e8;text-align:center;font-weight:bold;color:${scoreColor[sc]};font-size:12.8px;">${scoreLabel[sc]}</td>
-        <td style="padding:5px 9px;border:1px solid #c5d5e8;font-size:11.8px;color:#555;">${r.note||''}</td>
+        <td style="padding:5px 9px;border:1px solid #c5d5e8;text-align:center;font-weight:bold;color:${na ? '#9aa4b2' : scoreColor[sc]};font-size:12.8px;">${na ? 'לא רלבנטי' : scoreLabel[sc]}</td>
+        <td style="padding:5px 9px;border:1px solid #c5d5e8;font-size:11.8px;color:#555;">${na ? '' : escapeHtml(r.note || '')}</td>
       </tr>`;
     }).join('');
     tables += `${tbl === 'd' ? '<div style="height:140px;"></div><div style="break-before:page;page-break-before:always;height:1px;"></div>' : ''}<h3 style="color:#1a3a5c;font-size:13px;margin:18px 0 7px;border-bottom:2px solid #2563a8;padding-bottom:3px;">${sectionNames[tbl]}</h3>
@@ -2007,7 +2012,7 @@ function collectImportantNotes(d) {
   const sectionNames = { a:'הרגלי עבודה', b:'תקשורת והתנהגות בינאישית', g:'תפקוד בעבודה', d:'מוטיבציה' };
   Object.entries(d.ratings || {}).forEach(([sec, rows]) => {
     rows.forEach(r => {
-      if (r.note && String(r.note).trim()) out.push(`${sectionNames[sec] || sec} — ${r.item}: ${r.note}`);
+      if (r.note && String(r.note).trim() && !isNotRelevantNote(r.note)) out.push(`${sectionNames[sec] || sec} — ${r.item}: ${r.note}`);
     });
   });
   return out;
@@ -2123,6 +2128,10 @@ function formHasContent(d) {
   if ((d.name || '').trim() || (d.id || '').trim()) return true;
   if (d.ratings && Object.values(d.ratings).some(rows => rows.some(r => r.score && r.score !== '–'))) return true;
   if (d.texts && Object.values(d.texts).some(t => (t.value || '').trim())) return true;
+  if ((d.wage || '').trim()) return true;
+  if (d.ratings && Object.values(d.ratings).some(rows => rows.some(r => String(r.note || '').trim()))) return true;
+  if (d.suitability && d.suitability !== '–') return true;
+  if ((d.observations || []).some(o => (o.value && o.value !== '–') || String(o.note || '').trim())) return true;
   return false;
 }
 
@@ -2148,8 +2157,15 @@ function scheduleDraftSave() {
   draftTimer = setTimeout(saveDraftNow, 800);
 }
 
+const DRAFT_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;   // a draft older than a week is dropped
+
 function readDraft() {
-  try { const raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    const o = raw ? JSON.parse(raw) : null;
+    if (o && o.savedAt && Date.now() - o.savedAt > DRAFT_MAX_AGE_MS) { localStorage.removeItem(DRAFT_KEY); return null; }
+    return o;
+  } catch (e) { return null; }
 }
 
 function clearDraft() {
