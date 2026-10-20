@@ -62,6 +62,16 @@
   .btn-email:hover { background: #b07d2c; }
   .btn-clear { background: transparent; color: #9bb8d4; border: 1px solid #4a6a88; font-size: 12px; padding: 6px 12px; }
   .btn-clear:hover { background: rgba(255,255,255,0.08); }
+  .btn-pdf { background: #b8323a; color: white; }
+  .btn-pdf:hover { background: #962830; }
+  .btn-pdf:disabled { background: #c98a8e; cursor: not-allowed; }
+  .draft-banner { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: #fff8e6; border: 1.5px solid #e8c56a; border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-size: 13px; color: #6b4e00; }
+  .draft-banner strong { color: #4a3600; }
+  .draft-banner .db-actions { display: flex; gap: 8px; margin-inline-start: auto; }
+  .draft-banner button { font-family: inherit; font-size: 13px; font-weight: 700; border: none; border-radius: 6px; padding: 7px 14px; cursor: pointer; }
+  .draft-banner .db-restore { background: var(--blue-mid); color: #fff; }
+  .draft-banner .db-discard { background: #eef2f7; color: #555; }
+  .draft-saved-hint { font-size: 11px; color: var(--muted); text-align: center; margin-top: 4px; min-height: 14px; }
   .btn-save-html { background: var(--green); color: white; }
   .btn-save-html:hover { background: #235f3e; }
   .btn-save-html:disabled { background: #5a9d78; cursor: not-allowed; }
@@ -638,6 +648,13 @@
     .rating-table td:first-child { margin-bottom: 0; line-height: 1.2; }
     .rating-table td:first-child .ru-sub { margin-top: 0; line-height: 1.1; }
   }
+  @media (max-width: 720px) {
+    /* 4 buttons → 2×2 grid */
+    .top-bar-actions .btn-clear { grid-column: auto; }
+    .draft-banner .db-actions { width: 100%; margin-inline-start: 0; }
+    .draft-banner .db-actions button { flex: 1; min-height: 40px; }
+  }
+  @media print { .draft-banner, .draft-saved-hint { display: none !important; } }
 </style>
 </head>
 <body>
@@ -659,6 +676,7 @@
   <div class="top-bar-actions">
     <button class="btn btn-clear" onclick="clearForm()">✕ נקה</button>
     <button type="button" class="btn btn-save-html" id="btnSaveHtml" onclick="saveAsHtml()">💾 שמירה כ-HTML</button>
+    <button type="button" class="btn btn-pdf" id="btnSavePdf" onclick="saveAsPdf()">📄 שמור PDF</button>
     <button type="button" class="btn btn-email" onclick="sendEmail()">✉ שלח במייל</button>
   </div>
 </div>
@@ -679,6 +697,8 @@
   </div>
 
   <form id="evaluationForm"><div class="form-body">
+    <div id="draft_banner_slot"></div>
+    <div id="draft_saved_hint" class="draft-saved-hint"></div>
     <datalist id="note-options"><option value="לא רלבנטי"></option></datalist>
     <datalist id="client-name-options"></datalist>
 
@@ -686,7 +706,8 @@
     <div class="meta-grid">
       <div class="excel-loader">
         <span style="font-size:20px;line-height:1">📋</span>
-        <span id="excel_status" class="excel-status">בודק בסיס נתונים משותף... אפשר למלא ידנית גם אם לא נטען Excel.</span>
+        <span id="excel_status" class="excel-status" onclick="document.getElementById('excel_file_input').click()" style="cursor:pointer" title="לחיצה — טעינת קובץ Excel ידנית">בודק בסיס נתונים משותף... אפשר למלא ידנית גם אם לא נטען Excel.</span>
+        <input type="file" id="excel_file_input" accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" style="display:none" onchange="onExcelFilePicked(this)">
       </div>
       <div class="field-group">
         <label class="req">תאריך</label>
@@ -874,7 +895,9 @@ function normalizeSharedClient(c) {
 
 function loadClientsFromSharedStorage() {
   try {
-    const raw = localStorage.getItem('rehab_excel_clients_v1');
+    // In a sandboxed viewer (e.g. a phone file preview) localStorage may be blocked — that is not a data error
+    let raw = null;
+    try { raw = localStorage.getItem('rehab_excel_clients_v1'); } catch (e) { raw = null; }
     if (!raw) {
       CLIENTS = [];
       updateClientNameOptions('');
@@ -919,6 +942,133 @@ function getClientMatches(query, limit = 80) {
     // Searches any part of full name: first name, surname, or middle words.
     return parts.every(part => n.includes(part));
   }).slice(0, limit);
+}
+
+// ──────────────────────────────────────────
+// ATTACH EXCEL MANUALLY (works on phone too) — SheetJS + JSZip in parallel,
+// the result with more recognized names wins (SheetJS alone is unreliable with Hebrew on Android).
+// ──────────────────────────────────────────
+function loadScriptOnce(src, globalName) {
+  return new Promise((res, rej) => {
+    if (window[globalName]) return res();
+    const s = document.createElement('script');
+    s.src = src; s.onload = () => res(); s.onerror = () => rej(new Error('לא ניתן לטעון ' + globalName + ' (אין אינטרנט?)'));
+    document.head.appendChild(s);
+  });
+}
+
+function xlColToIndex(ref) {
+  const letters = String(ref || '').replace(/[^A-Z]/gi, '').toUpperCase();
+  let n = 0;
+  for (let i = 0; i < letters.length; i++) n = n * 26 + (letters.charCodeAt(i) - 64);
+  return n - 1;
+}
+
+async function parseRowsSheetJS(buf) {
+  await loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', 'XLSX');
+  const wb = XLSX.read(buf, { type: 'array', cellDates: false, raw: true });
+  return wb.SheetNames.map(n => XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, defval: '', blankrows: false, raw: true }));
+}
+
+async function parseRowsJSZip(buf) {
+  await loadScriptOnce('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js', 'JSZip');
+  const zip = await JSZip.loadAsync(buf);
+  const dp = new DOMParser();
+  const xml = async path => { const f = zip.file(path); return f ? dp.parseFromString(await f.async('string'), 'application/xml') : null; };
+  const shared = [];
+  const ss = await xml('xl/sharedStrings.xml');
+  if (ss) Array.from(ss.getElementsByTagName('si')).forEach(si => {
+    shared.push(Array.from(si.getElementsByTagName('t')).map(t => t.textContent).join(''));
+  });
+  const sheetFiles = Object.keys(zip.files).filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n))
+    .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+  const sheets = [];
+  for (const path of sheetFiles) {
+    const doc = await xml(path);
+    const rows = [];
+    Array.from(doc.getElementsByTagName('row')).forEach(rowEl => {
+      const row = [];
+      Array.from(rowEl.getElementsByTagName('c')).forEach(c => {
+        const idx = xlColToIndex(c.getAttribute('r'));
+        const t = c.getAttribute('t');
+        const vEl = c.getElementsByTagName('v')[0];
+        let v = vEl ? vEl.textContent : '';
+        if (t === 's') v = shared[parseInt(v, 10)] || '';
+        else if (t === 'inlineStr') v = Array.from(c.getElementsByTagName('t')).map(x => x.textContent).join('');
+        if (idx >= 0) row[idx] = v;
+      });
+      for (let i = 0; i < row.length; i++) if (row[i] === undefined) row[i] = '';
+      if (row.some(x => String(x).trim())) rows.push(row);
+    });
+    sheets.push(rows);
+  }
+  return sheets;
+}
+
+// Find header row with a name column and an ID column; return [{name,id}]
+function extractClientsFromRows(rows) {
+  const norm = v => String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
+  const isId = h => /ת\.?\s*ז|תעודת\s*זהות|מספר\s*זהות|^ת"ז$/.test(h);
+  for (let r = 0; r < Math.min(rows.length, 20); r++) {
+    const hdr = (rows[r] || []).map(norm);
+    const idCol = hdr.findIndex(isId);
+    let nameCol = hdr.findIndex(h => /שם/.test(h) && !/פרטי|משפחה|מדריך|אב|אם|בנק|סניף|קופ|רופא|עו"ס|אפוטרופוס|מסגרת/.test(h));
+    const firstCol = hdr.findIndex(h => /שם\s*פרטי/.test(h));
+    const lastCol = hdr.findIndex(h => /שם\s*משפחה/.test(h));
+    if (nameCol < 0 && !(firstCol >= 0 && lastCol >= 0)) continue;
+    const out = [];
+    const seen = new Set();
+    for (let i = r + 1; i < rows.length; i++) {
+      const row = rows[i] || [];
+      let name = nameCol >= 0 ? norm(row[nameCol]) : (norm(row[lastCol]) + ' ' + norm(row[firstCol])).trim();
+      if (!name || /^\d+$/.test(name)) continue;
+      const id = idCol >= 0 ? normalizeId(row[idCol]) : '';
+      const key = name + '|' + id;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push({ name, id });
+    }
+    if (out.length) return out;
+  }
+  return [];
+}
+
+function bestClientsFromSheets(sheets) {
+  let best = [];
+  (sheets || []).forEach(rows => {
+    const list = extractClientsFromRows(rows);
+    const score = list.length + list.filter(c => c.id).length;   // names + IDs recognized
+    const bestScore = best.length + best.filter(c => c.id).length;
+    if (score > bestScore) best = list;
+  });
+  return best;
+}
+
+async function onExcelFilePicked(input) {
+  const file = input.files && input.files[0];
+  input.value = '';
+  if (!file) return;
+  setExcelStatus('קורא את הקובץ ' + file.name + '...', '');
+  try {
+    const buf = await file.arrayBuffer();
+    const [a, b] = await Promise.allSettled([parseRowsSheetJS(buf), parseRowsJSZip(buf)]);
+    const fromSheetJS = a.status === 'fulfilled' ? bestClientsFromSheets(a.value) : [];
+    const fromZip     = b.status === 'fulfilled' ? bestClientsFromSheets(b.value) : [];
+    const sc = l => l.length + l.filter(c => c.id).length;
+    const list = sc(fromZip) > sc(fromSheetJS) ? fromZip : fromSheetJS;
+    if (!list.length) {
+      const why = (a.status === 'rejected' && b.status === 'rejected') ? (a.reason && a.reason.message) : 'לא נמצאו עמודות "שם" ו"ת.ז" בקובץ';
+      setExcelStatus('לא נטענו שמות: ' + why + '. אפשר למלא ידנית.', 'error');
+      return;
+    }
+    CLIENTS = list;
+    LAST_EXCEL_FILE_NAME = file.name;
+    updateClientNameOptions('');
+    setExcelStatus(`נטען ${file.name} — ${CLIENTS.length} מקבלי שירות זמינים. התחל להקליד שם או ת.ז.`, 'ok');
+  } catch (err) {
+    console.error(err);
+    setExcelStatus('שגיאה בקריאת הקובץ: ' + err.message + '. אפשר למלא ידנית.', 'error');
+  }
 }
 
 function updateClientNameOptions(query) {
@@ -1274,6 +1424,10 @@ function formatWageField() {
 // ──────────────────────────────────────────
 // REQUIRED: all fields before section ח (meta, א–ד ratings, ה/ו/ז). Notes (הערות) are optional.
 // ──────────────────────────────────────────
+function isNotRelevantNote(v) {
+  return /לא\s*רל(?:ב|ו{1,2})נטי/.test(String(v || ''));   // לא רלבנטי / לא רלוונטי / לא רלוונטית
+}
+
 function validateRequiredBeforeH() {
   document.querySelectorAll('#evaluationForm .field-error').forEach(el => el.classList.remove('field-error'));
   document.querySelectorAll('tr.row-missing').forEach(tr => tr.classList.remove('row-missing'));
@@ -1293,7 +1447,8 @@ function validateRequiredBeforeH() {
       const prefix = `table_${tbl}_${i}`;
       const note = document.getElementById(prefix + '_note');
       const tr = note ? note.closest('tr') : null;
-      if (!document.querySelector(`input[name="${prefix}"]:checked`)) {
+      // "לא רלבנטי" in the note counts as answered — no score needed for this row
+      if (!document.querySelector(`input[name="${prefix}"]:checked`) && !isNotRelevantNote(note && note.value)) {
         noScore++;
         if (tr) { tr.classList.add('row-missing'); if (!firstEl) firstEl = tr; }
       }
@@ -1311,6 +1466,13 @@ function validateRequiredBeforeH() {
   alert('יש למלא את כל השדות המסומנים ב-* לפני שמירה או שליחה.\n\nחסר:\n- ' + missing.join('\n- '));
   return false;
 }
+
+document.addEventListener('input', function(e) {
+  if (e.target && e.target.classList && e.target.classList.contains('note-input') && isNotRelevantNote(e.target.value)) {
+    const tr = e.target.closest('tr.row-missing');
+    if (tr) tr.classList.remove('row-missing');
+  }
+});
 
 document.addEventListener('change', function(e) {
   if (e.target && e.target.type === 'radio') {
@@ -1540,6 +1702,37 @@ function showStepPanel(filename, subject, body) {
   document.body.appendChild(panel);
 }
 
+function showShareRetryPanel(shareFiles, subject, body, htmlFiles, err) {
+  const old = document.getElementById('_step_panel');
+  if (old) old.remove();
+  window._retryShare = { shareFiles, subject, body, htmlFiles };
+  const panel = document.createElement('div');
+  panel.id = '_step_panel';
+  panel.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9999;display:flex;align-items:center;justify-content:center;';
+  panel.innerHTML = `
+    <div style="width:min(92vw,440px);background:white;border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.28);padding:22px 24px;font-family:Heebo,Arial,sans-serif;direction:rtl;color:#1e2535;text-align:center;">
+      <div style="font-size:18px;font-weight:800;color:#1a3a5c;margin-bottom:10px;">הקבצים מוכנים לשליחה</div>
+      <button type="button" onclick="retryShareNow()" style="width:100%;background:#c9933a;color:white;border:none;padding:13px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">✉ בחר איך לשלוח</button>
+      <button type="button" onclick="document.getElementById('_step_panel').remove()" style="width:100%;background:#eef2f7;color:#555;border:none;padding:10px;border-radius:8px;font-size:14px;cursor:pointer;font-family:inherit;">ביטול</button>
+      <div style="font-size:10px;color:#9aa;margin-top:8px;">${(err && err.name) || ''}</div>
+    </div>`;
+  document.body.appendChild(panel);
+}
+
+async function retryShareNow() {
+  const c = window._retryShare; if (!c) return;
+  document.getElementById('_step_panel')?.remove();
+  try {
+    await navigator.share({ files: c.shareFiles, title: c.subject, text: c.body });
+    clearDraft();
+  } catch (err) {
+    if (err && err.name === 'AbortError') return;
+    // still refused → classic way: download files + open mail
+    downloadHtmlFiles(c.htmlFiles);
+    setTimeout(() => showStepPanel(c.htmlFiles.map(f => f.name).join(' + '), c.subject, c.body), 700);
+  }
+}
+
 function openMailAndClose(encSubject, encBody) {
   document.getElementById('_step_panel').remove();
   window.location.href = `mailto:${EMAIL_TO}?cc=${EMAIL_CC}&subject=${decodeURIComponent(encSubject)}&body=${decodeURIComponent(encBody)}`;
@@ -1555,13 +1748,52 @@ async function ensurePdfLibraries() {
 }
 
 async function createPdfBlob(d) {
+  return htmlToPdfBlob(buildPrintDoc(d));
+}
+
+async function htmlToPdfBlob(html) {
   await ensurePdfLibraries();
-  const html = buildPrintDoc(d);
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:2000px;border:none;visibility:hidden;';
   document.body.appendChild(iframe);
   await new Promise(resolve => { iframe.onload = resolve; iframe.srcdoc = html; });
   await new Promise(r => setTimeout(r, 900));
+
+  // html2canvas ignores CSS page rules → lay out pages ourselves before the snapshot:
+  // (1) section ד starts a new page only if it would otherwise begin on page 1;
+  // (2) no table row / title / text block is cut across a page edge; titles never sit alone at a page bottom.
+  (function paginate() {
+    const doc = iframe.contentDocument, body = doc.body;
+    const H = 794 * 297 / 210;                                    // A4 height at 794px width
+    const topOf = el => el.getBoundingClientRect().top - body.getBoundingClientRect().top;
+    const spacerBefore = (el, px) => {
+      if (px <= 0) return;
+      if (el.tagName === 'TR') {
+        const tr = doc.createElement('tr');
+        tr.innerHTML = '<td colspan="20" style="height:' + Math.ceil(px) + 'px;padding:0;border:none;background:#fff"></td>';
+        el.parentNode.insertBefore(tr, el);
+      } else {
+        const d = doc.createElement('div');
+        d.style.height = Math.ceil(px) + 'px';
+        el.parentNode.insertBefore(d, el);
+      }
+    };
+    doc.querySelectorAll('[style*="break-before:page"]').forEach(el => {
+      const prev = el.previousElementSibling;                     // fixed 140px spacer from the print layout
+      if (prev && /height:\s*140px/.test(prev.getAttribute('style') || '')) prev.style.height = '0';
+      const top = topOf(el);
+      if (top > 1 && top < H) spacerBefore(el, H - top);
+    });
+    const els = Array.from(body.querySelectorAll('h2, h3, tr, div'))
+      .filter(e => e.tagName !== 'DIV' || !e.querySelector('div, table, tr'));
+    els.forEach(el => {
+      const top = topOf(el), h = el.getBoundingClientRect().height;
+      if (!h || h > H * 0.5) return;
+      const edge = (Math.floor(top / H) + 1) * H;
+      const isTitle = /^H[23]$/.test(el.tagName);
+      if (top + h > edge - 2 || (isTitle && edge - (top + h) < 60)) spacerBefore(el, edge - top + 6);
+    });
+  })();
 
   const canvas = await html2canvas(iframe.contentDocument.body, {
     scale: 3, useCORS: true, allowTaint: true,
@@ -1629,7 +1861,16 @@ async function sendEmail() {
 בברכה`;
 
     if (navigator.canShare && navigator.canShare({ files: shareFiles }) && navigator.share) {
-      await navigator.share({ files: shareFiles, title: subject, text: body });
+      try {
+        await navigator.share({ files: shareFiles, title: subject, text: body });
+        clearDraft();
+      } catch (shareErr) {
+        if (shareErr && shareErr.name === 'AbortError') return;      // user closed the share window — nothing to do
+        // The browser refused to open the share window (e.g. right after PDF downloads / a pending
+        // "download multiple files" prompt). A fresh tap is a new user gesture — offer it.
+        console.warn('share failed:', shareErr);
+        showShareRetryPanel(shareFiles, subject, body, htmlFiles, shareErr);
+      }
       return;
     }
 
@@ -1655,6 +1896,7 @@ function clearForm() {
   document.querySelectorAll('input[type="radio"]').forEach(el => el.checked = false);
   document.querySelectorAll('.ta-status').forEach(el => { el.textContent = ''; el.className = 'ta-status'; });
   formIsDirty = false;
+  clearDraft();
 }
 
 // ──────────────────────────────────────────
@@ -1747,6 +1989,10 @@ function buildSavedFormHtml(savedData) {
     '  if (typeof initAutoResizeTextareas === "function") setTimeout(initAutoResizeTextareas, 0);' +
     '});';
   cloneDoc.body.appendChild(restoreScript);
+  // mark as saved copy → no draft banner / autosave inside the saved file
+  const mk = cloneDoc.createElement('meta'); mk.name = 'saved-copy'; mk.content = '1';
+  cloneDoc.head.appendChild(mk);
+  const slot = cloneDoc.getElementById('draft_banner_slot'); if (slot) slot.innerHTML = '';
   return '<!DOCTYPE html>\n' + cloneDoc.documentElement.outerHTML;
 }
 
@@ -1850,6 +2096,7 @@ function saveAsHtml() {
   const savedData = collectFormData();
   const files = createHtmlFiles(savedData);
   downloadHtmlFiles(files);
+  clearDraft();   // the saved file is now the record
 
   setTimeout(function() {
     formIsDirty = false;
@@ -1861,6 +2108,127 @@ function saveAsHtml() {
       setTimeout(function() { btn.innerHTML = orig; btn.style.removeProperty('background'); }, 2200);
     }
   }, 0);
+}
+
+// ──────────────────────────────────────────
+// DRAFT AUTOSAVE (localStorage, this browser only)
+// ──────────────────────────────────────────
+const DRAFT_KEY = 'hearacha_draft_v1';
+const IS_SAVED_COPY = !!document.querySelector('meta[name="saved-copy"]');
+let draftTimer = null;
+let draftClearedSnapshot = null;   // form state at the moment it was saved/sent — don't re-create a draft from it
+
+function formHasContent(d) {
+  if (!d) return false;
+  if ((d.name || '').trim() || (d.id || '').trim()) return true;
+  if (d.ratings && Object.values(d.ratings).some(rows => rows.some(r => r.score && r.score !== '–'))) return true;
+  if (d.texts && Object.values(d.texts).some(t => (t.value || '').trim())) return true;
+  return false;
+}
+
+function saveDraftNow() {
+  if (IS_SAVED_COPY) return;
+  try {
+    const d = collectFormData();
+    if (!formHasContent(d)) return;
+    if (draftClearedSnapshot && JSON.stringify(d) === draftClearedSnapshot) return;
+    draftClearedSnapshot = null;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), data: d }));
+    const hint = document.getElementById('draft_saved_hint');
+    if (hint) {
+      const t = new Date();
+      hint.textContent = '📝 טיוטה נשמרה ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+    }
+  } catch (e) { /* storage blocked — ignore */ }
+}
+
+function scheduleDraftSave() {
+  if (IS_SAVED_COPY) return;
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(saveDraftNow, 800);
+}
+
+function readDraft() {
+  try { const raw = localStorage.getItem(DRAFT_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; }
+}
+
+function clearDraft() {
+  clearTimeout(draftTimer);
+  try { draftClearedSnapshot = JSON.stringify(collectFormData()); } catch (e) {}
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  const slot = document.getElementById('draft_banner_slot'); if (slot) slot.innerHTML = '';
+  const hint = document.getElementById('draft_saved_hint'); if (hint) hint.textContent = '';
+}
+
+function showDraftBanner() {
+  if (IS_SAVED_COPY) return;
+  const dr = readDraft();
+  if (!dr || !dr.data || !formHasContent(dr.data)) return;
+  if (formHasContent(collectFormData())) return;     // form already filled → don't offer
+  const t = new Date(dr.savedAt || Date.now());
+  const when = t.toLocaleDateString('he-IL') + ' ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+  const who = (dr.data.name || '').trim() || 'ללא שם';
+  const slot = document.getElementById('draft_banner_slot');
+  if (!slot) return;
+  slot.innerHTML = `<div class="draft-banner">
+      <span style="font-size:18px">📝</span>
+      <span>נמצאה טיוטה שלא נשמרה: <strong>${who.replace(/[<>&]/g,'')}</strong> · ${when}</span>
+      <div class="db-actions">
+        <button type="button" class="db-restore" onclick="restoreDraft()">שחזר טיוטה</button>
+        <button type="button" class="db-discard" onclick="if(confirm('למחוק את הטיוטה?')) clearDraft()">מחק</button>
+      </div>
+    </div>`;
+}
+
+function restoreDraft() {
+  const dr = readDraft();
+  if (!dr || !dr.data) return;
+  applyFormData(dr.data);
+  if (typeof initAutoResizeTextareas === 'function') initAutoResizeTextareas();
+  const slot = document.getElementById('draft_banner_slot'); if (slot) slot.innerHTML = '';
+  formIsDirty = true;
+}
+
+if (!IS_SAVED_COPY) {
+  document.addEventListener('input', scheduleDraftSave);
+  document.addEventListener('change', scheduleDraftSave);
+  // Values set by code (choosing a name from the suggestion list fills name + ת.ז, "תרגם לעברית" replaces text)
+  // fire no input event → also save after every click/tap, when leaving the page, and every few seconds.
+  document.addEventListener('click', scheduleDraftSave, true);
+  document.addEventListener('visibilitychange', function() { if (document.visibilityState === 'hidden') saveDraftNow(); });
+  window.addEventListener('pagehide', saveDraftNow);
+  setInterval(saveDraftNow, 5000);
+}
+
+// ──────────────────────────────────────────
+// SAVE AS PDF (A4, Ministry layout from buildPrintDoc)
+// ──────────────────────────────────────────
+async function saveAsPdf() {
+  if (!validateRequiredBeforeH()) return;
+  if (!validateRequiredSignature()) return;
+  if (!validateNoCyrillicText()) return;
+  const d = collectFormData();
+  const btn = document.getElementById('btnSavePdf');
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ מכין PDF...'; }
+  try {
+    const safe = safeFilePart(d.name || 'הערכה');
+    const date = d.date || new Date().toISOString().slice(0,10);
+    const formBlob   = await createPdfBlob(d);
+    const reportBlob = await htmlToPdfBlob(buildLibiReportHtml(d));
+    downloadBlob(formBlob, `טופס_הערכה_${safe}_${date}.pdf`);
+    await new Promise(r => setTimeout(r, 400));          // browsers block two downloads fired at the same instant
+    downloadBlob(reportBlob, `דוח_הערכה_לליבי_${safe}_${date}.pdf`);
+    formIsDirty = false;
+    clearDraft();
+    if (btn) { btn.innerHTML = '✓ נשמרו 2 קבצי PDF'; setTimeout(() => { btn.innerHTML = orig; }, 2200); }
+  } catch (err) {
+    console.error(err);
+    alert('לא ניתן ליצור PDF (נדרש חיבור לאינטרנט בפעם הראשונה): ' + (err && err.message ? err.message : err));
+    if (btn) btn.innerHTML = orig;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ──────────────────────────────────────────
@@ -1877,6 +2245,7 @@ window.addEventListener('beforeunload', function(e) {
 window.addEventListener('load', function() {
   loadClientsFromSharedStorage();
   initAutoResizeTextareas();
+  setTimeout(showDraftBanner, 50);
 });
 </script>
 
@@ -2025,6 +2394,10 @@ function buildAllStaffSelect(selectEl, includeEmpty = true, extraOptions = []) {
 // החלפת לוגואים בכל הטפסים
 function fillLogos() {
   // לוגו עמותה
+  // Broken / unreachable logo → hide it instead of showing a broken-image icon with alt text
+  document.querySelectorAll('[data-logo]').forEach(img => {
+    img.onerror = function() { this.style.display = 'none'; };
+  });
   document.querySelectorAll('[data-logo="org"]').forEach(img => {
     img.src    = ORG_CONFIG.files.logoOrg;
     img.style.height = img.dataset.logoHeight || ORG_CONFIG.logoSizes.orgHeight;
