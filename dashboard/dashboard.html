@@ -129,6 +129,8 @@
     .btn.primary { color: #fff; background: var(--brand); border-color: var(--brand); }
     .btn.primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); }
     .btn.ghost { background: transparent; }
+    .btn.danger { color: var(--expired); border-color: #e0b4b4; }
+    .btn.danger:hover { background: var(--expired-soft); border-color: var(--expired); }
     .btn[disabled] { opacity: .55; cursor: wait; }
     .nav-link.intake-link {
       width: auto;
@@ -419,6 +421,7 @@
       <div class="source-actions">
         <button class="btn primary" type="button" id="chooseFileBtn">בחירת Excel</button>
         <button class="btn" type="button" id="refreshBtn" disabled>↻ רענון נתונים</button>
+        <button class="btn danger" type="button" id="clearMemoryBtn" title="מחיקת כל מה שהמסך זוכר: הנתונים השמורים, הקובץ האחרון, סינון ומיקום גלילה">🗑 ניקוי זיכרון</button>
         <span class="load-status" id="loadStatus" aria-live="polite"></span>
         <div class="source-summary" aria-label="סיכום נתונים">
           <span class="mini-stat"><span>פעילים</span><strong id="kpiActive">0</strong></span>
@@ -599,17 +602,28 @@
           return false;
         }
       }
-      function clearLoadedData() {
+      async function clearLoadedData() {
         try { localStorage.removeItem(CACHE_KEY); } catch (error) { console.warn("Could not clear cache", error); }
         try { sessionStorage.removeItem(SCROLL_KEY); } catch (error) { /* ignore */ }
+        // also forget the remembered Excel file — otherwise restoreHandle() reloads it on the next visit
+        await forgetHandle();
         state.rows = [];
         state.file = null;
         state.fileHandle = null;
+        state.viewStatus = "active";
+        state.quickFilter = "all";
+        el.search.value = "";
+        el.guide.innerHTML = '<option value="all">כל המדריכים</option>';
+        el.status.value = "active";
+        document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === "all")));
+        el.tbody.innerHTML = "";
         el.content.hidden = true;
         el.refresh.disabled = true;
+        hideNotice();
+        hideLoadStatus();
         el.sourceStatus.textContent = "לא נבחר קובץ. יש לבחור את קובץ ה-Excel העדכני.";
         updateKpis();
-        toast("🗑️ הנתונים נוקו — יש לבחור קובץ Excel מחדש");
+        toast("🗑️ הזיכרון נוקה — יש לבחור קובץ Excel מחדש");
       }
       function saveScroll() {
         if (!el.tableScroll) return;
@@ -1153,6 +1167,19 @@
           db.close();
         } catch (error) { console.warn("Could not save file handle", error); }
       }
+      async function forgetHandle() {
+        if (!window.indexedDB) return;
+        try {
+          const db = await dbRequest();
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction("handles", "readwrite");
+            tx.objectStore("handles").delete("excel");
+            tx.oncomplete = resolve;
+            tx.onerror = () => reject(tx.error);
+          });
+          db.close();
+        } catch (error) { console.warn("Could not forget file handle", error); }
+      }
       async function restoreHandle() {
         if (!window.showOpenFilePicker || !window.indexedDB) return;
         try {
@@ -1207,10 +1234,12 @@
         document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === "all")));
         render();
       });
-      el.clearData.addEventListener("click", () => {
-        if (!confirm("לנקות את הנתונים שנטענו כרגע? יהיה צורך לבחור מחדש את קובץ ה-Excel.")) return;
+      const askAndClear = () => {
+        if (!confirm("לנקות את זיכרון המסך?\n\nיימחקו: הנתונים השמורים, הקובץ האחרון שנבחר, הסינון ומיקום הגלילה.\nקובץ ה-Excel עצמו לא ישתנה.\nיהיה צורך לבחור מחדש את קובץ ה-Excel.")) return;
         clearLoadedData();
-      });
+      };
+      el.clearData.addEventListener("click", askAndClear);
+      $("clearMemoryBtn").addEventListener("click", askAndClear);
       document.querySelectorAll(".chip").forEach((chip) => chip.addEventListener("click", () => {
         state.quickFilter = chip.dataset.filter;
         document.querySelectorAll(".chip").forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
