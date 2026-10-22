@@ -420,14 +420,14 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
   --female:#d4506e; --male:#2563a8; --green:#1f9d68; --amber:#b7791f; --danger:#c23636;
 }
 #dash .dashboard-header{background:linear-gradient(180deg,#fff 0%,#f8fbff 100%);border:1px solid var(--line);padding:4px 16px;display:grid;grid-template-columns:225px minmax(0,1fr) 205px;align-items:center;gap:16px;max-width:1268px;margin:0 auto;border-radius:20px;overflow:hidden;box-shadow:0 8px 28px rgba(15,30,58,.05)}
-#dash .dashboard-header__logo{min-height:122px;display:flex;align-items:center;justify-content:center}
+#dash .dashboard-header__logo{min-height:90px;display:flex;align-items:center;justify-content:center}
 #dash .dashboard-header__logo img{display:block;width:auto;max-width:100%;object-fit:contain;filter:drop-shadow(0 8px 16px rgba(15,30,58,.12))}
-#dash .dashboard-header__logo--yachdav img{height:122px}
-#dash .dashboard-header__logo--health img{height:96px}
-#dash .dashboard-header__title{position:relative;text-align:center;padding:18px 22px;border-radius:22px;background:rgba(255,255,255,.72);border:1px solid rgba(211,222,238,.9);box-shadow:0 12px 30px rgba(15,30,58,.07),inset 0 1px 0 #fff}
+#dash .dashboard-header__logo--yachdav img{height:110px;margin:-16px 0 -4px}
+#dash .dashboard-header__logo--health img{height:72px}
+#dash .dashboard-header__title{position:relative;text-align:center;padding:12px 22px;border-radius:22px;background:rgba(255,255,255,.72);border:1px solid rgba(211,222,238,.9);box-shadow:0 12px 30px rgba(15,30,58,.07),inset 0 1px 0 #fff}
 #dash .dashboard-header__title::after{content:"";position:absolute;right:50%;bottom:-1px;transform:translateX(50%);width:76px;height:3px;border-radius:999px;background:linear-gradient(90deg,var(--gold),var(--blue))}
-#dash .dashboard-header h1{margin:0;color:var(--navy);font-size:24px;font-weight:700;line-height:1.25}
-#dash .dashboard-header__subtitle{margin-top:6px;color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em}
+#dash .dashboard-header h1{margin:0;color:var(--navy);font-size:22px;font-weight:700;line-height:1.25}
+#dash .dashboard-header__subtitle{margin-top:4px;color:var(--muted);font-size:12px;font-weight:500;letter-spacing:.02em}
 
 #dash .note{text-align:center;font-size:11px;color:var(--muted);padding:6px 24px 0}
 #dash .grid{display:grid;grid-template-columns:225px minmax(0,1fr) 205px;gap:16px;max-width:1300px;margin:10px auto 20px;padding:0 16px}
@@ -441,7 +441,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 
 #dash .item-btn{border:1px solid var(--line);background:#fafbfe;box-shadow:-2px -2px 6px rgba(255,255,255,.7),3px 3px 10px rgba(15,30,58,.06);color:var(--text);border-radius:14px;padding:10px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:.15s ease;margin-bottom:6px;text-decoration:none}
 #dash .item-btn:hover{border-color:#b8c8ee;background:#f4f7ff}
-#dash .item-btn.active{background:var(--blue);color:#fff;border-color:var(--blue);box-shadow:0 6px 14px rgba(37,99,168,.2)}
+#dash .item-btn.active{background:#eef3ff;color:var(--navy);border-color:#b8c8ee;box-shadow:-2px -2px 6px rgba(255,255,255,.7),3px 3px 10px rgba(37,99,168,.10);font-weight:600}
 #dash .item-btn .ic{width:16px;text-align:center;font-size:12px;flex-shrink:0}
 #dash .item-btn .chev{margin-inline-start:auto;font-size:10px;transition:transform .15s}
 #dash .item-btn.group.open .chev{transform:rotate(180deg)}
@@ -465,9 +465,9 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .main-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
 #dash .main-head h2{font-size:22px;color:var(--navy);margin:0;font-weight:700}
 #dash .main-head .who{font-size:12px;color:var(--muted)}
-#dash .badge-total{background:var(--blue);color:#fff;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
-#dash .badge-clear-btn{background:rgba(255,255,255,.22);border:none;color:#fff;width:20px;height:20px;border-radius:50%;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
-#dash .badge-clear-btn:hover{background:rgba(255,255,255,.4)}
+#dash .badge-total{background:#eef3ff;color:var(--navy);border:1px solid #b8c8ee;box-shadow:-2px -2px 6px rgba(255,255,255,.7),3px 3px 10px rgba(15,30,58,.06);border-radius:20px;padding:8px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
+#dash .badge-clear-btn{background:rgba(37,99,168,.12);border:none;color:var(--navy);width:20px;height:20px;border-radius:50%;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+#dash .badge-clear-btn:hover{background:rgba(37,99,168,.22)}
 
 #dash .kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px}
 #dash .kpi{border-radius:18px;padding:14px 8px;cursor:pointer;transition:.15s ease;border:1px solid transparent;position:relative;box-shadow:0 6px 18px rgba(15,30,58,.08);text-align:center}
@@ -548,8 +548,8 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
 #dash .bday-row .av{width:30px;height:30px;border-radius:50%;background:var(--gold);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
 #dash .bday-row .d{color:var(--muted);width:46px;flex-shrink:0}
 
-#dash .attach-btn{display:flex;align-items:center;gap:8px;justify-content:center;border:1.5px dashed #b8c8ee;border-radius:16px;padding:14px;font-size:12.5px;color:var(--blue);cursor:pointer;background:#f7f9ff}
-#dash .attach-btn:hover{border-color:var(--blue);background:#eef3ff}
+#dash .attach-btn{display:flex;align-items:center;gap:8px;justify-content:center;border:1.5px dashed #8fd1a8;border-radius:16px;padding:14px;font-size:12.5px;color:#107c41;cursor:pointer;background:#effaf3}
+#dash .attach-btn:hover{border-color:#107c41;background:#e2f5e9}
 #dash .attach-btn.done{border-style:solid;border-color:var(--green);color:var(--green);background:#eefaf3}
 
 @media (max-width:1024px){
@@ -660,8 +660,10 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
       <a class="item-btn doc" href="טופס_הערכה.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-file-text"></i></span> טופס הערכה</a>
       <a class="item-btn doc" href="הערכה_תפקודית.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-file-text"></i></span> הערכה תפקודית</a>
       <a class="item-btn doc" href="תוכנית_שיקום_ליבי.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-file-text"></i></span> תוכנית שיקום</a>
+      <div class="divider-label">תיעוד ודיווח</div>
       <a class="item-btn doc" href="תיעוד_שיחות.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-file-text"></i></span> תיעוד שיחות</a>
       <a class="item-btn doc" href="https://forms.office.com/pages/responsepage.aspx?id=Tivd_N3XbkuXjqB6wkC3LlWXrEr5FtREm8Ew4wxhhoJUOTlEUFZVQ1A4SVdQQjYwTDhISUpVTEY0Wi4u&route=shorturl" target="_blank" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-alert-triangle"></i></span> אירוע חריג</a>
+      <div class="divider-label">מעקב ונתונים</div>
       <a class="item-btn doc" href="Трекер.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-file-text"></i></span> טרקר</a>
       <a class="item-btn doc" href="גבע.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-chart-bar"></i></span> סטטיסטיקה</a>
     </div>
@@ -787,10 +789,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
           שלום מימון <span class="rm">✕</span>
         </div>
       </div>
-      <div class="people-add">
-        <input type="text" id="newPersonName" placeholder="שם חדש...">
-        <button onclick="addPersonReal()">+</button>
-      </div>
+      <a class="item-btn doc team-quicklink" href="טופס_פתיחת_ספק.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-building-store"></i></span> טופס פתיחת ספק</a>
       <a class="item-btn doc team-quicklink" href="קליטת_עובד_חדש.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-user-plus"></i></span> קליטה עובד חדש</a>
       <a class="item-btn doc team-quicklink" href="ציק_ליסט_הדרכה_עובד_חדש.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-clipboard-check"></i></span> צ'ק ליסט הדרכת עובד חדש</a>
       <a class="item-btn doc team-quicklink" href="בקשה להעברה בין פרויקטים.html" onclick="rememberPortalReturn()"><span class="ic"><i class="ti ti-arrows-exchange"></i></span> בקשה להעברה בין פרויקטים</a>

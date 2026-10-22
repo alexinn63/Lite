@@ -101,7 +101,7 @@
   .form-header .facility-name { font-size: 16px; font-weight: 500; color: #c5ddf5; }
   .form-header .address { font-size: 13px; color: #8ab5d9; margin-top: 4px; }
   /* Large org logo (×2.5) without growing the header: negative margins eat the header padding */
-  .form-header .hdr-logo { margin: -26px 0 -22px; }
+  .form-header .hdr-logo { margin: 0; }
 
   /* ── FORM BODY ── */
   .form-body { padding: 32px 40px; }
@@ -235,6 +235,9 @@
   .section-title.req h3::after { content: " *"; color: #dc2626; font-weight: 700; }
   tr.row-missing td:first-child { color: var(--red); font-weight: 600; }
   tr.row-missing { background: #fff5f5 !important; }
+  tr.row-na .radio-group label { opacity: .3; filter: grayscale(1); }
+  tr.row-na td:first-child { color: #8a96a8; }
+  tr.row-na .note-input { background: #fff8e6; border-color: #e8c56a; }
   label.req::after { content: " *"; color: #dc2626; font-size: 13px; font-weight: 700; }
   /* Translate button inside behavioral observations (section ח) */
   .obs-ta-actions { display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-top: 4px; }
@@ -641,7 +644,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   .spinner { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin .6s linear infinite; }
   @media (max-width: 700px) {
-    .form-header .hdr-logo { margin: 0; height: 50px !important; }
+    .form-header .hdr-logo { margin: 0; height: 40px !important; }
   }
   @media (max-width: 720px) {
     /* Russian subtitle: take the space from the gap under the question, not from the card */
@@ -696,11 +699,11 @@
         <div class="facility-name">משרד הבריאות - מפעל מוגן שיקומי לבריאות הנפש באר שבע</div>
         <div class="address">שאול המלך 113, באר שבע</div>
       </div>
-      <img data-logo="org" data-logo-height="125px" class="hdr-logo" src="" style="height:125px;width:auto;max-width:100%;object-fit:contain;" alt="logo">
+      <img data-logo="org" data-logo-height="64px" class="hdr-logo" src="" style="height:64px;width:auto;max-width:100%;object-fit:contain;" alt="logo">
     </div>
   </div>
 
-  <form id="evaluationForm"><div class="form-body">
+  <form id="evaluationForm" autocomplete="off"><div class="form-body">
     <div id="draft_banner_slot"></div>
     <div id="draft_saved_hint" class="draft-saved-hint"></div>
     <datalist id="note-options"><option value="לא רלבנטי"></option></datalist>
@@ -971,7 +974,7 @@ function xlColToIndex(ref) {
 async function parseRowsSheetJS(buf) {
   await loadScriptOnce('https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js', 'XLSX');
   const wb = XLSX.read(buf, { type: 'array', cellDates: false, raw: true });
-  return wb.SheetNames.map(n => XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, defval: '', blankrows: false, raw: true }));
+  return wb.SheetNames.map(n => ({ name: n, rows: XLSX.utils.sheet_to_json(wb.Sheets[n], { header: 1, defval: '', blankrows: false, raw: true }) }));
 }
 
 async function parseRowsJSZip(buf) {
@@ -984,10 +987,23 @@ async function parseRowsJSZip(buf) {
   if (ss) Array.from(ss.getElementsByTagName('si')).forEach(si => {
     shared.push(Array.from(si.getElementsByTagName('t')).map(t => t.textContent).join(''));
   });
-  const sheetFiles = Object.keys(zip.files).filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n))
-    .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]));
+  // sheet names from workbook.xml (+ rels → file path), so "ended" sheets can be recognised by name
+  const sheetList = [];
+  const wbx = await xml('xl/workbook.xml');
+  const rels = await xml('xl/_rels/workbook.xml.rels');
+  const relTarget = {};
+  if (rels) Array.from(rels.getElementsByTagName('Relationship')).forEach(rl => { relTarget[rl.getAttribute('Id')] = rl.getAttribute('Target'); });
+  if (wbx) Array.from(wbx.getElementsByTagName('sheet')).forEach(sh => {
+    const rid = sh.getAttribute('r:id') || sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id');
+    let t = relTarget[rid] || '';
+    t = t.replace(/^\/?xl\//, '');
+    if (t) sheetList.push({ name: sh.getAttribute('name') || '', path: 'xl/' + t });
+  });
+  if (!sheetList.length) Object.keys(zip.files).filter(n => /^xl\/worksheets\/sheet\d+\.xml$/.test(n))
+    .sort((a, b) => parseInt(a.match(/\d+/)[0]) - parseInt(b.match(/\d+/)[0]))
+    .forEach(path => sheetList.push({ name: '', path }));
   const sheets = [];
-  for (const path of sheetFiles) {
+  for (const { name: sheetName, path } of sheetList) {
     const doc = await xml(path);
     const rows = [];
     Array.from(doc.getElementsByTagName('row')).forEach(rowEl => {
@@ -1004,7 +1020,7 @@ async function parseRowsJSZip(buf) {
       for (let i = 0; i < row.length; i++) if (row[i] === undefined) row[i] = '';
       if (row.some(x => String(x).trim())) rows.push(row);
     });
-    sheets.push(rows);
+    sheets.push({ name: sheetName, rows });
   }
   return sheets;
 }
@@ -1037,9 +1053,15 @@ function extractClientsFromRows(rows) {
   return [];
 }
 
+const ENDED_SHEET_RE = /סיימו|עזבו|ארכיון|לא\s*פעיל|הסתיים|נסגר/;
+
 function bestClientsFromSheets(sheets) {
+  sheets = sheets || [];
+  // never pick a "finished / left" sheet when an active one has names
+  const active = sheets.filter(sh => !ENDED_SHEET_RE.test(sh.name || ''));
+  const pool = active.some(sh => extractClientsFromRows(sh.rows).length) ? active : sheets;
   let best = [];
-  (sheets || []).forEach(rows => {
+  pool.map(sh => sh.rows).forEach(rows => {
     const list = extractClientsFromRows(rows);
     const score = list.length + list.filter(c => c.id).length;   // names + IDs recognized
     const bestScore = best.length + best.filter(c => c.id).length;
@@ -1471,10 +1493,37 @@ function validateRequiredBeforeH() {
   return false;
 }
 
+// ONE decision per row: either a score 1/2/3 OR "לא רלבנטי" — the last action wins.
+function setRowNA(tr, on) {
+  if (!tr) return;
+  tr.classList.toggle('row-na', !!on);
+  if (on) {
+    tr.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = false; });
+    tr.classList.remove('row-missing');
+  }
+}
+
+function syncNARows() {
+  document.querySelectorAll('.rating-table .note-input').forEach(n => setRowNA(n.closest('tr'), isNotRelevantNote(n.value)));
+}
+
 document.addEventListener('input', function(e) {
-  if (e.target && e.target.classList && e.target.classList.contains('note-input') && isNotRelevantNote(e.target.value)) {
-    const tr = e.target.closest('tr.row-missing');
-    if (tr) tr.classList.remove('row-missing');
+  if (e.target && e.target.classList && e.target.classList.contains('note-input')) {
+    setRowNA(e.target.closest('tr'), isNotRelevantNote(e.target.value));   // typed / picked "לא רלבנטי" → score cleared
+  }
+});
+
+document.addEventListener('change', function(e) {
+  const t = e.target;
+  if (t && t.type === 'radio' && /^table_/.test(t.name) && t.checked) {
+    const tr = t.closest('tr');
+    const note = tr && tr.querySelector('.note-input');
+    if (note && isNotRelevantNote(note.value)) {                            // score chosen → "לא רלבנטי" removed,
+      note.value = note.value                                               // but the rest of the note (an explanation) stays
+        .replace(/לא\s*רל(?:ב|ו{1,2})נטי(?:ת)?/g, '')
+        .replace(/^[\s,.;:\-–—]+|[\s,.;:\-–—]+$/g, '');
+      setRowNA(tr, false);
+    }
   }
 });
 
@@ -1657,7 +1706,7 @@ function buildPrintDoc(d) {
       <div style="font-size:17px;font-weight:700;">טופס הערכה למקבל שירות – משרד הבריאות</div>
       <div style="font-size:12.8px;color:#c5ddf5;margin-top:3px;">משרד הבריאות - מפעל מוגן שיקומי לבריאות הנפש באר שבע | שאול המלך 113</div>
     </div>
-    <img data-logo="org" src="" style="height:50px;width:auto;object-fit:contain;" alt="logo">
+    <img src="${ORG_CONFIG.files.logoOrg}" onerror="this.style.display='none'" style="height:40px;width:auto;object-fit:contain;" alt="">
   </div>
   <div style="background:#e8f1fb;border:1px solid #b8d0ee;border-radius:6px;padding:10px 14px;margin-bottom:16px;display:flex;gap:28px;flex-wrap:wrap;">
     <div><div style="font-size:10px;color:#888;font-weight:700;">תאריך</div><div style="font-size:13px;font-weight:600;">${d.date||'–'}</div></div>
@@ -1991,6 +2040,7 @@ function buildSavedFormHtml(savedData) {
     'window.addEventListener("load", function() {' +
     '  var d = ' + JSON.stringify(savedData) + ';' +
     '  if (typeof applyFormData === "function") applyFormData(d);' +
+    '  if (typeof syncNARows === "function") syncNARows();' +
     '  if (typeof initAutoResizeTextareas === "function") setTimeout(initAutoResizeTextareas, 0);' +
     '});';
   cloneDoc.body.appendChild(restoreScript);
@@ -2041,7 +2091,7 @@ function buildLibiReportHtml(d) {
   const progress    = d.texts?.ts_z?.value || '';
   return `<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>דוח הערכה ל${ORG_CONFIG.socialWorker.name}</title>
   <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>body{font-family:Heebo,Arial,sans-serif;direction:rtl;background:#f4f7fc;color:#1e2535;margin:0;padding:24px;} .page{max-width:850px;margin:auto;background:white;border-radius:14px;box-shadow:0 2px 16px rgba(26,58,92,.12);overflow:hidden}.head{background:linear-gradient(135deg,#1a3a5c,#2563a8);color:white;padding:24px 30px;border-bottom:4px solid #c9933a}.body{padding:26px 30px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}.box{background:#e8f1fb;border:1px solid #b8d0ee;border-radius:8px;padding:10px 12px}.lbl{font-size:11px;color:#5d7287;font-weight:700}.val{font-size:15px;font-weight:700;color:#1a3a5c;margin-top:3px}h2{font-size:17px;color:#1a3a5c;margin:24px 0 10px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #c5d5e8;padding:9px 12px}th{background:#1a3a5c;color:white}ul{margin:0;padding-right:20px;line-height:1.8}.txt{background:#f0f6ff;border-right:4px solid #2563a8;border-radius:7px;padding:12px 14px;white-space:pre-wrap;line-height:1.7}.txt-progress{background:#f0fff6;border-right:4px solid #2e7d52;border-radius:7px;padding:12px 14px;white-space:pre-wrap;line-height:1.7}@media print{body{background:white}.page{box-shadow:none}}</style></head><body><div class="page"><div class="head"><div style="font-size:22px;font-weight:800">דוח הערכה מסכם ל${ORG_CONFIG.socialWorker.name}</div><div style="font-size:13px;color:#c5ddf5;margin-top:4px">מבוסס על טופס הערכת מדריך</div></div><div class="body">
+  <style>body{font-family:Heebo,Arial,sans-serif;direction:rtl;background:#f4f7fc;color:#1e2535;margin:0;padding:24px;} .page{max-width:850px;margin:auto;background:white;border-radius:14px;box-shadow:0 2px 16px rgba(26,58,92,.12);overflow:hidden}.head{background:linear-gradient(135deg,#1a3a5c,#2563a8);color:white;padding:24px 30px;border-bottom:4px solid #c9933a}.body{padding:26px 30px}.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}.box{background:#e8f1fb;border:1px solid #b8d0ee;border-radius:8px;padding:10px 12px}.lbl{font-size:11px;color:#5d7287;font-weight:700}.val{font-size:15px;font-weight:700;color:#1a3a5c;margin-top:3px}h2{font-size:17px;color:#1a3a5c;margin:24px 0 10px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #c5d5e8;padding:9px 12px}th{background:#1a3a5c;color:white}ul{margin:0;padding-right:20px;line-height:1.8}.txt{background:#f0f6ff;border-right:4px solid #2563a8;border-radius:7px;padding:12px 14px;white-space:pre-wrap;line-height:1.7}.txt-progress{background:#f0fff6;border-right:4px solid #2e7d52;border-radius:7px;padding:12px 14px;white-space:pre-wrap;line-height:1.7}@media print{body{background:white}.page{box-shadow:none}}</style></head><body><div class="page"><div class="head" style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;"><div><div style="font-size:22px;font-weight:800">דוח הערכה מסכם ל${ORG_CONFIG.socialWorker.name}</div><div style="font-size:13px;color:#c5ddf5;margin-top:4px">מבוסס על טופס הערכת מדריך</div></div><img src="${ORG_CONFIG.files.logoOrg}" alt="" onerror="this.style.display='none'" style="height:52px;width:auto;object-fit:contain;"></div><div class="body">
   <div class="grid"><div class="box"><div class="lbl">שם מקבל השירות</div><div class="val">${esc(d.name || '–')}</div></div><div class="box"><div class="lbl">תעודת זהות</div><div class="val">${esc(d.id || '–')}</div></div><div class="box"><div class="lbl">תאריך הערכה</div><div class="val">${esc(d.date || '–')}</div></div><div class="box"><div class="lbl">מדריך</div><div class="val">${esc(d.signature || '–')}</div></div></div>
   <h2>סיכום ציונים לפי תחום</h2><table><thead><tr><th>תחום</th><th style="width:140px">ממוצע</th></tr></thead><tbody>${averages}</tbody></table>
   <h2>הערות מרכזיות</h2><ul>${notesHtml}</ul>
@@ -2121,7 +2171,9 @@ function saveAsHtml() {
 const DRAFT_KEY = 'hearacha_draft_v1';
 const IS_SAVED_COPY = !!document.querySelector('meta[name="saved-copy"]');
 let draftTimer = null;
-let draftClearedSnapshot = null;   // form state at the moment it was saved/sent — don't re-create a draft from it
+let draftClearedSnapshot = null;
+let lastDraftJson = null;
+let draftArmed = true;   // false while a "restore draft?" offer is pending — protects the old draft from being overwritten   // form state at the moment it was saved/sent — don't re-create a draft from it
 
 function formHasContent(d) {
   if (!d) return false;
@@ -2136,12 +2188,15 @@ function formHasContent(d) {
 }
 
 function saveDraftNow() {
-  if (IS_SAVED_COPY) return;
+  if (IS_SAVED_COPY || !draftArmed) return;
   try {
     const d = collectFormData();
     if (!formHasContent(d)) return;
-    if (draftClearedSnapshot && JSON.stringify(d) === draftClearedSnapshot) return;
+    const json = JSON.stringify(d);
+    if (draftClearedSnapshot && json === draftClearedSnapshot) return;
+    if (json === lastDraftJson) return;                 // nothing changed since the last write
     draftClearedSnapshot = null;
+    lastDraftJson = json;
     localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), data: d }));
     const hint = document.getElementById('draft_saved_hint');
     if (hint) {
@@ -2151,8 +2206,10 @@ function saveDraftNow() {
   } catch (e) { /* storage blocked — ignore */ }
 }
 
-function scheduleDraftSave() {
+function scheduleDraftSave(e) {
   if (IS_SAVED_COPY) return;
+  // user started typing while the "restore?" offer is open → they chose a new form; close the offer, start saving
+  if (!draftArmed && e && (e.type === 'input' || e.type === 'change') && e.isTrusted) dismissDraftBanner();
   clearTimeout(draftTimer);
   draftTimer = setTimeout(saveDraftNow, 800);
 }
@@ -2170,30 +2227,45 @@ function readDraft() {
 
 function clearDraft() {
   clearTimeout(draftTimer);
+  lastDraftJson = null;
   try { draftClearedSnapshot = JSON.stringify(collectFormData()); } catch (e) {}
   try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
-  const slot = document.getElementById('draft_banner_slot'); if (slot) slot.innerHTML = '';
+  hideDraftBanner();
+  draftArmed = true;
   const hint = document.getElementById('draft_saved_hint'); if (hint) hint.textContent = '';
+}
+
+function hideDraftBanner() {
+  const b = document.getElementById('draftBanner'); if (b) b.remove();
+  const slot = document.getElementById('draft_banner_slot'); if (slot) slot.innerHTML = '';
 }
 
 function showDraftBanner() {
   if (IS_SAVED_COPY) return;
   const dr = readDraft();
   if (!dr || !dr.data || !formHasContent(dr.data)) return;
-  if (formHasContent(collectFormData())) return;     // form already filled → don't offer
+  // the browser may refill some fields by itself after a reload — offer the draft unless the form already IS the draft
+  if (JSON.stringify(collectFormData()) === JSON.stringify(dr.data)) return;
+  draftArmed = false;
   const t = new Date(dr.savedAt || Date.now());
   const when = t.toLocaleDateString('he-IL') + ' ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
-  const who = (dr.data.name || '').trim() || 'ללא שם';
-  const slot = document.getElementById('draft_banner_slot');
-  if (!slot) return;
-  slot.innerHTML = `<div class="draft-banner">
-      <span style="font-size:18px">📝</span>
-      <span>נמצאה טיוטה שלא נשמרה: <strong>${who.replace(/[<>&]/g,'')}</strong> · ${when}</span>
-      <div class="db-actions">
-        <button type="button" class="db-restore" onclick="restoreDraft()">שחזר טיוטה</button>
-        <button type="button" class="db-discard" onclick="if(confirm('למחוק את הטיוטה?')) clearDraft()">מחק</button>
-      </div>
-    </div>`;
+  const who = escapeHtml((dr.data.name || '').trim() || 'ללא שם');
+  hideDraftBanner();
+  const box = document.createElement('div');
+  box.id = 'draftBanner';
+  box.style.cssText = 'position:fixed;bottom:16px;left:16px;right:16px;max-width:600px;margin:0 auto;background:#fff;color:#1e2535;border:1px solid #d6e2f0;border-right:5px solid #2563a8;border-radius:12px;box-shadow:0 6px 22px rgba(26,58,92,.16);padding:12px 14px;z-index:10001;font-family:Heebo,Arial,sans-serif;direction:rtl;display:flex;gap:10px;align-items:center;flex-wrap:wrap;';
+  box.innerHTML =
+    '<div style="flex:1 1 200px;min-width:170px;"><div style="font-weight:700;font-size:14.5px;color:#1a3a5c;">📝 נמצאה טיוטה שלא נשמרה</div>' +
+    '<div style="font-size:12.5px;color:#6b7280;margin-top:2px;">' + who + ' · ' + when + '</div></div>' +
+    '<button type="button" onclick="restoreDraft()" style="background:#2563a8;color:#fff;border:0;border-radius:8px;padding:9px 16px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">שחזר טיוטה</button>' +
+    '<button type="button" onclick="if(confirm(\'למחוק את הטיוטה?\')) clearDraft()" style="background:#f1f4f8;color:#4b5563;border:1px solid #dbe3ec;border-radius:8px;padding:9px 14px;font-family:inherit;font-size:13px;cursor:pointer;">מחק</button>' +
+    '<button type="button" onclick="dismissDraftBanner()" aria-label="סגור" title="התחל טופס חדש (הטיוטה תישאר עד שתתחיל להקליד)" style="background:transparent;color:#9aa4b2;border:0;font-size:18px;line-height:1;cursor:pointer;padding:4px 6px;">✕</button>';
+  document.body.appendChild(box);
+}
+
+function dismissDraftBanner() {
+  hideDraftBanner();
+  draftArmed = true;
 }
 
 function restoreDraft() {
@@ -2201,7 +2273,10 @@ function restoreDraft() {
   if (!dr || !dr.data) return;
   applyFormData(dr.data);
   if (typeof initAutoResizeTextareas === 'function') initAutoResizeTextareas();
-  const slot = document.getElementById('draft_banner_slot'); if (slot) slot.innerHTML = '';
+  syncNARows();
+  hideDraftBanner();
+  draftArmed = true;
+  lastDraftJson = null;
   formIsDirty = true;
 }
 
@@ -2217,9 +2292,9 @@ if (!IS_SAVED_COPY) {
 }
 
 // ──────────────────────────────────────────
-// SAVE AS PDF (A4, Ministry layout from buildPrintDoc)
+// SAVE AS PDF — OLD RASTER VERSION (image PDF, NOT readable by screen readers). Kept as a fallback, not linked to a button.
 // ──────────────────────────────────────────
-async function saveAsPdf() {
+async function saveAsPdfImage() {
   if (!validateRequiredBeforeH()) return;
   if (!validateRequiredSignature()) return;
   if (!validateNoCyrillicText()) return;
@@ -2241,6 +2316,143 @@ async function saveAsPdf() {
   } catch (err) {
     console.error(err);
     alert('לא ניתן ליצור PDF (נדרש חיבור לאינטרנט בפעם הראשונה): ' + (err && err.message ? err.message : err));
+    if (btn) btn.innerHTML = orig;
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ──────────────────────────────────────────
+// SAVE AS PDF — TEXT VERSION (accessible: real Hebrew text, readable by NVDA/JAWS/Narrator)
+// Uses the browser's own print engine (window.print → "Save as PDF") instead of a picture.
+// Two print windows: 1) the Ministry form, 2) the report for the social worker.
+// ──────────────────────────────────────────
+const TEXT_PDF_CSS = `
+  @page { size: A4; margin: 12mm 11mm; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  html, body { background: #fff !important; }
+  body { margin: 0 !important; padding: 0 !important; }
+  .page { max-width: none !important; border-radius: 0 !important; box-shadow: none !important; }
+  .tp-sec { break-inside: avoid; page-break-inside: avoid; }
+  table { break-inside: auto !important; page-break-inside: auto !important; }
+  thead { display: table-header-group; }
+  tr, li, .txt, .txt-progress, .box { break-inside: avoid; page-break-inside: avoid; }
+  h2, h3 { break-after: avoid; page-break-after: avoid; }
+`;
+
+// Add a real <title> (= PDF title / file name) and the print CSS. Plain insertion before </head> — no parsing of the body.
+function prepareTextPdfHtml(html, title) {
+  const head = '<title>' + escapeHtml(title) + '</title><style>' + TEXT_PDF_CSS + '</style>';
+  const h = String(html).replace(/<title>[\s\S]*?<\/title>/i, '');
+  return /<\/head>/i.test(h) ? h.replace(/<\/head>/i, head + '</head>') : head + h;
+}
+
+// Print-only layout fixes, done on the DOM (not with regex on the HTML string).
+// If the markup changes and nothing matches, the PDF is still produced as text — only the page-break niceties are lost.
+function layoutForTextPdf(doc) {
+  // forced page break + 140px spacer before section ד belong to the old picture layout — the print engine paginates itself
+  doc.querySelectorAll('div[style*="break-before"]').forEach(el => {
+    const prev = el.previousElementSibling;
+    if (prev && prev.tagName === 'DIV' && /height:\s*140px/.test(prev.getAttribute('style') || '')) prev.remove();
+    el.remove();
+  });
+  // keep each section heading together with its table
+  doc.querySelectorAll('h2, h3').forEach(hd => {
+    const next = hd.nextElementSibling;
+    if (!next || next.tagName !== 'TABLE') return;
+    const wrap = doc.createElement('div');
+    wrap.className = 'tp-sec';
+    hd.parentNode.insertBefore(wrap, hd);
+    wrap.appendChild(hd);
+    wrap.appendChild(next);
+  });
+}
+
+// Print one HTML document through an off-screen iframe. Resolves when the print window is closed.
+// The iframe is moved off-screen but NOT visibility:hidden / 0×0 — some browsers print such frames blank.
+function printHtmlDocument(html, title) {
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.setAttribute('aria-hidden', 'true');
+    iframe.setAttribute('tabindex', '-1');
+    iframe.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;';
+    const oldTitle = document.title;
+    let finished = false;
+    const done = () => {
+      if (finished) return; finished = true;
+      document.title = oldTitle;
+      setTimeout(() => { iframe.remove(); resolve(); }, 300);
+    };
+    iframe.onload = async () => {
+      try {
+        const w = iframe.contentWindow, doc = iframe.contentDocument;
+        try { layoutForTextPdf(doc); } catch (e) { console.warn('layoutForTextPdf skipped:', e); }
+        // wait for Heebo font and the logo (max 3 s — offline it falls back to Arial)
+        const imgs = Array.from(doc.images).map(img => img.complete ? null : new Promise(r => { img.onload = img.onerror = r; }));
+        await Promise.race([
+          Promise.all([doc.fonts ? doc.fonts.ready : null, ...imgs]),
+          new Promise(r => setTimeout(r, 3000))
+        ]);
+        document.title = title;                  // some browsers take the PDF file name from the top page title
+        w.addEventListener('afterprint', done);
+        w.focus();
+        w.print();                               // in Chrome this blocks until the print window is closed
+        setTimeout(done, 1000);                  // safety net (browsers where print() does not block)
+      } catch (e) { document.title = oldTitle; iframe.remove(); reject(e); }
+    };
+    document.body.appendChild(iframe);
+    iframe.srcdoc = html;
+  });
+}
+
+// Non-blocking instruction line (instead of alert). role="status" → read aloud by NVDA/JAWS/Narrator.
+function showPdfStatus(text) {
+  let el = document.getElementById('pdfStatusLine');
+  if (!text) { if (el) el.remove(); return; }
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'pdfStatusLine';
+    el.className = 'no-print';
+    el.setAttribute('role', 'status');
+    el.setAttribute('aria-live', 'polite');
+    el.style.cssText = 'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:10000;background:#1a3a5c;color:#fff;padding:10px 18px;border-radius:10px;font-family:Heebo,Arial,sans-serif;font-size:15px;font-weight:600;direction:rtl;box-shadow:0 4px 16px rgba(0,0,0,.25);max-width:92vw;text-align:center;';
+    document.body.appendChild(el);
+  }
+  el.textContent = text;
+}
+
+async function saveAsPdf() {
+  if (!validateRequiredBeforeH()) return;
+  if (!validateRequiredSignature()) return;
+  if (!validateNoCyrillicText()) return;
+  const d = collectFormData();
+  const btn = document.getElementById('btnSavePdf');
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) btn.disabled = true;
+  try {
+    const safe = safeFilePart(d.name || 'הערכה');
+    const date = d.date || new Date().toISOString().slice(0,10);
+    const formTitle   = `טופס_הערכה_${safe}_${date}`;
+    const reportTitle = `דוח_הערכה_לליבי_${safe}_${date}`;
+    showPdfStatus('1 מתוך 2: טופס ההערכה. בחלון ההדפסה לבחור "שמירה כ-PDF" ואז שמירה.');
+    if (btn) btn.innerHTML = '⏳ 1/2 טופס הערכה...';
+    await new Promise(r => setTimeout(r, 600));          // let the screen reader announce the line before the print window opens
+    await printHtmlDocument(prepareTextPdfHtml(buildPrintDoc(d), formTitle), formTitle);
+    if (btn) btn.innerHTML = '⏳ 2/2 דוח לעו"ס...';
+    showPdfStatus('2 מתוך 2: הדוח לעובדת הסוציאלית. שוב לבחור "שמירה כ-PDF" ואז שמירה.');
+    await new Promise(r => setTimeout(r, 400));
+    await printHtmlDocument(prepareTextPdfHtml(buildLibiReportHtml(d), reportTitle), reportTitle);
+    showPdfStatus('');
+    // the browser cannot tell us whether the user pressed "Save" or "Cancel" — ask before deleting the draft
+    if (confirm('האם שני קבצי ה-PDF נשמרו?\n\nאישור — הטיוטה תימחק.\nביטול — הטיוטה תישאר, אפשר לנסות שוב.')) {
+      formIsDirty = false;
+      clearDraft();
+      if (btn) { btn.innerHTML = '✓ נשמרו 2 קבצי PDF'; setTimeout(() => { btn.innerHTML = orig; }, 2200); }
+    } else if (btn) btn.innerHTML = orig;
+  } catch (err) {
+    console.error(err);
+    showPdfStatus('');
+    alert('לא ניתן לפתוח חלון הדפסה: ' + (err && err.message ? err.message : err));
     if (btn) btn.innerHTML = orig;
   } finally {
     if (btn) btn.disabled = false;
@@ -2320,7 +2532,8 @@ const ORG_CONFIG = {
     excel: "מחלות רקע.xlsx",
 
     // לוגו העמותה — קובץ בתיקיית images/ או URL חיצוני
-    logoOrg: "https://mnz.org.il/sites/www.mnz.org.il/files/logo-yachdav.png",
+    // לוגו יחדיו מוטמע בקובץ (PNG שקוף, ~2KB) — מוצג גם בלי אינטרנט וגם ב-PDF
+    logoOrg: "data:image/png;base64,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",
 
     // לוגו משרד הבריאות
     logoMinistry: "https://upload.wikimedia.org/wikipedia/he/thumb/f/fb/Israeli_Ministry_of_Health_logo.png/3840px-Israeli_Ministry_of_Health_logo.png"
