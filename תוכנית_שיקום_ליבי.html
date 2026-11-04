@@ -197,7 +197,8 @@
       margin-top: 8px;
     }
 
-    .goal-title input { max-width: 75%; }
+    .goal-title input, .goal-title .goalName { max-width: 75%; }
+    .goal-title .goalName { min-height: 0; line-height: 1.4; overflow: hidden; resize: none; white-space: pre-wrap; word-break: break-word; }
 
     .actions {
       display: flex;
@@ -299,7 +300,7 @@
         grid-template-columns: 1fr;
       }
       .goal-title { flex-direction: column; align-items: stretch; }
-      .goal-title input { max-width: 100%; }
+      .goal-title input, .goal-title .goalName { max-width: 100%; }
       table { font-size: 13px; }
     }
 
@@ -545,7 +546,7 @@ button,
 .goal-title {
   display: grid !important;
   grid-template-columns: auto 1fr auto !important;
-  align-items: end !important;
+  align-items: start !important;
   gap: 10px !important;
 }
 
@@ -954,7 +955,7 @@ button, .excel-button {
       section.innerHTML = `
         <div class="goal-title">
           <h2 class="goalNumber">מטרה ${goalCounter}</h2>
-          <input class="goalName" placeholder="לדוגמה: איזון מצב נפשי-רגשי" value="${escapeHtml(data?.name || '')}" />
+          <textarea class="goalName" rows="1" placeholder="לדוגמה: איזון מצב נפשי-רגשי">${escapeHtml(data?.name || '')}</textarea>
           <button class="delete-goal-btn no-print" type="button" onclick="deleteGoalSection(this)">מחק מטרה</button>
         </div>
         <table>
@@ -987,6 +988,11 @@ button, .excel-button {
         </div>
       `;
       container.appendChild(section);
+      const gn = section.querySelector('.goalName');
+      if (gn) {
+        gn.addEventListener('input', function(){ if (/\n/.test(this.value)) this.value = this.value.replace(/\s*\n+\s*/g, ' '); });
+        autoResize(gn); scheduleAutoResize();
+      }
 
       const rows = data?.rows?.length ? data.rows : [];
       rows.forEach(row => addRow(section.querySelector('button'), row));
@@ -1188,7 +1194,7 @@ document.addEventListener('pointerdown', function (event) {
 function autoResize(el) {
     if (!el || el.tagName !== 'TEXTAREA') return;
     el.style.height = '0px';
-    var minH = el.classList.contains('target') ? 56 : 76;
+    var minH = el.classList.contains('goalName') ? 0 : (el.classList.contains('target') ? 56 : 76);
     el.style.height = Math.max(el.scrollHeight, minH) + 'px';
 }
 
@@ -1210,6 +1216,10 @@ function scheduleAutoResize() {
 document.addEventListener('input', function(e) {
     if (e.target.tagName === 'TEXTAREA') autoResize(e.target);
 });
+// שם מטרה – שורה אחת לוגית (בלי Enter), אבל נשבר לשורות לפי האורך
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target.classList && e.target.classList.contains('goalName')) e.preventDefault();
+});
 
 window.addEventListener('load', scheduleAutoResize);
 window.addEventListener('pageshow', scheduleAutoResize);
@@ -1225,7 +1235,8 @@ function swapTextareasToDivs() {
         div.className = 'print-textarea-proxy';
         div.textContent = ta.value;
         // copy computed size so layout stays the same
-        div.style.minHeight = '56px';
+        div.style.minHeight = ta.classList.contains('goalName') ? '0' : '56px';
+        if (ta.classList.contains('goalName')) div.style.fontWeight = '600';
         div.style.whiteSpace = 'pre-wrap';
         div.style.wordBreak = 'break-word';
         div.style.fontFamily = 'inherit';
