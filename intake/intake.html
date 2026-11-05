@@ -41,7 +41,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="12" cy="12.3" r="1.9"/><path d="M8.6 17a3.4 3.4 0 0 1 6.8 0"/></svg></div><div class="brand-text"><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub ver" title="היסטוריית הגרסאות המלאה: intake_CHANGELOG.md">גרסה 2.79 — סוג מסמך "ויתור סודיות" (בחירה ידנית) → תיקיית ויתור סודיות</div></div>
+<div class="top"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="12" cy="12.3" r="1.9"/><path d="M8.6 17a3.4 3.4 0 0 1 6.8 0"/></svg></div><div class="brand-text"><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub ver" title="היסטוריית הגרסאות המלאה: intake_CHANGELOG.md">גרסה 2.80 — בחירה ידנית של סוג מסמך לא נדרסת; תאריך ויתור סודיות מהמסמך; דוח רפואי עם תאריך</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -2010,6 +2010,7 @@ async function docs(){
     const sel=tr.querySelector(".type");
     const agree=tr.querySelector(".acceptSuggestion");
     sel.onchange=()=>{
+      tr.dataset.manual="1"; // בחירה ידנית — ניתוח שמסתיים מאוחר יותר לא ידרוס אותה
       tr.querySelector(".target").textContent=map[sel.value];
       renderDocumentDetailCell(i,sel.value);
       agree.disabled=sel.value==="לא מזוהה";
@@ -2065,11 +2066,16 @@ async function docs(){
       tr.querySelector(".suggestion").innerHTML=`<span class="suggestion-text">${esc(result.type)}</span>`+
         `<div class="analysis-note">${result.score ? "נמצאו סימנים בתוכן: "+esc(result.matches.join(", ")) : "לא נמצאו מספיק סימנים ברורים בתוכן. יש לבדוק ידנית."}</div>`+
         `<div class="analysis-note">${dateText}</div>`;
+      // אם המשתמש כבר בחר סוג ידנית בזמן שהניתוח רץ — לא דורסים את הבחירה (רק מציגים את ההצעה).
+      if(tr.dataset.manual==="1"){
+        renderDocumentDetailCell(i,tr.querySelector(".type").value,true);
+      }else{
       renderDocumentDetailCell(i,result.type,true);
       const sel=tr.querySelector(".type");sel.value=result.type;
       tr.querySelector(".target").textContent=map[result.type];
       const agree=tr.querySelector(".acceptSuggestion");agree.disabled=result.type==="לא מזוהה";
       const status=tr.lastElementChild;status.textContent=result.type==="לא מזוהה"?"דורש בדיקה":"הצעה מוכנה — אפשר לאשר עכשיו";status.className=result.type==="לא מזוהה"?"warn":"ok";
+      }
     }catch(e){
       tr.dataset.ready="1";
       tr.querySelector(".suggestion").innerHTML='<span class="warn">הניתוח נכשל. יש לבחור סוג ידנית.</span>';
@@ -2441,21 +2447,25 @@ function todayPlusOneYear(){const d=new Date();d.setFullYear(d.getFullYear()+1);
 function prepareExcelStage(){
   const rows=selectedDocumentRows();
   const byType=t=>rows.find(x=>x.type===t);
-  const medical=byType("דוח רפואי"),committee=rows.find(x=>x.type==="הועדה"||x.type==="מסמך ועדה / סל שיקום");
   const rowDate=x=>x?.date || (x?.originalDate ? formatDateInput(new Date(x.originalDate)) : "");
+  // כמה מסמכים מאותו סוג (למשל שני דוחות רפואיים, באחד אין תאריך): לוקחים את התאריך המאוחר ביותר מבין אלה שיש בהם תאריך.
+  const latestOf=t=>rows.filter(x=>x.type===t).map(x=>({x,d:rowDate(x)})).filter(o=>o.d).sort((a,b)=>a.d<b.d?1:-1)[0]?.x||byType(t);
+  const medical=latestOf("דוח רפואי"),viturDoc=latestOf("ויתור סודיות"),committee=rows.find(x=>x.type==="הועדה"||x.type==="מסמך ועדה / סל שיקום");
   const committeeDate=rowDate(committee);
   const medicalDate=rowDate(medical);
   if(committeeDate&&!dateCommittee.value)dateCommittee.value=committeeDate;
   const committeeInfo=committee?analysisResults[committee.index]?.committeeInfo:null;
   const committeeWarn=committeeExpired(committeeInfo)?`\n⛔ שים לב: הרשאת הוועדה לקליטה פגה ב-${formatDateInput(committeeInfo.validUntil)} — לא ניתן לקלוט על סמך החלטה זו.`:"";
-  if(!dateConfidentiality.value)dateConfidentiality.value=todayPlusOneYear();
+  // ויתור סודיות: אם נבחר מסמך ויתור ויש בו תאריך — התאריך + שנה; אחרת היום + שנה.
+  const viturDate=rowDate(viturDoc);
+  if(!dateConfidentiality.value)dateConfidentiality.value=viturDate?addYearsInput(viturDate,1):todayPlusOneYear();
   if(medicalDate&&!dateMedical.value)dateMedical.value=addYearsInput(medicalDate,1);
   dateGuide.value="אין";dateProgram.value="אין";
   applyDetectedBankDetails(detectedBankDetails);syncBankInputsFromDetected();updateBankMissingWarning();
   systemsSummary.textContent=`שם: ${first.value.trim()} ${last.value.trim()}
 תעודת זהות: ${id.value}
 תיק קבוע: ${currentFolderName()}
-תוקף ויתור סודיות חושב כיום + שנה. תוקף דוח רפואי חושב מתאריך המסמך + שנה. תוקף הוועדה חושב כיום הקליטה + מספר החודשים שאושרו ("פרק זמן").${committeeWarn} בדוק ותקן לפי הצורך.`;
+תוקף ויתור סודיות חושב מתאריך מסמך הוויתור + שנה (אם אין מסמך — היום + שנה). תוקף דוח רפואי חושב מתאריך המסמך + שנה. תוקף הוועדה חושב כיום הקליטה + מספר החודשים שאושרו ("פרק זמן").${committeeWarn} בדוק ותקן לפי הצורך.`;
 }
 function openExcelStage(){
   showOnlyScreen(screen5);step(5);prepareExcelStage();
