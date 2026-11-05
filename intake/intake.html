@@ -41,7 +41,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="12" cy="12.3" r="1.9"/><path d="M8.6 17a3.4 3.4 0 0 1 6.8 0"/></svg></div><div class="brand-text"><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub ver" title="היסטוריית הגרסאות המלאה: intake_CHANGELOG.md">גרסה 2.77 — "נתוני החלטת ועדת סל שיקום" מזוהה כהועדה, התאריך = בתוקף עד</div></div>
+<div class="top"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="12" cy="12.3" r="1.9"/><path d="M8.6 17a3.4 3.4 0 0 1 6.8 0"/></svg></div><div class="brand-text"><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub ver" title="היסטוריית הגרסאות המלאה: intake_CHANGELOG.md">גרסה 2.78 — תוקף הוועדה = יום הקליטה + פרק זמן; אזהרה אם עבר "בתוקף עד"</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -144,7 +144,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
     </div>
     <div class="field hidden" id="guideOtherWrap" style="margin-top:8px"><label>שם מדריך</label><input id="guideOther"></div>
     <div class="grid" style="margin-top:12px">
-      <div class="field"><label>תוקף הועדה (בתוקף עד)</label><input id="dateCommittee" type="date"></div>
+      <div class="field"><label>תוקף הועדה (קליטה + חודשים)</label><input id="dateCommittee" type="date"></div>
       <div class="field"><label>תוקף ויתור סודיות</label><input id="dateConfidentiality" type="date"><div class="date-help">ברירת מחדל: יום הקליטה + שנה.</div></div>
       <div class="field"><label>תוקף דוח רפואי</label><input id="dateMedical" type="date"><div class="date-help">תאריך המסמך שזוהה + שנה.</div></div>
       <div class="field"><label>דוח מדריך</label><input id="dateGuide" value="אין" readonly><div class="date-help">נרשם "אין", אך נשמר קישור לתיקיית מדריך.</div></div>
@@ -1010,7 +1010,7 @@ function extractDocumentDate(text){
 
 function extractCommitteeInfo(text){
   const s=String(text||"").replace(/[\u200e\u200f]/g," ").replace(/\s+/g," ");
-  const out={service:"",committeeDate:null,validUntil:null,decisionNumber:""};
+  const out={service:"",committeeDate:null,validUntil:null,decisionNumber:"",months:0};
   if(/מפעל\s*(?:מוגן|מגן)/.test(s))out.service="מפעל מוגן";
   let m=s.match(/(?:ועדת\s+השיקום[^\n]{0,80}?(?:שהתקיימה\s*)?בתאריך|התקיימה\s*בתאריך)\s*[:\-]?\s*(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/);
   if(m)out.committeeDate=parseDateParts(m[1],m[2],m[3]);
@@ -1025,8 +1025,17 @@ function extractCommitteeInfo(text){
   }
   m=s.match(/(?:מס(?:פר|['׳])?\s*החלטה)\s*[:\-]?\s*(\d{5,12})/);
   if(m)out.decisionNumber=m[1];
+  // "פרק זמן 12 חודשים" — לכמה חודשים אושר השירות. התוקף בפועל נספר מיום הקליטה.
+  m=s.match(/(\d{1,2})\s*חודש/);
+  if(m&&Number(m[1])>=1&&Number(m[1])<=36)out.months=Number(m[1]);
+  else if(/חצי\s*שנה/.test(s))out.months=6;
   return out;
 }
+// תוקף הוועדה בפועל: יום הקליטה + מספר החודשים שאושרו (05/11/2026 + 12 → 05/11/2027).
+// "בתוקף עד" במסמך הוא רק המועד האחרון שבו מותר לקלוט את האדם.
+function addMonthsDate(dt,months){const d=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate(),12);const day=d.getDate();d.setDate(1);d.setMonth(d.getMonth()+months);const last=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();d.setDate(Math.min(day,last));return d}
+function committeeEndDate(info,intake=new Date()){return info&&info.months?addMonthsDate(intake,info.months):null}
+function committeeExpired(info,intake=new Date()){if(!info||!info.validUntil)return false;const t=new Date(intake.getFullYear(),intake.getMonth(),intake.getDate());const v=new Date(info.validUntil.getFullYear(),info.validUntil.getMonth(),info.validUntil.getDate());return t>v}
 
 
 function cleanHebrewName(value){
@@ -1647,8 +1656,9 @@ async function analyzeFile(file){
   result.extractedText=text;
   result.documentDate=extractDocumentDate(text);
   result.committeeInfo=extractCommitteeInfo(text);
-  result.registrationDate=result.type==="הועדה" && result.committeeInfo.validUntil
-    ? result.committeeInfo.validUntil
+  // ועדה: התאריך בטבלה = יום הקליטה + חודשים. אם מספר החודשים לא זוהה — ריק (לא מנחשים).
+  result.registrationDate=result.type==="הועדה"
+    ? committeeEndDate(result.committeeInfo)
     : result.documentDate;
   const isBankDoc=result.type==="אישור חשבון בנק / צילום צ׳ק";
   result.identity=extractPersonIdentity(text,file.name,{allowUnlabeledId:!isBankDoc,committeeLayout:isCommitteeAnalysis(result)});
@@ -1965,7 +1975,7 @@ function renderDocumentDetailCell(index,type,auto=false){
       const other=[...docsBody.querySelectorAll("tr")].map(t=>Number(t.dataset.i)).find(i=>i!==index&&rowIsBank(i));
       switchBankDocument(other===undefined?-1:other);
     }
-    const value=formatDateInput(result.registrationDate||result.documentDate);
+    const value=formatDateInput(type==="הועדה"?committeeEndDate(result.committeeInfo):(result.registrationDate||result.documentDate));
     cell.innerHTML=`<input class="docDate" type="date" style="min-width:145px" value="${esc(value)}">`;
   }
 }
@@ -2040,11 +2050,15 @@ async function docs(){
       if(result.documentDate && result.documentDate.repairedFromYear){
         dateText=`תאריך המסמך זוהה. ה-OCR קרא את השנה ${result.documentDate.repairedFromYear} (שנה עתידית בלתי אפשרית) והיא תוקנה ל-${result.documentDate.getFullYear()}. יש לוודא מול המסמך.`;
       }
-      if(result.type==="הועדה" && result.committeeInfo.validUntil){
-        const parts=[`תוקף הוועדה עד ${formatDateInput(result.committeeInfo.validUntil)}`];
-        if(result.committeeInfo.service)parts.push(`שירות: ${result.committeeInfo.service}`);
-        if(result.committeeInfo.committeeDate)parts.push(`תאריך הוועדה: ${formatDateInput(result.committeeInfo.committeeDate)}`);
-        dateText=parts.join(" | ")+". תאריך התוקף נרשם בטבלה.";
+      if(result.type==="הועדה"){
+        const ci=result.committeeInfo,parts=[];
+        if(ci.months)parts.push(`אושר ל-${ci.months} חודשים מיום הקליטה → תוקף עד ${formatDateInput(result.registrationDate)}`);
+        else parts.push(`⚠ לא זוהה "פרק זמן" (מספר חודשים) — יש להזין את תאריך התוקף ידנית`);
+        if(ci.validUntil)parts.push(`ניתן לקלוט עד ${formatDateInput(ci.validUntil)}`);
+        if(ci.service)parts.push(`שירות: ${ci.service}`);
+        if(ci.committeeDate)parts.push(`תאריך הוועדה: ${formatDateInput(ci.committeeDate)}`);
+        dateText=parts.join(" | ")+".";
+        if(committeeExpired(ci))dateText=`⛔ הרשאת הוועדה לקליטה פגה ב-${formatDateInput(ci.validUntil)} — לא ניתן לקלוט על סמך החלטה זו. `+dateText;
       }
       tr.querySelector(".suggestion").innerHTML=`<span class="suggestion-text">${esc(result.type)}</span>`+
         `<div class="analysis-note">${result.score ? "נמצאו סימנים בתוכן: "+esc(result.matches.join(", ")) : "לא נמצאו מספיק סימנים ברורים בתוכן. יש לבדוק ידנית."}</div>`+
@@ -2430,6 +2444,8 @@ function prepareExcelStage(){
   const committeeDate=rowDate(committee);
   const medicalDate=rowDate(medical);
   if(committeeDate&&!dateCommittee.value)dateCommittee.value=committeeDate;
+  const committeeInfo=committee?analysisResults[committee.index]?.committeeInfo:null;
+  const committeeWarn=committeeExpired(committeeInfo)?`\n⛔ שים לב: הרשאת הוועדה לקליטה פגה ב-${formatDateInput(committeeInfo.validUntil)} — לא ניתן לקלוט על סמך החלטה זו.`:"";
   if(!dateConfidentiality.value)dateConfidentiality.value=todayPlusOneYear();
   if(medicalDate&&!dateMedical.value)dateMedical.value=addYearsInput(medicalDate,1);
   dateGuide.value="אין";dateProgram.value="אין";
@@ -2437,7 +2453,7 @@ function prepareExcelStage(){
   systemsSummary.textContent=`שם: ${first.value.trim()} ${last.value.trim()}
 תעודת זהות: ${id.value}
 תיק קבוע: ${currentFolderName()}
-תוקף ויתור סודיות חושב כיום + שנה. תוקף דוח רפואי חושב מתאריך המסמך + שנה. תוקף הוועדה ("בתוקף עד") הועבר ממסמך הוועדה שזוהה. בדוק ותקן לפי הצורך.`;
+תוקף ויתור סודיות חושב כיום + שנה. תוקף דוח רפואי חושב מתאריך המסמך + שנה. תוקף הוועדה חושב כיום הקליטה + מספר החודשים שאושרו ("פרק זמן").${committeeWarn} בדוק ותקן לפי הצורך.`;
 }
 function openExcelStage(){
   showOnlyScreen(screen5);step(5);prepareExcelStage();
