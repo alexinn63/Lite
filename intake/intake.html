@@ -41,7 +41,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
 <body>
 <div class="app">
 <header class="panel">
-<div class="top"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="12" cy="12.3" r="1.9"/><path d="M8.6 17a3.4 3.4 0 0 1 6.8 0"/></svg></div><div class="brand-text"><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub ver" title="היסטוריית הגרסאות המלאה: intake_CHANGELOG.md">גרסה 2.76 — ת.ז שמתחילה ב-0 נשמרת ב-Excel כטקסט (ה-0 לא נמחק)</div></div>
+<div class="top"><div class="brand"><div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6H9l2 2h8.5A1.5 1.5 0 0 1 21 9.5v8A1.5 1.5 0 0 1 19.5 19h-15A1.5 1.5 0 0 1 3 17.5z"/><circle cx="12" cy="12.3" r="1.9"/><path d="M8.6 17a3.4 3.4 0 0 1 6.8 0"/></svg></div><div class="brand-text"><h1>פתיחת תיק אישי</h1><div class="sub">קליטת מסמכים, בדיקה ועדכון המערכות</div></div></div><div class="sub ver" title="היסטוריית הגרסאות המלאה: intake_CHANGELOG.md">גרסה 2.77 — "נתוני החלטת ועדת סל שיקום" מזוהה כהועדה, התאריך = בתוקף עד</div></div>
 <div class="steps"><button class="step active" data-step="1" type="button">1. קבלת מסמכים</button><button class="step" data-step="2" type="button">2. זיהוי אדם</button><button class="step" data-step="3" type="button">3. בדיקת מסמכים</button><button class="step" data-step="4" type="button">4. יצירת תיק</button><button class="step" data-step="5" type="button">5. עדכון מערכות</button><button class="step" data-step="6" type="button">6. סיום</button></div>
 </header>
 
@@ -144,7 +144,7 @@ main{padding:24px}.hidden{display:none!important}.source-grid{display:grid;grid-
     </div>
     <div class="field hidden" id="guideOtherWrap" style="margin-top:8px"><label>שם מדריך</label><input id="guideOther"></div>
     <div class="grid" style="margin-top:12px">
-      <div class="field"><label>תאריך הועדה</label><input id="dateCommittee" type="date"></div>
+      <div class="field"><label>תוקף הועדה (בתוקף עד)</label><input id="dateCommittee" type="date"></div>
       <div class="field"><label>תוקף ויתור סודיות</label><input id="dateConfidentiality" type="date"><div class="date-help">ברירת מחדל: יום הקליטה + שנה.</div></div>
       <div class="field"><label>תוקף דוח רפואי</label><input id="dateMedical" type="date"><div class="date-help">תאריך המסמך שזוהה + שנה.</div></div>
       <div class="field"><label>דוח מדריך</label><input id="dateGuide" value="אין" readonly><div class="date-help">נרשם "אין", אך נשמר קישור לתיקיית מדריך.</div></div>
@@ -369,6 +369,11 @@ function classifyDocument(text, fileName=""){
   const hasCommitteeDate=/\b\d{1,2}[.\/\-]\d{1,2}[.\/\-]20\d{2}\b/.test(s);
   const hasValidity=s.includes("בתוקף עד")||s.includes("תוקף עד")||(s.includes("חודשים")&&s.includes("למשך"))||s.includes("אושרו לחצי שנה")||hasCommitteeDate;
   const isProtectedWorkshopDecision=committeeStrong.length>0 && hasProtectedWorkshop && hasValidity;
+  // תדפיס שקדיה "נתוני החלטת ועדת סל שיקום" (טופס עם "פרטי ההחלטה" ו"בתוקף עד") הוא החלטת ועדה
+  // לכל דבר → "הועדה". לא דורשים כאן "מפעל מוגן": ב-OCR של סריקה זו המילה נקראה "מבפעל".
+  const salDecisionTitle=/החלטת\s*ועדת\s*סל\s*(?:ה)?שיקום/.test(s);
+  const salDecisionValidity=/בתוקף\s*עד/.test(s)||/תאריך\s*ועד[הת]/.test(s)||s.includes("פרטי ההחלטה");
+  if(salDecisionTitle&&salDecisionValidity)add("הועדה",80,["החלטת ועדת סל שיקום"].concat(committeeOther));
   if(isProtectedWorkshopDecision)add("הועדה",50+committeeStrong.length*10+committeeOther.length*3,committeeStrong.concat(committeeOther));
 
   const salStrong=findIncluded(s,["הבקשה לוועדת השיקום","תכנית שיקום עתידית","תוכנית שיקום עתידית","בקשת המתמודד במילותיו","בקשת מרובת שירותים","השירותים המבוקשים"]);
@@ -1009,9 +1014,10 @@ function extractCommitteeInfo(text){
   if(/מפעל\s*(?:מוגן|מגן)/.test(s))out.service="מפעל מוגן";
   let m=s.match(/(?:ועדת\s+השיקום[^\n]{0,80}?(?:שהתקיימה\s*)?בתאריך|התקיימה\s*בתאריך)\s*[:\-]?\s*(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/);
   if(m)out.committeeDate=parseDateParts(m[1],m[2],m[3]);
+  if(!out.committeeDate){m=s.match(/תאריך\s*ועד[הת]\s*[:\-]?\s*(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/);if(m)out.committeeDate=parseDateParts(m[1],m[2],m[3])}
   m=s.match(/בתוקף\s*עד\s*[:\-]?\s*(\d{1,2})[.\/\-](\d{1,2})[.\/\-](\d{2,4})/);
   if(m)out.validUntil=parseDateParts(m[1],m[2],m[3]);
-  if(!out.validUntil && out.service && /החלטת\s+ועדת\s+השיקום/.test(s)){
+  if(!out.validUntil && out.service && (/החלטת\s+ועדת\s+השיקום/.test(s)||/החלטת\s*ועדת\s*סל\s*(?:ה)?שיקום/.test(s))){
     const dates=[];
     const allDates=/\b(\d{1,2})[.\/\-](\d{1,2})[.\/\-](20\d{2})\b/g;
     while((m=allDates.exec(s))){const dt=parseDateParts(m[1],m[2],m[3]);if(dt)dates.push(dt)}
@@ -2431,7 +2437,7 @@ function prepareExcelStage(){
   systemsSummary.textContent=`שם: ${first.value.trim()} ${last.value.trim()}
 תעודת זהות: ${id.value}
 תיק קבוע: ${currentFolderName()}
-תוקף ויתור סודיות חושב כיום + שנה. תוקף דוח רפואי חושב מתאריך המסמך + שנה. תאריך הוועדה הועבר מהמסמך שזוהה. בדוק ותקן לפי הצורך.`;
+תוקף ויתור סודיות חושב כיום + שנה. תוקף דוח רפואי חושב מתאריך המסמך + שנה. תוקף הוועדה ("בתוקף עד") הועבר ממסמך הוועדה שזוהה. בדוק ותקן לפי הצורך.`;
 }
 function openExcelStage(){
   showOnlyScreen(screen5);step(5);prepareExcelStage();
@@ -2658,7 +2664,7 @@ function warningConfirm(missing,context){return !missing.length||confirm(`${cont
 buildDigitalCopy.onclick=async()=>{
  const guide=guideSelect.value==="__other"?guideOther.value.trim():guideSelect.value;
  const missing=[];
- if(!dateCommittee.value)missing.push("תאריך הועדה");
+ if(!dateCommittee.value)missing.push("תוקף הועדה");
  if(!dateConfidentiality.value)missing.push("תאריך ויתור סודיות");
  if(!dateMedical.value)missing.push("תוקף דוח רפואי");
  if(!warningConfirm(missing,"חלק מהשדות בתיק הדיגיטלי לא מולאו."))return;
