@@ -108,6 +108,7 @@ body {
   resize:none; overflow:hidden; background:var(--yellow-light); line-height:1.7;
 }
 .field textarea:focus { outline:none; border-color:var(--yellow-dark); background:white; }
+.print-text { display:none; }
 .char-hint { font-size:11px; color:var(--muted); margin-top:3px; }
 
 /* FILE UPLOAD */
@@ -150,6 +151,12 @@ body {
   #nameChips span { font-size:16px !important; font-weight:700 !important; background:var(--yellow-light) !important; color:var(--primary) !important; border:1.5px solid var(--border) !important; border-radius:8px !important; padding:4px 10px !important; box-shadow:none !important; }
   #nameChips span span { display:none !important; }
   #nameSearch { display:none !important; }
+  /* Long text: print a flowing div instead of the fixed-height textarea, so it wraps to A4 width and breaks across pages */
+  .page, .doc-body, .field { overflow:visible !important; }
+  .field textarea, .translate-btn { display:none !important; }
+  .print-text { display:block !important; white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word;
+    padding:10px 14px; border:1.5px solid var(--border); border-radius:8px; font-size:14px; line-height:1.7;
+    background:var(--yellow-light); min-height:40px; }
 }
 
   .spinner { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin .6s linear infinite; }
@@ -162,10 +169,11 @@ body {
   <div>
     <div class="top-bar-title">תיעוד שיחות</div>
     <div class="top-bar-sub" data-org="name">מפעל מוגן שיקומי לבריאות הנפש – עמותת יחדיו</div>
+    <div id="draft_saved_hint" class="no-print" style="font-size:11px;opacity:.85;min-height:14px;"></div>
   </div>
   <div class="top-bar-actions">
     <button class="btn btn-clear" onclick="clearAll()">✕ נקה</button>
-    <button class="btn btn-print" onclick="window.print()">🖨 הדפס</button>
+    <button class="btn btn-print" onclick="syncPrintText();window.print()">🖨 הדפס</button>
     <button class="btn btn-email" onclick="emailDoc()">✉ שלח במייל</button>
     <button class="btn btn-save" onclick="savePDF()">📄 שמור PDF</button>
   </div>
@@ -498,6 +506,10 @@ function validate() {
 // ── CLONE SAVE ──
 function buildPageHTML() {
   const clone = document.documentElement.cloneNode(true);
+  { const m = document.createElement('meta'); m.setAttribute('name','saved-copy'); m.setAttribute('content','1');
+    const h = clone.querySelector('head'); if (h) h.appendChild(m); }
+  { const db = clone.querySelector('#draftBanner'); if (db) db.remove();
+    const dh = clone.querySelector('#draft_saved_hint'); if (dh) dh.textContent = ''; }
 
   // Hide UI controls that don't make sense in the saved copy —
   // but keep the top bar (print / PDF buttons) so it can still be converted to PDF later
@@ -608,8 +620,12 @@ function savePDF() {
   if (!validate()) return;
   const prevTitle = document.title;
   document.title = safeFileName(selectedName) + '_תיעוד_שיחה_' + fmt();
+  syncPrintText();
   window.print();
-  setTimeout(() => { document.title = prevTitle; }, 1000);
+  setTimeout(() => {
+    document.title = prevTitle;
+    if (readDraft() && confirm('האם ה-PDF נשמר?\n\nאישור — הטיוטה תימחק.\nביטול — הטיוטה תישאר.')) clearDraft();
+  }, 1000);
 }
 
 async function emailDoc() {
@@ -618,7 +634,7 @@ async function emailDoc() {
   const filename = safeFileName(selectedName) + '_תיעוד_שיחה_' + fmt() + '.html';
   const file = new File([html], filename, {type:'text/html'});
   if (navigator.canShare && navigator.canShare({files:[file]}) && navigator.share) {
-    try { await navigator.share({title:'תיעוד שיחה – '+selectedName, files:[file]}); showStatus('נשלח בהצלחה','success'); return; }
+    try { await navigator.share({title:'תיעוד שיחה – '+selectedName, files:[file]}); showStatus('נשלח בהצלחה','success'); clearDraft(); return; }
     catch(e) { if(e.name==='AbortError') return; }
   }
   const a = document.createElement('a');
@@ -643,6 +659,128 @@ function clearAll() {
   document.getElementById('fDate').textContent=dateToHe(formatDate());
   renderFileList();
   showStatus('','');
+  clearDraft();
+}
+
+// ── PRINT: mirror textarea text into flowing divs (fixes cut-off text in print/PDF) ──
+function syncPrintText() {
+  document.querySelectorAll('.field textarea').forEach(ta => {
+    let d = ta.nextElementSibling;
+    if (!d || !d.classList.contains('print-text')) {
+      d = document.createElement('div');
+      d.className = 'print-text';
+      ta.parentNode.insertBefore(d, ta.nextSibling);
+    }
+    d.textContent = ta.value;
+  });
+}
+window.addEventListener('beforeprint', syncPrintText);
+window.addEventListener('afterprint', () => document.querySelectorAll('.field textarea').forEach(ta => autoResize(ta)));
+
+// ══════════════════════════════════════════
+// DRAFT (טיוטה) — autosave to this browser, offer restore on next open
+// ══════════════════════════════════════════
+const DRAFT_KEY = 'tiud_sichot_draft_v1';
+const DRAFT_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000;   // drafts older than 2 weeks are dropped
+const IS_SAVED_COPY = !!document.querySelector('meta[name="saved-copy"]');
+let draftTimer = null, lastDraftJson = null, draftClearedSnapshot = null;
+let draftArmed = true;   // false while the "restore?" banner is open — protects the old draft
+
+function collectDraft() {
+  const g = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  return {
+    names: selectedNames.slice(),
+    staff: g('staffSelect'), staffOther: g('staffOther'),
+    date: g('docDate'), topic: selectedTopic || '',
+    content: g('content'), summary: g('summary')
+  };
+}
+function draftHasContent(d) {
+  return !!d && ((d.names && d.names.length) || (d.topic||'').trim() || (d.content||'').trim() || (d.summary||'').trim());
+}
+function applyDraft(d) {
+  selectedNames = (d.names || []).slice(); syncNames();
+  const st = document.getElementById('staffSelect');
+  if (st) {
+    if (d.staff && ![...st.options].some(o => o.value === d.staff)) st.add(new Option(d.staff, d.staff));
+    st.value = d.staff || ''; onStaffChange();
+  }
+  document.getElementById('staffOther').value = d.staffOther || '';
+  if (d.date) { document.getElementById('docDate').value = d.date; applyDate(); }
+  if (d.topic) selectTopic(d.topic);
+  document.getElementById('content').value = d.content || '';
+  document.getElementById('summary').value = d.summary || '';
+  document.querySelectorAll('.field textarea').forEach(ta => autoResize(ta));
+}
+function readDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    const o = raw ? JSON.parse(raw) : null;
+    if (o && o.savedAt && Date.now() - o.savedAt > DRAFT_MAX_AGE_MS) { localStorage.removeItem(DRAFT_KEY); return null; }
+    return o;
+  } catch (e) { return null; }
+}
+function saveDraftNow() {
+  if (IS_SAVED_COPY || !draftArmed) return;
+  try {
+    const d = collectDraft();
+    if (!draftHasContent(d)) return;
+    const json = JSON.stringify(d);
+    if (json === lastDraftJson || json === draftClearedSnapshot) return;
+    draftClearedSnapshot = null; lastDraftJson = json;
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), data: d }));
+    const hint = document.getElementById('draft_saved_hint');
+    if (hint) { const t = new Date(); hint.textContent = '📝 טיוטה נשמרה ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0'); }
+  } catch (e) { /* storage blocked — ignore */ }
+}
+function scheduleDraftSave(e) {
+  if (IS_SAVED_COPY) return;
+  if (!draftArmed && e && (e.type === 'input' || e.type === 'change') && e.isTrusted) dismissDraftBanner();
+  clearTimeout(draftTimer);
+  draftTimer = setTimeout(saveDraftNow, 800);
+}
+function clearDraft() {
+  clearTimeout(draftTimer); lastDraftJson = null;
+  try { draftClearedSnapshot = JSON.stringify(collectDraft()); } catch (e) {}
+  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  hideDraftBanner(); draftArmed = true;
+  const hint = document.getElementById('draft_saved_hint'); if (hint) hint.textContent = '';
+}
+function hideDraftBanner() { const b = document.getElementById('draftBanner'); if (b) b.remove(); }
+function dismissDraftBanner() { hideDraftBanner(); draftArmed = true; }
+function restoreDraft() {
+  const dr = readDraft(); if (!dr || !dr.data) return;
+  applyDraft(dr.data); hideDraftBanner(); draftArmed = true; lastDraftJson = null;
+  showStatus('הטיוטה שוחזרה','success');
+}
+function showDraftBanner() {
+  if (IS_SAVED_COPY) return;
+  const dr = readDraft();
+  if (!dr || !dr.data || !draftHasContent(dr.data)) return;
+  draftArmed = false;
+  const t = new Date(dr.savedAt || Date.now());
+  const when = t.toLocaleDateString('he-IL') + ' ' + String(t.getHours()).padStart(2,'0') + ':' + String(t.getMinutes()).padStart(2,'0');
+  const esc = v => String(v).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const who = esc((dr.data.names || []).join(', ') || 'ללא שם') + (dr.data.topic ? ' · ' + esc(dr.data.topic) : '');
+  hideDraftBanner();
+  const box = document.createElement('div');
+  box.id = 'draftBanner'; box.className = 'no-print';
+  box.style.cssText = 'position:fixed;bottom:16px;left:16px;right:16px;max-width:600px;margin:0 auto;background:#fff;color:#1e2535;border:1px solid var(--border);border-right:5px solid var(--yellow-dark);border-radius:12px;box-shadow:0 6px 22px rgba(0,0,0,.16);padding:12px 14px;z-index:10001;font-family:inherit;direction:rtl;display:flex;gap:10px;align-items:center;flex-wrap:wrap;';
+  box.innerHTML =
+    '<div style="flex:1 1 200px;min-width:170px;"><div style="font-weight:700;font-size:14.5px;color:var(--primary);">📝 נמצאה טיוטה שלא נשמרה</div>' +
+    '<div style="font-size:12.5px;color:var(--muted);margin-top:2px;">' + who + ' · ' + when + '</div></div>' +
+    '<button type="button" onclick="restoreDraft()" style="background:var(--primary);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;">שחזר טיוטה</button>' +
+    '<button type="button" onclick="if(confirm(\'למחוק את הטיוטה?\')) clearDraft()" style="background:#f1f4f8;color:#4b5563;border:1px solid #dbe3ec;border-radius:8px;padding:9px 14px;font-family:inherit;font-size:13px;cursor:pointer;">מחק</button>' +
+    '<button type="button" onclick="dismissDraftBanner()" aria-label="סגור" title="התחל טופס חדש (הטיוטה תישאר עד שתתחיל להקליד)" style="background:transparent;color:#9aa4b2;border:0;font-size:18px;line-height:1;cursor:pointer;padding:4px 6px;">✕</button>';
+  document.body.appendChild(box);
+}
+if (!IS_SAVED_COPY) {
+  document.addEventListener('input', scheduleDraftSave);
+  document.addEventListener('change', scheduleDraftSave);
+  document.addEventListener('click', scheduleDraftSave, true);   // name chips / topic / translate set values without input events
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveDraftNow(); });
+  window.addEventListener('pagehide', saveDraftNow);
+  window.addEventListener('load', () => setTimeout(showDraftBanner, 600));   // after staff list is built
 }
 
 function autoResize(el) {
