@@ -353,6 +353,32 @@
     .empty-state { padding: 55px 20px; text-align: center; color: var(--muted); }
     .empty-state strong { display: block; margin-bottom: 5px; color: var(--ink); font-size: 17px; }
 
+    .recon {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .recon > summary {
+      cursor: pointer;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      list-style-position: inside;
+    }
+    .recon.ok > summary { color: var(--valid); }
+    .recon.warn { border-color: #e6c55c; }
+    .recon.warn > summary { color: #604b00; background: #fff8de; border-radius: 12px; }
+    .recon.none > summary { color: var(--muted); }
+    .recon-body { padding: 4px 14px 12px; font-size: 13px; }
+    .recon-group { margin-top: 10px; }
+    .recon-group h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+    .recon-group p.hint { margin: 0 0 4px; color: var(--muted); font-size: 12px; }
+    .recon-group ul { margin: 0; padding-inline-start: 18px; }
+    .recon-group li { margin: 2px 0; }
+    .recon-id { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+    .recon-source { margin-top: 10px; color: var(--muted); font-size: 12px; }
+
     .toast {
       position: fixed;
       left: 22px;
@@ -435,6 +461,11 @@
     </section>
 
     <div class="notice" id="notice" role="status" aria-live="polite"></div>
+
+    <details class="recon" id="recon" hidden>
+      <summary id="reconSummary"></summary>
+      <div class="recon-body" id="reconBody"></div>
+    </details>
 
     <section class="content" id="content" hidden>
       <div class="controls">
@@ -1088,8 +1119,96 @@
         setWidth("colId", (idPx / identPx) * identPercent);
         OTHER_COLUMNS.forEach((c) => setWidth(c.id, (c.weight / OTHER_WEIGHT_SUM) * remainingPercent));
       }
+      // ===== 18.11.2026: сверка с בסיס נתונים =====
+      // Источник — данные, которые портал (index.html) сохранил при загрузке בסיס נתונים.xlsx
+      // (localStorage rehab_excel_clients_v1: name/id/guide). Отдельно выбирать второй файл не нужно.
+      function isValidIsraeliId(id) {
+        if (!/^\d{9}$/.test(id)) return false;
+        let sum = 0;
+        for (let i = 0; i < 9; i++) {
+          let d = Number(id[i]) * (i % 2 === 0 ? 1 : 2);
+          if (d > 9) d -= 9;
+          sum += d;
+        }
+        return sum % 10 === 0;
+      }
+      function nameWords(name) {
+        return normalizeText(name).split(" ").filter(Boolean).sort().join(" ");
+      }
+      function sameGuide(a, b) {
+        const x = normalizeText(a), y = normalizeText(b);
+        if (!x || !y) return x === y;
+        return x === y || x.startsWith(y) || y.startsWith(x);
+      }
+      function loadBaseClients() {
+        try {
+          const raw = localStorage.getItem("rehab_excel_clients_v1");
+          if (!raw) return null;
+          const list = JSON.parse(raw);
+          if (!Array.isArray(list) || !list.length) return null;
+          const byId = new Map();
+          for (const item of list) {
+            const id = normalizeId(item && item.id);
+            const name = normalizeText(item && item.name);
+            if (!id || !name) continue;
+            byId.set(id, { id, name, guide: normalizeText(item.guide) });
+          }
+          return { byId, date: localStorage.getItem("portal_data_date") || "" };
+        } catch (error) {
+          console.warn("Could not read base data", error);
+          return null;
+        }
+      }
+      function reconPerson(name, id, guide) {
+        return `${escapeHtml(name)} · <span class="recon-id">${escapeHtml(id)}</span>${guide ? ` · ${escapeHtml(guide)}` : ""}`;
+      }
+      function reconGroup(title, hint, items) {
+        if (!items.length) return "";
+        return `<div class="recon-group"><h3>${escapeHtml(title)} (${items.length})</h3>${hint ? `<p class="hint">${escapeHtml(hint)}</p>` : ""}<ul>${items.map((x) => `<li>${x}</li>`).join("")}</ul></div>`;
+      }
+      function renderReconcile() {
+        const box = $("recon");
+        const active = state.rows.filter((row) => row.status === "active");
+        if (!active.length) { box.hidden = true; return; }
+        box.hidden = false;
+        const base = loadBaseClients();
+        if (!base) {
+          box.className = "recon none";
+          $("reconSummary").textContent = "בדיקת התאמה מול בסיס נתונים: אין נתונים — יש לטעון את בסיס נתונים.xlsx במסך הראשי";
+          $("reconBody").innerHTML = '<p class="recon-source">הבדיקה משתמשת בנתונים שנטענו במסך הראשי (כפתור „החלפת קובץ EXCEL”). לאחר הטעינה יש לחזור למסך זה.</p>';
+          return;
+        }
+        const tikById = new Map(active.map((row) => [row.id, row]));
+        const onlyTik = [], onlyBase = [], guideDiff = [], badId = [], nameDiff = [];
+        for (const row of active) {
+          const other = base.byId.get(row.id);
+          if (!isValidIsraeliId(row.id)) badId.push(`${reconPerson(row.name, row.id, row.guide)} <small>(תיק דיגיטלי${other ? " ובסיס נתונים" : ""})</small>`);
+          if (!other) { onlyTik.push(reconPerson(row.name, row.id, row.guide)); continue; }
+          if (!sameGuide(row.guide, other.guide)) guideDiff.push(`${reconPerson(row.name, row.id)} — תיק דיגיטלי: ${escapeHtml(row.guide)} · בסיס נתונים: ${escapeHtml(other.guide || "—")}`);
+          if (nameWords(row.name) !== nameWords(other.name)) nameDiff.push(`<span class="recon-id">${escapeHtml(row.id)}</span> — תיק דיגיטלי: ${escapeHtml(row.name)} · בסיס נתונים: ${escapeHtml(other.name)}`);
+        }
+        for (const other of base.byId.values()) {
+          if (tikById.has(other.id)) continue;
+          onlyBase.push(reconPerson(other.name, other.id, other.guide));
+          if (!isValidIsraeliId(other.id)) badId.push(`${reconPerson(other.name, other.id, other.guide)} <small>(בסיס נתונים)</small>`);
+        }
+        const critical = onlyTik.length + onlyBase.length + guideDiff.length + badId.length;
+        box.className = "recon " + (critical ? "warn" : "ok");
+        $("reconSummary").textContent = critical
+          ? `⚠ בדיקת התאמה מול בסיס נתונים: ${critical} סתירות לבדיקה${nameDiff.length ? ` · ${nameDiff.length} הבדלי כתיב בשם` : ""}`
+          : `✓ תיק דיגיטלי ובסיס נתונים תואמים (${active.length} מקבלי שירות)${nameDiff.length ? ` · ${nameDiff.length} הבדלי כתיב בשם` : ""}`;
+        $("reconBody").innerHTML =
+          reconGroup("ת.ז. לא תקינה (ספרת ביקורת)", "המספר אינו יכול להיות ת.ז. ישראלית תקינה — יש לבדוק מול צילום ת.ז.", badId) +
+          reconGroup("קיימים רק בתיק דיגיטלי", "ייתכן שהת.ז. שונה בבסיס נתונים, או שהאדם חסר שם.", onlyTik) +
+          reconGroup("קיימים רק בבסיס נתונים", "ייתכן שהת.ז. שונה בתיק דיגיטלי, או שהאדם חסר שם.", onlyBase) +
+          reconGroup("מדריך שונה", "", guideDiff) +
+          reconGroup("הבדלי כתיב בשם", "אותה ת.ז., השם כתוב אחרת. לא בהכרח טעות — לבדוק אם רוצים אחידות.", nameDiff) +
+          `<p class="recon-source">בסיס נתונים: נטען במסך הראשי${base.date ? ` ב-${escapeHtml(base.date)}` : ""} · ${base.byId.size} רשומות. אם עדכנת את הקובץ — טען אותו שוב במסך הראשי.</p>`;
+      }
+
       function render() {
         updateKpis();
+        renderReconcile();
         updateGuides();
         renderRows();
         sizeColumns();
@@ -1301,6 +1420,11 @@
           saveScroll();
           scrollSaveScheduled = false;
         });
+      });
+
+      // портал в другой вкладке загрузил новый בסיס נתונים — пересчитать сверку
+      window.addEventListener("storage", (event) => {
+        if (event.key === "rehab_excel_clients_v1" || event.key === null) renderReconcile();
       });
 
       loadCache();
