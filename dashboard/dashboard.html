@@ -317,6 +317,8 @@
     .state-box strong { font-size: 11.5px; font-weight: 500; font-variant-numeric: tabular-nums; }
     .state-box small { font-size: 10.5px; color: inherit; opacity: .82; }
     .state-date { font-size: 14px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .state-date.full { font-size: 12px; }
+    .state-icon { margin-inline-end: 4px; font-size: 11px; font-weight: 700; }
     .state-valid { color: #1e6138; background: var(--valid-soft); }
     .state-soon { color: #765200; background: var(--soon-soft); }
     .state-expired { color: #8e2929; background: var(--expired-soft); }
@@ -402,7 +404,7 @@
       <div class="title-wrap">
         <p class="eyebrow">מפעל מוגן · משרד הבריאות</p>
         <h1>בקרה ותיק דיגיטלי</h1>
-        <p class="subtitle">תצוגת בקרה לקריאה בלבד מתוך קובץ Excel העדכני. הנתונים אינם נשמרים בתוך המסך ואינם משנים את הקובץ.</p>
+        <p class="subtitle">תצוגת בקרה לקריאה בלבד מתוך קובץ Excel העדכני. הנתונים נשמרים בדפדפן במחשב זה לפתיחה מהירה (ניתן למחוק ב„ניקוי זיכרון”) ואינם משנים את קובץ ה-Excel.</p>
       </div>
       <nav class="nav-actions" aria-label="ניווט ראשי">
         <a class="nav-link" href="../index.html">⌂ מסך ראשי</a>
@@ -465,9 +467,10 @@
 
       <div class="legend-row">
         <div class="legend" aria-label="מקרא צבעים">
-          <span class="legend-item"><i class="dot soon"></i> עדכון תוך 30 יום</span>
-          <span class="legend-item"><i class="dot expired"></i> פג תוקף</span>
-          <span class="legend-item"><i class="dot"></i> חסר או לא נדרש</span>
+          <span class="legend-item"><i class="dot valid"></i> בתוקף</span>
+          <span class="legend-item"><i class="dot soon"></i> ⚠ עדכון תוך 30 יום</span>
+          <span class="legend-item"><i class="dot expired"></i> ✕ פג תוקף</span>
+          <span class="legend-item"><i class="dot"></i> חסר / לבדיקה / לא נדרש</span>
         </div>
         <div class="result-count" id="resultCount" aria-live="polite"></div>
       </div>
@@ -557,6 +560,7 @@
       };
 
       function saveCache() {
+        if (!state.rows.length) return;
         try {
           const payload = {
             savedAt: Date.now(),
@@ -693,15 +697,27 @@
         const now = new Date();
         return new Date(now.getFullYear(), now.getMonth(), now.getDate());
       }
+      // 18.11.2026: полная дата (день ≠ 1) сравнивается по дню — intake 2.78+ пишет точную дату «בתוקף עד».
+      // Дата только с месяцем («11/2026» или 1-е число) — как раньше: 1-е число месяца.
       function parseControlDate(value) {
         if (value instanceof Date && !Number.isNaN(value.getTime())) {
-          return new Date(value.getFullYear(), value.getMonth(), 1);
+          // SheetJS может вернуть дату со сдвигом часового пояса/секунд — округляем до ближайшего дня
+          const rounded = new Date(value.getTime() + 12 * 3600000);
+          return new Date(rounded.getFullYear(), rounded.getMonth(), rounded.getDate());
         }
         if (typeof value === "number" && Number.isFinite(value)) {
           const parsed = XLSX.SSF.parse_date_code(value);
-          if (parsed) return new Date(parsed.y, parsed.m - 1, 1);
+          if (parsed) return new Date(parsed.y, parsed.m - 1, parsed.d || 1);
         }
         const text = normalizeText(value);
+        const full = text.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2}|\d{4})$/);
+        if (full) {
+          const day = Number(full[1]);
+          const month = Number(full[2]);
+          let year = Number(full[3]);
+          if (year < 100) year += 2000;
+          if (month >= 1 && month <= 12 && day >= 1 && day <= 31) return new Date(year, month - 1, day);
+        }
         const match = text.match(/^(\d{1,2})[./-](\d{2}|\d{4})$/);
         if (match) {
           const month = Number(match[1]);
@@ -713,7 +729,8 @@
       }
       function formatMonth(date) {
         if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
-        return `${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+        const monthYear = `${String(date.getMonth() + 1).padStart(2, "0")}/${date.getFullYear()}`;
+        return date.getDate() === 1 ? monthYear : `${String(date.getDate()).padStart(2, "0")}/${monthYear}`;
       }
       function formatLooseDate(value) {
         const date = parseControlDate(value);
@@ -731,8 +748,11 @@
             : { code: "missing", label: "חסר", detail: raw };
         }
         const today = startOfToday();
-        const days = Math.ceil((date - today) / 86400000);
-        if (days <= 0) return { code: "expired", label: "פג תוקף", detail: formatMonth(date), sort: date.getTime() };
+        // 18.11.2026 (решение Alex): дата «только месяц» (1-е число) = сделать в течение этого месяца,
+        // т.е. действует до последнего дня месяца включительно. Полная дата действует до этого дня включительно.
+        const deadline = date.getDate() === 1 ? new Date(date.getFullYear(), date.getMonth() + 1, 0) : date;
+        const days = Math.round((deadline - today) / 86400000);
+        if (days < 0) return { code: "expired", label: "פג תוקף", detail: formatMonth(date), sort: date.getTime() };
         if (days <= 30) return { code: "soon", label: "לעדכון", detail: formatMonth(date), sort: date.getTime() };
         return { code: "valid", label: "", detail: formatMonth(date), sort: date.getTime() };
       }
@@ -972,13 +992,14 @@
           return String(a.name).localeCompare(String(b.name), "he", { numeric: true, sensitivity: "base" });
         });
       }
+      const STATE_ICON = { expired: "✕", soon: "⚠" };
       function stateCell(item, allowLink = true) {
         const info = item.state;
         const link = allowLink ? explorerFolderHref(item.link) : "";
         const dateOnly = ["valid", "soon", "expired", "closed"].includes(info.code) && info.detail;
         if (!dateOnly && !info.label && !info.detail) return `<td class="cell-state"></td>`;
         const content = dateOnly
-          ? `<div class="state-box state-${escapeHtml(info.code)}"><span class="state-date">${escapeHtml(info.detail)}</span></div>`
+          ? `<div class="state-box state-${escapeHtml(info.code)}"${info.label ? ` title="${escapeHtml(info.label)}"` : ""}><span class="state-date${info.detail.length > 7 ? " full" : ""}">${STATE_ICON[info.code] ? `<span class="state-icon" aria-hidden="true">${STATE_ICON[info.code]}</span>` : ""}${escapeHtml(info.detail)}</span>${info.label ? `<span class="sr-only">${escapeHtml(info.label)}</span>` : ""}</div>`
           : `<div class="state-box state-${escapeHtml(info.code)}"><strong>${escapeHtml(info.label)}</strong>${info.detail ? `<small>${escapeHtml(info.detail)}</small>` : ""}</div>`;
         if (!link) return `<td class="cell-state">${content}</td>`;
         return `<td class="cell-state"><a class="doc-link" href="${escapeHtml(link)}" target="_blank" rel="noopener" data-copy-target="${escapeHtml(item.link)}" title="פתיחת תיקיית מסמכים">${content}</a></td>`;
@@ -1218,12 +1239,13 @@
       el.choose.addEventListener("click", chooseFile);
       el.refresh.addEventListener("click", refreshFile);
       el.fileInput.addEventListener("change", () => loadFile(el.fileInput.files?.[0] || null));
-      [el.search, el.guide].forEach((control) => control.addEventListener(control === el.search ? "input" : "change", renderRows));
+      [el.search, el.guide].forEach((control) => control.addEventListener(control === el.search ? "input" : "change", () => { renderRows(); saveCache(); }));
       el.status.addEventListener("change", () => {
         state.viewStatus = el.status.value;
         state.quickFilter = "all";
         document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === "all")));
         render();
+        saveCache();
       });
       el.clear.addEventListener("click", () => {
         el.search.value = "";
@@ -1233,6 +1255,7 @@
         state.quickFilter = "all";
         document.querySelectorAll(".chip").forEach((chip) => chip.setAttribute("aria-pressed", String(chip.dataset.filter === "all")));
         render();
+        saveCache();
       });
       const askAndClear = () => {
         if (!confirm("לנקות את זיכרון המסך?\n\nיימחקו: הנתונים השמורים, הקובץ האחרון שנבחר, הסינון ומיקום הגלילה.\nקובץ ה-Excel עצמו לא ישתנה.\nיהיה צורך לבחור מחדש את קובץ ה-Excel.")) return;
@@ -1244,6 +1267,7 @@
         state.quickFilter = chip.dataset.filter;
         document.querySelectorAll(".chip").forEach((item) => item.setAttribute("aria-pressed", String(item === chip)));
         renderRows();
+        saveCache();
       }));
       document.querySelectorAll("th.sortable").forEach((th) => {
         const applySort = () => {
@@ -1251,6 +1275,7 @@
           if (state.sortKey === key) state.sortDirection = state.sortDirection === "asc" ? "desc" : "asc";
           else { state.sortKey = key; state.sortDirection = "asc"; }
           render();
+          saveCache();
         };
         th.addEventListener("click", applySort);
         th.addEventListener("keydown", (event) => {

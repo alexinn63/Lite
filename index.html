@@ -728,7 +728,7 @@ body{font-family:'Heebo',sans-serif;background:var(--navy);color:var(--white);mi
             <div class="gshelf male"><div class="gn" id="gM">0</div><div class="gl">גברים</div><div class="gp" id="gMPct">0%</div></div>
             <div class="donut2" id="genderDonut" onclick="toggleDetail('genderDetail')">
               <div class="donut2-ring" id="genderRing">
-                <div class="donut2-center"><div class="t1">מגדר</div></div>
+                <div class="donut2-center"><div class="t1">מגדר</div><div class="t2" id="gUnknown"></div></div>
               </div>
             </div>
             <div class="gshelf female"><div class="gn" id="gF">0</div><div class="gl">נשים</div><div class="gp" id="gFPct">0%</div></div>
@@ -1773,7 +1773,8 @@ function computeStatsFor(name){
   const needs=rows.filter(r=>needsRehabPlan(r)&&!isDefense(r));
   const intM=rows.filter(r=>sameDashboardMonth(intakeDateAA(r)||intakeDateOf(r),period));
   const intY=rows.filter(r=>{const d=intakeDateAA(r)||intakeDateOf(r);return d&&d.getFullYear()===period.year;});
-  const endY=Array.isArray(ENDED2026)?(isM?ENDED2026:ENDED2026.filter(e=>!e.workshop||e.workshop===''||e.workshop===workshopKey)):[];
+  // 18.11.2026: ушедшие без סדנה больше не попадают в счётчик КАЖДОГО מדריך — только в общую картину
+  const endY=Array.isArray(ENDED2026)?(isM?ENDED2026:ENDED2026.filter(e=>cleanText(e.workshop)===workshopKey)):[];
 
   const bdaySorted=[...bdays].sort((a,b)=>{const da=birthDateOf(a),db=birthDateOf(b);return (da?da.getDate():99)-(db?db.getDate():99);});
   const bdayList=bdaySorted.map(p=>[nameOf(p)||'ללא שם',shortDate(birthDateOf(p))]);
@@ -1801,11 +1802,13 @@ function computeStatsFor(name){
   };
 }
 
+// 18.11.2026: имена из Excel экранируются — апостроф (ז'ניה) ломал onclick, < > ломали разметку
+function escHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c]);}
 function renderListReal(id,items,tpl){
   const el=document.getElementById(id);
   if(!el) return;
   if(!items.length){el.innerHTML='<p style="font-size:12px;color:var(--muted);margin:4px 0">אין רשומות התואמות לסינון זה</p>';return;}
-  el.innerHTML=items.map(tpl).join('');
+  el.innerHTML=items.map(x=>tpl(x.map(v=>v==null?v:escHtml(v)))).join('');
 }
 
 // 30.07.2026: постоянный индикатор под кнопкой "החלפת קובץ EXCEL" — показывает,
@@ -1850,12 +1853,17 @@ function renderPersonDashboardReal(name){
   document.getElementById('svcTotal').textContent=d.total+' פעילים · קטגוריות עשויות לחפוף';
   document.getElementById('gF').textContent=d.f;
   document.getElementById('gM').textContent=d.m;
+  // 18.11.2026: проценты считаются отдельно; не указанный пол не приписывается женщинам
   const malePct=d.total?Math.round(d.m/d.total*100):0;
-  const femalePct=d.total?100-malePct:0;
+  const femalePct=d.total?Math.round(d.f/d.total*100):0;
+  const unknownGender=Math.max(0,d.total-d.m-d.f);
   document.getElementById('gMPct').textContent=malePct+'%';
   document.getElementById('gFPct').textContent=femalePct+'%';
   const ring=document.getElementById('genderRing');
-  if(ring) ring.style.background='conic-gradient(var(--male) 0 '+malePct+'%, var(--female) '+malePct+'% 100%)';
+  const mEnd=d.total?d.m/d.total*100:0, fEnd=d.total?(d.m+d.f)/d.total*100:0;
+  if(ring) ring.style.background='conic-gradient(var(--male) 0 '+mEnd+'%, var(--female) '+mEnd+'% '+fEnd+'%, #d5dbe3 '+fEnd+'% 100%)';
+  const gUnk=document.getElementById('gUnknown');
+  if(gUnk) gUnk.textContent=unknownGender?('לא צוין: '+unknownGender):'';
   document.getElementById('ageAvg').textContent='גיל ממוצע '+(d.ageAvg!=null?d.ageAvg:'—');
   const ageRows=document.querySelectorAll('#dash .age-row .val');
   const ageFills=document.querySelectorAll('#dash .age-row .fill');
@@ -1864,7 +1872,7 @@ function renderPersonDashboardReal(name){
     if(ageRows[i]) ageRows[i].textContent=v;
     if(ageFills[i]) ageFills[i].style.width=Math.round(v/maxAge*100)+'%';
   });
-  renderListReal('bdayListEl', d.bdayList, x=>`<div class="bday-row" onclick="playHappyBirthday('${x[0]}')"><span class="av">${x[0].slice(0,2)}</span><span>${x[0]}</span><span class="d">${x[1]}</span></div>`);
+  renderListReal('bdayListEl', d.bdayList, x=>`<div class="bday-row" onclick="playHappyBirthday()"><span class="av">${x[0].slice(0,2)}</span><span>${x[0]}</span><span class="d">${x[1]}</span></div>`);
   renderListReal('endListEl', d.endList, x=>`<div class="drow"><span>${x[0]}</span><span>${x[1]}</span></div>`);
   renderListReal('intakeListEl', d.intakeList, x=>`<div class="bday-row" style="cursor:default"><span class="av" style="background:var(--blue)">${x[0].slice(0,2)}</span><span>${x[0]}</span><span class="d">${x[1]}</span></div>`);
   renderListReal('yearListEl', d.yearList, x=>`<div class="drow"><span>${x[0]}</span><span>${x[1]}</span></div>`);
