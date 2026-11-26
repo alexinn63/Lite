@@ -1834,6 +1834,7 @@ function buildSavedHtml() {
     if (cloneTts) cloneTts.remove();
     var cloneMic = cloneDoc.getElementById('micBtn');
     if (cloneMic) cloneMic.remove();
+    ['draftSavedIndicator', 'storageWarning'].forEach(function (id) { var x = cloneDoc.getElementById(id); if (x) x.remove(); });
     restoreScript.textContent =
         'window.__isSavedCopy = true;' +
         'window.addEventListener("load", function() {' +
@@ -2083,6 +2084,8 @@ function buildSavedHtml() {
     document.addEventListener('change', function() { formIsDirty = true; });
 
     window.addEventListener('beforeunload', function(e) {
+        // 26.11.2026: קודם שומרים טיוטה. אם נשמרה – יוצאים בלי השאלה "לצאת מהאתר?"
+        try { if (typeof savePlanDraftNow === 'function' && savePlanDraftNow()) formIsDirty = false; } catch (err) {}
         if (formIsDirty) {
             e.preventDefault();
             e.returnValue = '';
@@ -2284,17 +2287,22 @@ function planDraftIsEmpty(d) {
     );
 }
 
+// מחזיר true אם אין מה לאבד (הטיוטה נשמרה או שהטופס ריק)
 function savePlanDraftNow() {
-    if (window.__isSavedCopy || !planDraftReady) return;
+    if (window.__isSavedCopy) return false;
+    if (!planDraftReady) return true; // לא הוקלד כלום מאז הכניסה – הטיוטה הקודמת שמורה כמו שהיא
     try {
         const d = collectFormData();
         delete d.signatureImage;
-        if (planDraftIsEmpty(d)) { localStorage.removeItem(PLAN_DRAFT_KEY); return; }
+        if (planDraftIsEmpty(d)) { localStorage.removeItem(PLAN_DRAFT_KEY); hideDraftSavedIndicator(); return true; }
         if (safeSetItem(PLAN_DRAFT_KEY, JSON.stringify({ data: d, savedAt: Date.now() }))) {
             hideStorageWarning();
             showDraftSavedIndicator();
+            if (typeof formIsDirty !== 'undefined') formIsDirty = false;
+            return true;
         }
     } catch (e) { console.warn('draft save failed', e); showStorageWarning(); }
+    return false;
 }
 
 // 26.11.2026: חיווי קטן "✓ טיוטה נשמרה" – כדי לראות מיד אם השמירה האוטומטית עובדת
@@ -2304,11 +2312,20 @@ function showDraftSavedIndicator() {
         el = document.createElement('div');
         el.id = 'draftSavedIndicator';
         el.className = 'no-print';
-        el.style.cssText = 'position:fixed;bottom:10px;left:10px;z-index:9999;background:#2e7d52;color:#fff;padding:4px 10px;border-radius:8px;font-size:13px;opacity:.85;direction:rtl';
+        el.setAttribute('aria-hidden', 'true');
+        el.style.cssText = 'position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:9999;background:#2e7d52;color:#fff;padding:8px 18px;border-radius:20px;font-size:16px;font-weight:600;box-shadow:0 2px 10px rgba(0,0,0,.25);direction:rtl;transition:opacity .3s';
         document.body.appendChild(el);
+        // הודעה קולית רק בפעם הראשונה – כדי לא להפריע בכל הקלדה
+        if (typeof announce === 'function') announce('הטופס נשמר כטיוטה. אפשר לצאת, והתוכן יחכה בכניסה הבאה.');
     }
     const t = new Date();
-    el.textContent = '✓ טיוטה נשמרה ' + t.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    el.textContent = '💾 נשמר כטיוטה · ' + t.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) + ' · אפשר לצאת בבטחה';
+    el.style.display = '';
+    el.style.opacity = '1';
+}
+function hideDraftSavedIndicator() {
+    const el = document.getElementById('draftSavedIndicator');
+    if (el) el.style.display = 'none';
 }
 
 function schedulePlanDraftSave() {
