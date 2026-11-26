@@ -620,6 +620,49 @@ button,
 }
 
 
+/* 19.11.2026: כפתור שליחה במייל + גיבוי טיוטות */
+.email-btn {
+  background: linear-gradient(180deg,#3a8f6a,#2e7d52) !important;
+  color: #ffffff !important;
+  min-width: 116px !important;
+  box-shadow: 0 6px 16px rgba(46,125,82,.30) !important;
+}
+.email-btn:hover { box-shadow: 0 10px 22px rgba(46,125,82,.38) !important; }
+.drafts-btn {
+  background: #fff8ec !important; color: #5c4a1a !important;
+  border: 1.5px solid #c9a84c !important; box-shadow: none !important; min-width: 116px !important;
+}
+.drafts-overlay{position:fixed;inset:0;background:rgba(15,30,58,.45);display:none;align-items:center;justify-content:center;z-index:9999}
+.drafts-overlay.show{display:flex}
+.drafts-box{background:#fff;border-radius:14px;padding:20px 22px;width:min(560px,92vw);max-height:80vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3)}
+.drafts-box h2{margin:0 0 6px;font-size:19px}
+.drafts-box p.hint{margin:0 0 12px;font-size:13.5px;color:#555}
+.drafts-list{list-style:none;margin:0;padding:0}
+.drafts-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #d9e3f0;border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.drafts-list .meta{font-size:14px}
+.drafts-list .meta small{display:block;color:#666;font-size:12.5px}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+@media print{.drafts-overlay,.email-btn,.drafts-btn{display:none!important}}
+
+/* 19.11.2026: כל כפתורי הסרגל בשורה אחת */
+.actions-main{flex-wrap:nowrap!important;gap:6px!important;justify-content:space-between!important}
+.actions-main .actions-right,.actions-main .actions-left{flex-wrap:nowrap!important;gap:6px!important}
+.actions-main button{min-width:0!important;padding:8px 10px!important;font-size:14px!important;white-space:nowrap!important;height:42px!important}
+.actions-main .finance-icon-btn{width:42px!important;padding:4px!important}
+@media (max-width:800px){.actions-main,.actions-main .actions-right,.actions-main .actions-left{flex-wrap:wrap!important}}
+
+/* 19.11.2026: הקראה בקול */
+.tts-toggle{position:fixed;bottom:16px;left:16px;z-index:9000;width:52px;height:52px;border-radius:50%!important;font-size:24px!important;padding:0!important;justify-content:center;background:#fff!important;color:#174f82!important;border:2px solid #a9c8e8!important;box-shadow:0 4px 14px rgba(0,0,0,.18)!important}
+.tts-toggle.off{opacity:.6}
+@media print{.tts-toggle{display:none!important}}
+
+/* 19.11.2026: הכתבה קולית */
+.mic-btn{position:fixed;bottom:80px;left:16px;z-index:9000;width:52px;height:52px;border-radius:50%!important;font-size:24px!important;padding:0!important;justify-content:center;background:#fff!important;color:#174f82!important;border:2px solid #a9c8e8!important;box-shadow:0 4px 14px rgba(0,0,0,.18)!important}
+.mic-btn.listening{background:#d64550!important;color:#fff!important;border-color:#d64550!important;animation:micPulse 1.2s infinite}
+@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(214,69,80,.5)}100%{box-shadow:0 0 0 16px rgba(214,69,80,0)}}
+.dictating{outline:3px solid #d64550!important;outline-offset:2px}
+@media print{.mic-btn{display:none!important}}
+
 /* כפתור שמירה כ-HTML */
 .html-btn {
   background: linear-gradient(135deg, var(--primary-dark), var(--navy)) !important;
@@ -788,6 +831,17 @@ button, .excel-button {
         <button type="button" class="mini-btn ghost" onclick="discardPlanDraft()">התחלה מחדש</button>
       </div>
     </div>
+    <div id="srStatus" class="sr-only" role="status" aria-live="polite"></div>
+    <button type="button" id="micBtn" class="mic-btn no-print" onmousedown="event.preventDefault()" onclick="toggleDictation()" aria-label="הכתבה קולית לשדה הנבחר. קיצור מקלדת F9" title="הכתבה קולית (F9)">🎤</button>
+    <button type="button" id="ttsToggle" class="tts-toggle no-print" onclick="toggleTts()" aria-pressed="true" aria-label="הקראה בקול של הודעות: פועלת. לחיצה לכיבוי" title="הקראה בקול">🔊</button>
+    <div class="drafts-overlay no-print" id="draftsOverlay" role="dialog" aria-modal="true" aria-labelledby="draftsTitle">
+      <div class="drafts-box">
+        <h2 id="draftsTitle">🗂️ טיוטות שמורות</h2>
+        <p class="hint">גיבוי אוטומטי של 15 הטיוטות האחרונות במחשב הזה (לכל מקבל שירות בנפרד), נשמר 30 יום. בחירה בטיוטה תחליף את מה שמופיע כרגע בטופס – והתוכן הנוכחי יישמר קודם בגיבוי.</p>
+        <ul class="drafts-list" id="draftsList"></ul>
+        <div style="text-align:left;margin-top:10px"><button type="button" class="mini-btn ghost" onclick="closeDraftsList()">סגירה</button></div>
+      </div>
+    </div>
 
     <div class="grid">
       <div>
@@ -838,7 +892,8 @@ button, .excel-button {
     <div class="actions actions-main no-print">
       <div class="actions-right">
         <button class="secondary" onclick="addGoalSection()"><span style="font-size:18px;font-weight:500;color:white;">＋</span> הוסף מטרה</button>
-        <button class="clear-btn" onclick="clearForm()">🗑️ נקה טופס</button>
+        <button class="clear-btn" onclick="clearForm()" aria-label="ניקוי הטופס. התוכן נשמר בגיבוי ואפשר לשחזר">🗑️ נקה טופס</button>
+        <button type="button" class="drafts-btn" onclick="openDraftsList()" aria-label="טיוטות שמורות – שחזור עבודה קודמת">🗂️ טיוטות</button>
       </div>
       <div class="actions-left">
 
@@ -850,6 +905,7 @@ button, .excel-button {
         <button class="print-btn" onclick="printForm()">🖨️ הדפסה</button>
         <button class="pdf-btn" onclick="printPdf()">📄 שמירה כ-PDF</button>
         <button id="saveHtmlBtn" class="html-btn" onclick="saveAsHtml()">💾 שמירה כ-HTML</button>
+        <button id="emailBtn" type="button" class="email-btn" onclick="sendByEmail()" aria-label="שליחה במייל או בוואטסאפ כקובץ">✉️ שלח במייל</button>
       </div>
     </div>
 
@@ -918,8 +974,50 @@ button, .excel-button {
       catch { return []; }
     }
 
+    // 26.11.2026: כתיבה בטוחה ל-localStorage. אם הזיכרון מלא – מקצרים את היסטוריית הטיוטות ומנסים שוב,
+    // ואם עדיין לא מצליח – מציגים אזהרה גלויה (ולא נכשלים בשקט).
+    function isQuotaError(e) {
+      return e && (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e.code === 22 || e.code === 1014);
+    }
+    function safeSetItem(key, value) {
+      try { localStorage.setItem(key, value); return true; }
+      catch (e) {
+        if (!isQuotaError(e)) { console.warn('storage error', e); showStorageWarning(); return false; }
+        try {
+          const H = 'rehabPlanDraftHistory_v1';
+          let hist = JSON.parse(localStorage.getItem(H) || '[]');
+          while (Array.isArray(hist) && hist.length > 0) {
+            hist = hist.slice(0, Math.floor(hist.length / 2));
+            if (key === H) return false;
+            localStorage.setItem(H, JSON.stringify(hist));
+            try { localStorage.setItem(key, value); return true; } catch (e2) { if (!isQuotaError(e2)) break; }
+          }
+        } catch (e3) {}
+        showStorageWarning();
+        return false;
+      }
+    }
+    function showStorageWarning() {
+      let el = document.getElementById('storageWarning');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'storageWarning';
+        el.className = 'no-print';
+        el.setAttribute('role', 'alert');
+        el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b00020;color:#fff;padding:10px 14px;font-size:16px;text-align:center;direction:rtl';
+        el.textContent = '⚠ הזיכרון של הדפדפן במחשב הזה מלא – הטיוטה לא נשמרת אוטומטית! יש לשמור את הקובץ בכפתור השמירה.';
+        (document.body || document.documentElement).appendChild(el);
+        if (typeof announce === 'function') announce(el.textContent);
+      }
+      el.style.display = '';
+    }
+    function hideStorageWarning() {
+      const el = document.getElementById('storageWarning');
+      if (el) el.style.display = 'none';
+    }
+
     function setArray(key, value) {
-      localStorage.setItem(key, JSON.stringify([...new Set(value.filter(Boolean))]));
+      return safeSetItem(key, JSON.stringify([...new Set(value.filter(Boolean))]));
     }
 
     function refreshDatalists() {
@@ -1090,8 +1188,10 @@ button, .excel-button {
     }
 
     function clearForm() {
-      if (!confirm('לנקות את הטופס? רשימות היעדים והלקוחות השמורות לא יימחקו.')) return;
+      if (!confirm('לנקות את הטופס?\nהתוכן הנוכחי יישמר בגיבוי (כפתור 🗂️ טיוטות) ואפשר יהיה לשחזר אותו.')) return;
+      if (typeof archiveCurrentForm === 'function') archiveCurrentForm();
       if (typeof clearPlanDraft === 'function') clearPlanDraft();
+      if (typeof announce === 'function') announce('הטופס נוקה. אפשר לשחזר דרך כפתור טיוטות.');
       applyForm({
       planDate: todayISO(),
       goals: [
@@ -1316,7 +1416,36 @@ const SHARED_CLIENTS_KEY = 'rehab_excel_clients_v1';
 let excelClientGuideMap = {};
 
 function normalizeNameForMatch(value) {
-    return String(value || '').trim().replace(/\s+/g, ' ');
+    // 26.11.2026: מסירים גם תווים בלתי נראים (סימוני כיוון RTL/LTR, רווח קשיח, zero-width) שמגיעים מ-Excel
+    return String(value || '')
+        .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]/g, '')
+        .replace(/[\u00A0\s]+/g, ' ')
+        .replace(/["'`׳״]/g, '')
+        .trim();
+}
+// מפתח השוואה שלא תלוי בסדר המילים (שם פרטי/משפחה)
+function nameKey(value) {
+    return normalizeNameForMatch(value).split(' ').filter(Boolean).sort().join(' ');
+}
+const CLIENT_GUIDE_MAP_KEY = 'rehabClientGuideMap_v1';
+function readLocalGuideMap() {
+    try { return JSON.parse(localStorage.getItem(CLIENT_GUIDE_MAP_KEY) || '{}') || {}; } catch (e) { return {}; }
+}
+function rememberGuideForClient(client, guide) {
+    const m = readLocalGuideMap();
+    m[nameKey(client)] = guide;
+    safeSetItem(CLIENT_GUIDE_MAP_KEY, JSON.stringify(m));
+}
+// מוצא את האפשרות הקיימת ברשימה גם אם ב-Excel כתוב רק שם פרטי או בסדר הפוך
+function matchGuideOption(guideName) {
+    const g = normalizeNameForMatch(guideName);
+    if (!g) return '';
+    const opts = [...document.getElementById('workshopGuide').options].map(o => normalizeNameForMatch(o.value || o.textContent)).filter(Boolean);
+    const exact = opts.find(o => o === g || nameKey(o) === nameKey(g));
+    if (exact) return exact;
+    const gWords = g.split(' ');
+    const partial = opts.filter(o => { const ow = o.split(' '); return gWords.every(w => ow.includes(w)) || ow.every(w => gWords.includes(w)); });
+    return partial.length === 1 ? partial[0] : '';
 }
 
 function firstValue(obj, keys) {
@@ -1337,6 +1466,7 @@ function setSharedDataStatus(text, isError) {
 function addGuideOptionIfMissing(guideName) {
     const guide = normalizeNameForMatch(guideName);
     if (!guide) return;
+    if (matchGuideOption(guide)) return;
     const select = document.getElementById('workshopGuide');
     const exists = [...select.options].some(opt => normalizeNameForMatch(opt.value || opt.textContent) === guide);
     if (!exists) {
@@ -1348,12 +1478,22 @@ function addGuideOptionIfMissing(guideName) {
 }
 
 function normalizeSharedClient(c) {
-    const name = normalizeNameForMatch(firstValue(c, [
+    let name = normalizeNameForMatch(firstValue(c, [
         'name', 'clientName', 'shem', 'שם מקבל השרות', 'שם מקבל השירות'
     ]));
-    const guide = normalizeNameForMatch(firstValue(c, [
+    if (!name && c) {
+        const k = Object.keys(c).find(k => normalizeNameForMatch(k).includes('שם מקבל'));
+        if (k) name = normalizeNameForMatch(c[k]);
+    }
+    let guide = normalizeNameForMatch(firstValue(c, [
         'guide', 'sadna', 'workshopGuide', 'סדנה', 'מדריך'
     ]));
+    // 26.11.2026: אם כותרת העמודה שונה מעט (למשל "מדריך הסדנה", "שם המדריך", "סדנה " עם רווח)
+    if (!guide && c) {
+        const keys = Object.keys(c);
+        const k = keys.find(k => normalizeNameForMatch(k).includes('מדריך')) || keys.find(k => normalizeNameForMatch(k).includes('סדנה'));
+        if (k) guide = normalizeNameForMatch(c[k]);
+    }
     const id = normalizeNameForMatch(firstValue(c, [
         'id', 'tz', 'teudatZehut', 'תעודת זהות'
     ]));
@@ -1405,7 +1545,12 @@ async function loadExcelInForm(input) {
             headers.forEach((k, i) => { if (k) o[k] = arr[i] ?? ''; });
             return o;
         });
+        // 26.11.2026: שומרים את הקובץ שנטען (רק שם/מדריך/ת"ז – כדי לא למלא את הזיכרון),
+        // כדי שבכניסה הבאה לטופס לא יהיה צורך לצרף אותו שוב
+        const slim = clients.map(normalizeSharedClient).filter(c => c.name);
+        const ok = safeSetItem(FORM_EXCEL_KEY, JSON.stringify({ savedAt: Date.now(), source: file.name, clients: slim }));
         loadClientsFromSharedData(clients, file.name);
+        if (!ok) setSharedDataStatus('הקובץ נטען, אבל לא נשמר לפעם הבאה – הזיכרון של הדפדפן מלא', true);
     } catch (err) {
         console.error('Form Excel load error:', err);
         setSharedDataStatus('שגיאה: ' + (err.message || err), true);
@@ -1414,15 +1559,32 @@ async function loadExcelInForm(input) {
     }
 }
 
+const FORM_EXCEL_KEY = 'rehabPlanFormExcel_v1';
+function readFormExcel() {
+    try { const o = JSON.parse(localStorage.getItem(FORM_EXCEL_KEY) || 'null'); return o && Array.isArray(o.clients) ? o : null; }
+    catch (e) { return null; }
+}
+
 function loadClientsFromSharedData(clientsOverride, sourceName) {
-    const clients = (clientsOverride || readSharedClients()).map(normalizeSharedClient).filter(c => c.name);
+    let src = clientsOverride;
+    if (!src) {
+        // נתונים מהמסך הראשי + קובץ שצורף בעבר ישירות בטופס הזה (הקובץ שצורף בטופס גובר)
+        const shared = readSharedClients();
+        const formX = readFormExcel();
+        src = shared.concat(formX ? formX.clients : []);
+        if (formX && formX.clients.length) {
+            const dt = new Date(formX.savedAt);
+            sourceName = (formX.source || 'Excel') + ' (נשמר ' + dt.toLocaleDateString('he-IL') + ')' + (shared.length ? ' + המסך הראשי' : '');
+        }
+    }
+    const clients = src.map(normalizeSharedClient).filter(c => c.name);
     excelClientGuideMap = {};
 
     const clientNames = [];
     clients.forEach(c => {
         clientNames.push(c.name);
         if (c.guide) {
-            excelClientGuideMap[c.name] = c.guide;
+            excelClientGuideMap[nameKey(c.name)] = c.guide;
             addGuideOptionIfMissing(c.guide);
         }
     });
@@ -1458,17 +1620,20 @@ function applyPersonDataFromKlitaIfExists() {
     }
     if (guide && guideEl && !normalizeNameForMatch(guideEl.value)) {
         addGuideOptionIfMissing(guide);
-        guideEl.value = guide;
+        guideEl.value = matchGuideOption(guide) || guide;
     }
     updateWrittenWith();
 }
 
 function updateGuideFromClientName() {
-    const client = normalizeNameForMatch(document.getElementById('clientName').value);
-    const guide  = excelClientGuideMap[client];
+    const client = document.getElementById('clientName').value;
+    if (!normalizeNameForMatch(client)) return;
+    const key = nameKey(client);
+    // קודם Excel, ואם אין – מה שנבחר בעבר לאותו אדם במחשב הזה
+    const guide = excelClientGuideMap[key] || readLocalGuideMap()[key];
     if (guide) {
         addGuideOptionIfMissing(guide);
-        document.getElementById('workshopGuide').value = guide;
+        document.getElementById('workshopGuide').value = matchGuideOption(guide) || normalizeNameForMatch(guide);
         updateWrittenWith();
     }
 }
@@ -1479,8 +1644,15 @@ document.addEventListener('change', function(e) {
 document.addEventListener('input', function(e) {
     if (e.target.id === 'clientName') updateGuideFromClientName();
 });
+// 26.11.2026: זכירת מדריך לכל מקבל שירות במחשב הזה (גם בלי Excel)
+document.addEventListener('change', function(e) {
+    if (e.target.id !== 'workshopGuide') return;
+    const client = normalizeNameForMatch(document.getElementById('clientName').value);
+    if (client && e.target.value) rememberGuideForClient(client, e.target.value);
+});
 
-loadClientsFromSharedData();
+try { loadClientsFromSharedData(); }
+catch (err) { console.error('loadClientsFromSharedData failed', err); setSharedDataStatus('שגיאה בטעינת הנתונים: ' + (err.message || err), true); }
 
 
 // ── AB update guard before saving HTML ─────────────────────────────
@@ -1528,26 +1700,92 @@ async function confirmExcelABUpdatedBeforeSave() {
     var msg =
         clientName + ' | ' + dateForExcel + '\n\n' +
         (copied
-            ? 'תאריך התוכנית הועתק.\n\n'
-            : 'יש להעתיק ידנית את התאריך.\n\n') +
-        'יש להדביק ב-Excel עמודה AB\n' +
-        'ולחץ המשך.';
+            ? '✓ הנתונים הועתקו.\n\n'
+            : 'ההעתקה האוטומטית נכשלה – יש להעתיק ידנית את התאריך: ' + dateForExcel + '\n\n') +
+        'יש להדביק אותם בקובץ "בסיס נתונים", בעמודה AB,\n' +
+        'ולאחר מכן ללחוץ "אישור".';
 
     return confirm(msg);
 }
 
-async function saveAsHtml() {
-    // --- Validation ---
+async function validateBeforeExport() {
     const clientVal = document.getElementById('clientName')?.value.trim();
     const planVal   = document.getElementById('planDate')?.value;
     if (!clientVal || !planVal) {
         alert('יש למלא שם מקבל השירות ותאריך לפני השמירה.');
-        return;
+        return false;
     }
+    return await confirmExcelABUpdatedBeforeSave();
+}
 
-    const abConfirmed = await confirmExcelABUpdatedBeforeSave();
-    if (!abConfirmed) return;
+async function saveAsHtml() {
+    if (!(await validateBeforeExport())) return;
+    var built = buildSavedHtml();
+    var blob = new Blob([built.htmlContent], { type: 'text/html;charset=utf-8' });
+    var url  = URL.createObjectURL(blob);
+    var a    = document.createElement('a');
+    a.href     = url;
+    a.download = built.fileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() {
+        URL.revokeObjectURL(url); a.remove();
+        afterSuccessfulExport(document.getElementById('saveHtmlBtn'), '✓ נשמר!');
+    }, 0);
+}
 
+// ── 19.11.2026: ✉ שליחה במייל — Web Share עם קובץ HTML אמיתי (כמו בתיעוד_שיחות) ──
+async function sendByEmail() {
+    if (!(await validateBeforeExport())) return;
+    var built = buildSavedHtml();
+    var file = null;
+    try { file = new File([built.htmlContent], built.fileName, { type: 'text/html' }); } catch (e) {}
+    var title = 'תוכנית שיקום – ' + (built.savedData.clientName || '');
+    if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+            await navigator.share({ title: title, text: title, files: [file] });
+            afterSuccessfulExport(document.getElementById('emailBtn'), '✓ נשלח');
+            return;
+        } catch (err) {
+            if (err && err.name === 'AbortError') return; // המשתמש ביטל
+        }
+    }
+    // גיבוי: הורדת הקובץ ופתיחת מייל — יש לצרף את הקובץ שירד ידנית
+    var blob = new Blob([built.htmlContent], { type: 'text/html;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = built.fileName;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); a.remove(); }, 3000);
+    alert('הדפדפן לא תומך בשיתוף ישיר.\nהקובץ "' + built.fileName + '" ירד לתיקיית ההורדות.\nעכשיו ייפתח מייל חדש – יש לצרף אליו את הקובץ.');
+    window.location.href = 'mailto:?subject=' + encodeURIComponent(title) +
+        '&body=' + encodeURIComponent('מצורפת ' + title + ' (קובץ ' + built.fileName + ').');
+    afterSuccessfulExport(document.getElementById('emailBtn'), '✓ הקובץ ירד');
+}
+
+function afterSuccessfulExport(btn, label) {
+    formIsDirty = false;
+    // לא מוחקים את הטיוטה לגמרי – היא נשארת בגיבוי (🗂️ טיוטות)
+    if (typeof archiveCurrentForm === 'function') archiveCurrentForm();
+    if (typeof clearPlanDraft === 'function') clearPlanDraft();
+    var sigSection = document.getElementById('signatureSection');
+    if (sigSection) {
+        sigSection.style.display = '';
+        sigSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    if (typeof announce === 'function') announce(label);
+    if (btn) {
+        const orig = btn.innerHTML;
+        btn.innerHTML = label;
+        btn.style.setProperty('background', '#2e7d52', 'important');
+        setTimeout(function() {
+            btn.innerHTML = orig;
+            btn.style.removeProperty('background');
+        }, 2200);
+    }
+}
+
+function buildSavedHtml() {
     updateWrittenWith();
     updateDocumentTitleForPdf();
 
@@ -1590,6 +1828,12 @@ async function saveAsHtml() {
     var restoreScript = cloneDoc.createElement('script');
     var cloneBanner = cloneDoc.getElementById('draftBanner');
     if (cloneBanner) cloneBanner.classList.remove('show');
+    var cloneOv = cloneDoc.getElementById('draftsOverlay');
+    if (cloneOv) cloneOv.classList.remove('show');
+    var cloneTts = cloneDoc.getElementById('ttsToggle');
+    if (cloneTts) cloneTts.remove();
+    var cloneMic = cloneDoc.getElementById('micBtn');
+    if (cloneMic) cloneMic.remove();
     restoreScript.textContent =
         'window.__isSavedCopy = true;' +
         'window.addEventListener("load", function() {' +
@@ -1635,35 +1879,7 @@ async function saveAsHtml() {
         return [client, followDate].filter(Boolean).join(' ') + '.html';
     })();
 
-    var blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-    var url  = URL.createObjectURL(blob);
-    var a    = document.createElement('a');
-    a.href     = url;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.click();
-
-    setTimeout(function() {
-        URL.revokeObjectURL(url); a.remove();
-        formIsDirty = false;
-        if (typeof clearPlanDraft === 'function') clearPlanDraft();
-        // Reveal signature section now that the form is saved
-        var sigSection = document.getElementById('signatureSection');
-        if (sigSection) {
-            sigSection.style.display = '';
-            sigSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-        const btn = document.getElementById('saveHtmlBtn');
-        if (btn) {
-            const orig = btn.innerHTML;
-            btn.innerHTML = '✓ נשמר!';
-            btn.style.setProperty('background', '#2e7d52', 'important');
-            setTimeout(function() {
-                btn.innerHTML = orig;
-                btn.style.removeProperty('background');
-            }, 2200);
-        }
-    }, 0);
+    return { htmlContent: htmlContent, fileName: fileName, savedData: savedData };
 }
 
     // ── WACOM Signature Pad ────────────────────────────────────────────
@@ -2074,8 +2290,25 @@ function savePlanDraftNow() {
         const d = collectFormData();
         delete d.signatureImage;
         if (planDraftIsEmpty(d)) { localStorage.removeItem(PLAN_DRAFT_KEY); return; }
-        localStorage.setItem(PLAN_DRAFT_KEY, JSON.stringify({ data: d, savedAt: Date.now() }));
-    } catch (e) { console.warn('draft save failed', e); }
+        if (safeSetItem(PLAN_DRAFT_KEY, JSON.stringify({ data: d, savedAt: Date.now() }))) {
+            hideStorageWarning();
+            showDraftSavedIndicator();
+        }
+    } catch (e) { console.warn('draft save failed', e); showStorageWarning(); }
+}
+
+// 26.11.2026: חיווי קטן "✓ טיוטה נשמרה" – כדי לראות מיד אם השמירה האוטומטית עובדת
+function showDraftSavedIndicator() {
+    let el = document.getElementById('draftSavedIndicator');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'draftSavedIndicator';
+        el.className = 'no-print';
+        el.style.cssText = 'position:fixed;bottom:10px;left:10px;z-index:9999;background:#2e7d52;color:#fff;padding:4px 10px;border-radius:8px;font-size:13px;opacity:.85;direction:rtl';
+        document.body.appendChild(el);
+    }
+    const t = new Date();
+    el.textContent = '✓ טיוטה נשמרה ' + t.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
 function schedulePlanDraftSave() {
@@ -2109,12 +2342,264 @@ function restorePlanDraft() {
     if (typeof updateWrittenWith === 'function') updateWrittenWith();
     if (typeof updateDocumentTitleForPdf === 'function') updateDocumentTitleForPdf();
     planDraftReady = true;
+    announce('הטיוטה שוחזרה');
 }
 
 function discardPlanDraft() {
+    const old = readPlanDraft();
+    if (old && old.data) pushPlanHistory(old.data, old.savedAt);
     clearPlanDraft();
     planDraftReady = true;
 }
+
+// ── 19.11.2026: גיבוי היסטוריה – טיוטה לא נמחקת לעולם בלי עותק ──
+const PLAN_HISTORY_KEY = 'rehabPlanDraftHistory_v1';
+const PLAN_HISTORY_MAX = 15;
+const PLAN_HISTORY_DAYS = 30;
+
+// ── 19.11.2026: הכתבה קולית בעברית (Web Speech API – עובד ב-Chrome) ──
+let dictRec = null, dictOn = false, dictTarget = null, lastTextField = null;
+document.addEventListener('focusin', function (e) {
+    const t = e.target;
+    if (t && (t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && /^(text|search|)$/i.test(t.type || '')))) lastTextField = t;
+});
+function beep(freq, ms) {
+    try {
+        const C = window.AudioContext || window.webkitAudioContext; if (!C) return;
+        const ctx = beep.ctx || (beep.ctx = new C());
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.frequency.value = freq; g.gain.value = 0.15;
+        o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + ms / 1000);
+    } catch (e) {}
+}
+function dictPunct(t) {
+    return t
+        .replace(/\s*שורה חדשה\s*/g, '\n')
+        .replace(/\s*(^|\s)נקודה(?=\s|$)/g, '.')
+        .replace(/\s*(^|\s)פסיק(?=\s|$)/g, ',')
+        .replace(/\s*(^|\s)סימן שאלה(?=\s|$)/g, '?');
+}
+function insertDictated(el, text) {
+    if (!el || !text) return;
+    const start = el.selectionStart ?? el.value.length, end = el.selectionEnd ?? el.value.length;
+    const before = el.value.slice(0, start), after = el.value.slice(end);
+    const sep = (before && !/[\s\n]$/.test(before) && !/^[.,?]/.test(text)) ? ' ' : '';
+    el.value = before + sep + text + after;
+    const pos = (before + sep + text).length;
+    try { el.setSelectionRange(pos, pos); } catch (e) {}
+    el.dispatchEvent(new Event('input', { bubbles: true }));
+}
+function setMicUi(on) {
+    const b = document.getElementById('micBtn'); if (!b) return;
+    b.classList.toggle('listening', on);
+    b.textContent = on ? '⏹' : '🎤';
+    b.setAttribute('aria-label', on ? 'מקשיב. לחיצה או F9 לעצירה' : 'הכתבה קולית לשדה הנבחר. קיצור מקלדת F9');
+    if (dictTarget) dictTarget.classList.toggle('dictating', on);
+}
+function stopDictation(silent) {
+    dictOn = false;
+    try { dictRec && dictRec.stop(); } catch (e) {}
+    setMicUi(false);
+    if (!silent) { beep(440, 150); setTimeout(function(){ speak('ההכתבה הסתיימה'); }, 250); }
+}
+function toggleDictation() {
+    if (dictOn) { stopDictation(); return; }
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { alert('ההכתבה הקולית לא נתמכת בדפדפן הזה.\nיש לפתוח את הטופס בדפדפן Chrome.'); return; }
+    const el = (document.activeElement && document.activeElement.tagName === 'TEXTAREA') ? document.activeElement : lastTextField;
+    if (!el || !document.body.contains(el)) { alert('יש לעמוד קודם בשדה שבו רוצים לכתוב, ואז ללחוץ על המיקרופון.'); return; }
+    dictTarget = el; el.focus();
+    if ('speechSynthesis' in window) speechSynthesis.cancel(); // שהמיקרופון לא יקלוט את ההקראה
+    dictRec = new SR();
+    dictRec.lang = 'he-IL';
+    dictRec.continuous = true;
+    dictRec.interimResults = false;
+    dictRec.onresult = function (ev) {
+        for (let i = ev.resultIndex; i < ev.results.length; i++) {
+            if (ev.results[i].isFinal) insertDictated(dictTarget, dictPunct(ev.results[i][0].transcript.trim()));
+        }
+    };
+    dictRec.onerror = function (ev) {
+        const map = {
+            'not-allowed': 'אין הרשאה למיקרופון. יש לאשר גישה למיקרופון בחלון של הדפדפן.',
+            'service-not-allowed': 'אין הרשאה למיקרופון. יש לאשר גישה למיקרופון בחלון של הדפדפן.',
+            'network': 'ההכתבה דורשת חיבור לאינטרנט, או שהדפדפן לא תומך בה. מומלץ לפתוח ב-Chrome.',
+            'language-not-supported': 'הדפדפן הזה לא תומך בהכתבה בעברית. יש לפתוח את הטופס ב-Chrome.',
+            'audio-capture': 'לא נמצא מיקרופון במחשב.'
+        };
+        if (ev.error === 'no-speech' || ev.error === 'aborted') return;
+        stopDictation(true);
+        alert(map[ev.error] || ('שגיאה בהכתבה: ' + ev.error));
+    };
+    dictRec.onend = function () {
+        // Chrome עוצר לבד אחרי שקט – ממשיכים להקשיב עד שהמשתמש עוצר
+        if (dictOn) { try { dictRec.start(); } catch (e) { stopDictation(true); } }
+    };
+    try { dictRec.start(); } catch (e) { alert('לא ניתן להפעיל את המיקרופון: ' + e.message); return; }
+    dictOn = true; setMicUi(true); beep(880, 150);
+}
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'F9') { e.preventDefault(); toggleDictation(); }
+    if (e.key === 'Escape' && dictOn) stopDictation();
+});
+
+// ── 19.11.2026: הקראה בקול בעברית (Web Speech API) ──
+const TTS_KEY = 'rehabPlanTts_v1';
+let ttsOn = (function(){ try { return localStorage.getItem(TTS_KEY) !== 'off'; } catch(e) { return true; } })();
+let heVoice = null;
+function pickHebrewVoice() {
+    if (!('speechSynthesis' in window)) return;
+    const vs = speechSynthesis.getVoices();
+    const he = vs.filter(v => /^he|^iw/i.test(v.lang));
+    // עדיפות לקולות "Natural/Online" של Edge – נשמעים טבעיים יותר
+    heVoice = he.find(v => /natural|online/i.test(v.name)) || he[0] || null;
+}
+if ('speechSynthesis' in window) {
+    pickHebrewVoice();
+    speechSynthesis.addEventListener && speechSynthesis.addEventListener('voiceschanged', pickHebrewVoice);
+}
+function speak(text) {
+    if (!ttsOn || !('speechSynthesis' in window) || !text) return;
+    try {
+        const clean = String(text)
+            .replace(/[\u2700-\u27BF\u2190-\u21FF\u2B00-\u2BFF\u2600-\u26FF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]|\uFE0F/g, '')
+            .replace(/\|/g, ',').replace(/\n+/g, '. ').replace(/["“”]/g, '').trim();
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(clean);
+        u.lang = 'he-IL';
+        if (heVoice) u.voice = heVoice;
+        u.rate = 0.95;
+        speechSynthesis.speak(u);
+    } catch (e) {}
+}
+function updateTtsButton() {
+    const b = document.getElementById('ttsToggle'); if (!b) return;
+    b.textContent = ttsOn ? '🔊' : '🔇';
+    b.classList.toggle('off', !ttsOn);
+    b.setAttribute('aria-pressed', ttsOn ? 'true' : 'false');
+    b.setAttribute('aria-label', ttsOn ? 'הקראה בקול של הודעות: פועלת. לחיצה לכיבוי' : 'הקראה בקול של הודעות: כבויה. לחיצה להפעלה');
+}
+function toggleTts() {
+    ttsOn = !ttsOn;
+    try { localStorage.setItem(TTS_KEY, ttsOn ? 'on' : 'off'); } catch(e) {}
+    updateTtsButton();
+    if (ttsOn) speak('הקראה בקול הופעלה'); else if ('speechSynthesis' in window) speechSynthesis.cancel();
+}
+// כל הודעה (alert / confirm) מוקראת בקול לפני שהחלון נפתח
+(function () {
+    const _alert = window.alert.bind(window), _confirm = window.confirm.bind(window);
+    window.alert = function (m) { speak(m); return _alert(m); };
+    window.confirm = function (m) { speak(m); return _confirm(m); };
+})();
+
+function announce(text) {
+    speak(text);
+    const el = document.getElementById('srStatus');
+    if (!el) return;
+    el.textContent = '';
+    setTimeout(function () { el.textContent = text; }, 50);
+}
+
+function readPlanHistory() {
+    try {
+        const arr = JSON.parse(localStorage.getItem(PLAN_HISTORY_KEY) || '[]');
+        const minTs = Date.now() - PLAN_HISTORY_DAYS * 86400000;
+        return Array.isArray(arr) ? arr.filter(x => x && x.data && x.savedAt >= minTs) : [];
+    } catch (e) { return []; }
+}
+
+function draftSize(d) {
+    try { return JSON.stringify(d.goals || []).replace(/"[a-zA-Z]+":|[\[\]{},"]/g, '').length + (d.clientName || '').length; }
+    catch (e) { return 0; }
+}
+
+// שומר עותק בהיסטוריה. לכל מקבל שירות – רשומה אחת עדכנית (+ עותקים קודמים אם הם גדולים יותר)
+function pushPlanHistory(d, savedAt) {
+    if (!d || planDraftIsEmpty(d) || window.__isSavedCopy) return;
+    try {
+        let hist = readPlanHistory();
+        const name = (d.clientName || '').trim();
+        const size = draftSize(d);
+        // מחליפים את הרשומה האחרונה של אותו אדם, אלא אם היא הייתה גדולה משמעותית (אז שומרים את שתיהן)
+        const idx = hist.findIndex(x => (x.data.clientName || '').trim() === name);
+        if (idx !== -1 && draftSize(hist[idx].data) <= size + 20) hist.splice(idx, 1);
+        hist.unshift({ data: d, savedAt: savedAt || Date.now() });
+        hist = hist.slice(0, PLAN_HISTORY_MAX);
+        // אם אין מקום – שומרים פחות עותקים במקום להיכשל
+        while (hist.length) {
+            try { localStorage.setItem(PLAN_HISTORY_KEY, JSON.stringify(hist)); break; }
+            catch (e) { if (!isQuotaError(e)) throw e; hist = hist.slice(0, hist.length - 1); }
+        }
+    } catch (e) { console.warn('history save failed', e); }
+}
+
+function archiveCurrentForm() {
+    try { const d = collectFormData(); delete d.signatureImage; pushPlanHistory(d); } catch (e) {}
+}
+
+let planHistoryTimer = null;
+function schedulePlanHistory() {
+    if (window.__isSavedCopy) return;
+    clearTimeout(planHistoryTimer);
+    planHistoryTimer = setTimeout(archiveCurrentForm, 4000);
+}
+
+function openDraftsList() {
+    const list = document.getElementById('draftsList');
+    const hist = readPlanHistory();
+    const pending = readPlanDraft();
+    const items = [];
+    if (pending && pending.data && !planDraftIsEmpty(pending.data)) items.push({ data: pending.data, savedAt: pending.savedAt, current: true });
+    hist.forEach(h => items.push(h));
+    list.innerHTML = '';
+    if (!items.length) {
+        list.innerHTML = '<li><span class="meta">אין טיוטות שמורות במחשב הזה.</span></li>';
+    }
+    items.forEach(function (it, i) {
+        const dt = new Date(it.savedAt);
+        const nm = (it.data.clientName || '').trim() || '(ללא שם)';
+        const goals = (it.data.goals || []).filter(g => (g.name || '').trim()).length;
+        const li = document.createElement('li');
+        li.innerHTML = '<span class="meta"><b></b><small></small></span>';
+        li.querySelector('b').textContent = nm + (it.current ? ' – טיוטה אחרונה' : '');
+        li.querySelector('small').textContent = dt.toLocaleDateString('he-IL') + ' ' +
+            dt.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' }) + ' · ' + goals + ' מטרות';
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'mini-btn primary'; b.textContent = 'שחזור';
+        b.setAttribute('aria-label', 'שחזור טיוטה של ' + nm + ' מתאריך ' + dt.toLocaleDateString('he-IL'));
+        b.onclick = function () { restoreFromItem(it); };
+        li.appendChild(b);
+        list.appendChild(li);
+    });
+    document.getElementById('draftsOverlay').classList.add('show');
+    const first = list.querySelector('button') || document.querySelector('#draftsOverlay .ghost');
+    if (first) first.focus();
+}
+
+function closeDraftsList() {
+    document.getElementById('draftsOverlay').classList.remove('show');
+}
+
+function restoreFromItem(it) {
+    archiveCurrentForm(); // מה שבטופס עכשיו – לגיבוי לפני ההחלפה
+    const d = it.data;
+    applyForm(d);
+    const fd = document.getElementById('followDate');
+    if (fd && d.followDate) fd.value = d.followDate;
+    const sig = document.getElementById('signature');
+    if (sig && d.signature !== undefined) sig.value = d.signature;
+    if (typeof updateWrittenWith === 'function') updateWrittenWith();
+    if (typeof updateDocumentTitleForPdf === 'function') updateDocumentTitleForPdf();
+    planDraftReady = true;
+    const b = document.getElementById('draftBanner'); if (b) b.classList.remove('show');
+    savePlanDraftNow();
+    closeDraftsList();
+    announce('הטיוטה של ' + ((d.clientName || '').trim() || 'ללא שם') + ' שוחזרה');
+}
+
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') { const o = document.getElementById('draftsOverlay'); if (o && o.classList.contains('show')) closeDraftsList(); }
+});
 
 function initPlanDraft() {
     if (window.__isSavedCopy) return;
@@ -2130,17 +2615,29 @@ function initPlanDraft() {
     }
     planDraftReady = !(draft && draft.data && !planDraftIsEmpty(draft.data));
     ['input', 'change'].forEach(ev => document.addEventListener(ev, function () {
-        if (!planDraftReady) { planDraftReady = true; const b = document.getElementById('draftBanner'); if (b) b.classList.remove('show'); }
+        if (!planDraftReady) {
+            // התחילו להקליד בלי לבחור – הטיוטה הישנה עוברת לגיבוי ולא נמחקת
+            const old = readPlanDraft();
+            if (old && old.data) pushPlanHistory(old.data, old.savedAt);
+            planDraftReady = true;
+            const b = document.getElementById('draftBanner'); if (b) b.classList.remove('show');
+            announce('הטיוטה הקודמת נשמרה בגיבוי, כפתור טיוטות');
+        }
         schedulePlanDraftSave();
+        schedulePlanHistory();
     }));
     document.addEventListener('click', function (e) {
         if (e.target.closest && e.target.closest('#draftBanner')) return;
         schedulePlanDraftSave();
     });
-    window.addEventListener('beforeunload', savePlanDraftNow);
+    window.addEventListener('beforeunload', function () { savePlanDraftNow(); if (planDraftReady) archiveCurrentForm(); });
+    window.addEventListener('pagehide', function () { savePlanDraftNow(); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) savePlanDraftNow(); });
+    if (planDraftReady === false) announce('נמצאה טיוטה שמורה. ללחוץ על שחזור טיוטה');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  updateTtsButton();
   initPlanDraft();
   fillOrgNames();
   fillStaffNames();
